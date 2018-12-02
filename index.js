@@ -46,18 +46,16 @@ const refresh = () => {
 
 refresh();
 
-const modkeys = {
-    Shift: 'up',
-};
 // Any single-char key is probably okay...right?
 const inputkeys = /^.$/u;
 
 document.onkeydown = (event) => {
+    if (event.metaKey || event.ctrlKey) {
+        return;
+    }
     let key = event.key;
     let not_handled;
-    if (modkeys[key]) {
-        modkeys[key] = 'down';
-    } else if (key == 'Backspace') {
+    if (key == 'Backspace') {
         innercode = innercode.substring(0, innercode.length - 1);
     } else if (key == 'Enter') {
         innercode += '\n';
@@ -72,11 +70,4 @@ document.onkeydown = (event) => {
         event.preventDefault();
     }
     refresh();
-};
-
-document.onkeyup = (event) => {
-    let key = event.key;
-    if (modkeys[key]) {
-        modkeys[key] = 'up';
-    }
 };
