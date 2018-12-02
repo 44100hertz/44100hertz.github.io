@@ -46,22 +46,17 @@ const refresh = () => {
 
 refresh();
 
-// Any single-char key is probably okay...right?
-const inputkeys = /^.$/u;
-
 document.onkeydown = (event) => {
-    if (event.metaKey || event.ctrlKey) {
-        return;
-    }
     let key = event.key;
     let not_handled;
+    let input = () => !event.ctrlKey && !event.metaKey && /^.$/u.test(key);
     if (key == 'Backspace') {
         innercode = innercode.substring(0, innercode.length - 1);
     } else if (key == 'Enter') {
         innercode += '\n';
     } else if (key == 'Tab') {
         innercode += ';';
-    } else if (inputkeys.test(event.key)) {
+    } else if (input()) {
         innercode += key;
     } else {
         not_handled = true;
