@@ -1,6 +1,5 @@
 // TODO: cursor navigation
 // TODO: compile and run code
-// TODO: clean up innercode for better editing (i.e. ;;;; comments)
 
 let code = document.getElementById('code');
 let screen = document.getElementById('screen').getContext('2d');
@@ -8,13 +7,14 @@ let innercode = code.innerHTML;
 
 const format = (lines) => lines.split('\n')
       .map(format_line)
-      .reduce((acc, v) => acc + v);
+      .reduce((acc, v) => acc + '\n' + v)
+      .concat('<div id="cursor">|</div>');
 
 const format_line = (line) => {
-    const [, code, comment] = line.match(/([^;]*)[;\s]*(.*)/);
+    const [, code, semi, comment] = line.match(/([^;]*)\s*(;?)(.*)/);
     // special case for single-line comment
     if (code === '' && comment !== '') {
-        return `<div class=c_comment> ;;; ${comment}</div>\n`;
+        return `<div class=c_comment> ;;; ${comment}</div>`;
     }
     const [, label, rest] = code.match(/(\w+:|)\s*(.*)/);
 
@@ -25,10 +25,10 @@ const format_line = (line) => {
           '<div class="c_separator"> </div>' :
           `<div class="c_opcode">${rest}</div>`;
 
-    const comment_code = comment === '' ? '' :
+    const comment_code = semi === '' ? '' :
           `<div class="c_comment">; ${comment}</div>`;
 
-    return label_code + code_code + comment_code + '\n';
+    return label_code + code_code + comment_code;
 };
 
 const tick = () => {

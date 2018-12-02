@@ -58,6 +58,17 @@ h1 {
     border-color: darkgrey;
 }
 
+#cursor {
+    display: inline;
+    animation: 0.5s linear infinite cursor_blink;
+    
+}
+
+@keyframes cursor_blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 #run {
     padding: 5pt 20pt;
     width: 100%;
