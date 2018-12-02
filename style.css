@@ -1,0 +1,128 @@
+body {
+    background-image: url("bg.png");
+}
+
+#mainflex {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap-reverse;
+    margin-left: 2vw;
+    margin-right: 2vw;
+}
+
+* {
+    font-family: "DejaVu Sans Mono", consolas, monospace;
+    font-size: 12pt;
+}
+
+h1 {
+    background-color: black;
+    color: white;
+    width: 50%;
+    font-size: 20pt;
+    text-align: center;
+    margin: 10px;
+}
+
+.code {
+    margin: 0pt 0pt 0pt 0pt;
+    flex: 1 1 40em;
+    height: 40em;
+    resize: vertical;
+    min-width: 20em;
+
+    background-color: #ffd;
+    overflow: scroll;
+    border: none;
+    padding: 10pt;
+}
+
+.emulator {
+    flex: 1 1 256px;
+    min-width: 64px;
+    max-width: calc(100vmin - 80px);
+}
+
+#screen {
+    margin: auto;
+    width: calc(100% - 30pt);
+    max-height: calc(100vmin - 80px);
+    background-color: thistle;
+    border: 15pt;
+    border-style: solid;
+    border-color: darkgrey;
+}
+
+#run {
+    padding: 5pt 20pt;
+    width: 100%;
+    font-size: 20pt;
+    background-color: lightgrey;
+}
+
+#run:active {
+    background-color: red;
+    color: white;
+}
+
+.c_label {
+    display: inline-block;
+    color: deeppink;
+    width: 7em;
+    text-align: right;
+    margin-right: 1em;
+}
+
+.c_separator {
+    display: inline-block;
+    background-color: darkgray;
+    width: 11em;
+    height: 2pt;
+    transform: translate(0, 6pt);
+}
+
+.c_opcode {
+    display: inline-block;
+    color: darkred;
+    width: 12em;
+}
+
+.c_colon {
+    display: inline;
+    color: lightblue;
+}
+
+.c_quote {
+    display: inline;
+    color: seagreen;
+}
+
+.c_comment {
+    display: inline;
+    color: peru;
+}
+
+@media (max-width: 750px) {
+    * {
+        font-size: 3vw;
+    }
+
+    #code {
+        padding: 2vw;
+    }
+
+    .c_label {
+        text-align: left;
+        display: block;
+    }
+
+    .c_opcode {
+        display: block;
+        transform: translate(5vw, 0pt);
+    }
+
+    .c_comment {
+        display: block;
+        transform: translate(10vw, 0pt);
+    }
+}

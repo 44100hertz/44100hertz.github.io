@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Editor, Assembler and Emulator</title>
+        <link rel="stylesheet" href="style.css">
+        <h1>Online Fictional Computer</h1>
+    </head>
+    <body>
+        <div id="mainflex">
+            <pre id="code" class="code">
+hello   "Hello, world", 0
+
+main
+        lod r0 hello  ; load pointer to string
+        call printstr ; call string printing method
+        brk           ; exit program
+
+printstr
+loop    bez *r0 done  ; check for null terminator
+        sto *r0 reg_putc ; write char to debug register
+        inc r0        ; increment pointer
+        jmp loop      ; repeat for next char
+done    ret
+            </pre>
+            <div class="emulator">
+                <canvas id="screen" width="64" height="64"></canvas><br>
+                <button id="run">▶</button>
+            </div>
+            <script src="index.js"></script>
+        </div>
+    </body>
+</html>
