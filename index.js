@@ -35,20 +35,11 @@ refresh();
 const modkeys = {
     Shift: 'up',
 };
-
-const inputkeys = /^[a-zA-Z; ]$/;
-const shifted = {
-    1:'!',2:'@',3:'#',4:'$',5:'%',
-    6:'^',7:'&',8:'*',9:'(',0:')'};
-
-const shiftlayer = (k) => shifted[k] || k;
+const inputkeys = /^[a-zA-Z;: ]$/;
 
 document.onkeydown = (event) => {
     let key = event.key;
     let not_handled;
-    if (modkeys.Shift === 'down') {
-        key = shiftlayer(key);
-    }
     if (modkeys[key]) {
         modkeys[key] = 'down';
     } else if (key == 'Backspace') {

@@ -23,8 +23,7 @@ loop:   bez *r0 done  ; check for null terminator
         sto *r0 reg_putc ; write char to debug register
         inc r0        ; increment pointer
         jmp loop      ; repeat for next char
-done:   ret
-            </pre>
+done:   ret</pre>
             <div class="emulator">
                 <canvas id="screen" width="64" height="64"></canvas><br>
                 <button id="run">▶</button>
