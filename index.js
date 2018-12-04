@@ -30,8 +30,8 @@ const new_line = (label = '', code = '', comment = '') => {
 const blank_line = new_line();
 
 const format_line = (line, lineno) => {
-    let [, contents, comment] = line.match(/([^;]*)(.*)/);
-    let [, label, code] = contents.match(/(\w+:|)\s*(.*)/);
+    let [, contents, comment] = line.match(/([^;]*);?(.*)/);
+    let [, label, code] = contents.match(/^(\w+|):?\s*(.*)/);
     return new_line(label, code, comment);
 };
 

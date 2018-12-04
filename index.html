@@ -12,18 +12,18 @@
         <div id="mainflex">
             <div id="codepane" tabindex="0" class="border">
                 <pre id="prettycode">
-hello:"Hello, world", 0
+hello "Hello, world", 0
 
-main:lod r0 hello;load pointer to string
+main lod r0 hello;load pointer to string
  call printstr;call string printing method
  brk;exit program
 
-printstr:
-loop:bez *r0 done;check for null terminator
+printstr
+loop bez *r0 done;check for null terminator
  sto *r0 reg_putc;write char to debug register
  inc r0;increment pointer
  jmp loop;repeat for next char
-done:ret
+done ret
                 </pre>
             </div>
             <div id="emulator" tabindex="1" class="border">
