@@ -48,8 +48,13 @@ const clear_cursor = () => {
 
 const draw_cursor = () => {
     const field = getfield();
+    const fieldlen = field.innerHTML.length;
+
     field.insertAdjacentHTML('beforebegin', '<div id="cursor">█</div>');
     field.parentNode.style.backgroundColor = '#e0f0e8';
+
+    const pos = Math.min(cur_char, fieldlen);
+    document.getElementById('cursor').style.left = pos + 'ch';
 };
 
 document.onkeydown = (event) => {
@@ -58,30 +63,48 @@ document.onkeydown = (event) => {
     let key = event.key;
     let not_handled;
     const field = getfield();
+    const fieldlen = field.innerHTML.length;
+
+    const clamp_cur_char = () =>
+          cur_char = Math.max(0, Math.min(fieldlen, cur_char));
 
     let is_input = () => !event.ctrlKey && !event.metaKey && /^.$/u.test(key);
-    if (key == 'Backspace') {
-        const i = field.innerHTML;
-        field.innerHTML = i.substring(0, i.length - 1);
-    } else if (key == 'ArrowDown') {
+
+    // TODO: come up with clean editing strategy BEFORE implementing more keys
+
+    if (key == 'ArrowDown') {
         ++cur_line;
     } else if (key == 'ArrowUp') {
         --cur_line;
     } else if (key == 'ArrowLeft') {
-        ++cur_char;
-    } else if (key == 'ArrowRight') {
         --cur_char;
+        clamp_cur_char();
+    } else if (key == 'ArrowRight') {
+        ++cur_char;
+        clamp_cur_char();
     } else if (key == 'Enter') {
         getline().insertAdjacentHTML('afterend', blank_line);
         ++cur_line;
     } else if (key == 'Tab') {
         const offset = event.shiftKey ? -1 : 1;
         cur_field = (cur_field + offset + col_order.length) % col_order.length;
+    } else if (key == 'Backspace') {
+        if (cur_char > 0 && fieldlen > 0) {
+            const pos = Math.min(cur_char, fieldlen);
+            const i = field.innerHTML;
+            const [l, r] = [i.substring(0, pos-1), i.substring(pos)];
+            field.innerHTML = l + r;
+            --cur_char;
+        }
     } else if (is_input()) {
-        field.innerHTML += key;
+        const i = field.innerHTML;
+        const [l, r] = [i.substring(0, cur_char), i.substring(cur_char)];
+        field.innerHTML = l + key + r;
+        ++cur_char;
     } else {
         not_handled = true;
     }
+    cur_line = Math.min(prettycode.childNodes.length-1, Math.max(0, cur_line));
     if (!not_handled) {
         event.preventDefault();
     }
