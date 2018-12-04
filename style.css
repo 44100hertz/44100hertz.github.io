@@ -1,4 +1,4 @@
-html, body {
+html {
     margin: 0;
     width: 100%;
     height: 100%;
@@ -16,9 +16,8 @@ canvas {
 #mainflex {
     display: flex;
     flex-flow: row wrap-reverse;
-    justify-content: space-between;
+    align-items: start;
     margin: 0 2vw;
-    height: 100%;
 }
 
 * {
@@ -26,10 +25,14 @@ canvas {
     font-size: 12pt;
 }
 
+.border {
+    border: black 5px solid;
+}
+
 h1 {
-    background-color: black;
+    display: block;
     color: white;
-    width: 50%;
+    background-color: black;
     font-size: 20pt;
     text-align: center;
     margin: 10px;
@@ -37,16 +40,20 @@ h1 {
 
 #codepane {
     flex: 40ch 1 1;
-    margin: 0;
-    align-self: start;
+    margin: 0px 10px;
 
     background-color: ivory;
     padding: 10pt;
 }
 
-.emulator {
+.border:focus {
+    border-color: #e22;
+}
+
+#emulator {
     flex: auto 1 2;
     max-width: calc(100vmin - 70px);
+    background-color: black;
 }
 
 #screen {

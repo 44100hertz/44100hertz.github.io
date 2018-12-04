@@ -10,7 +10,7 @@
         <h1>Online Fictional Computer</h1>
         <img src="construction.gif" style="position: fixed; top: 2px; right: 2px;"></img>
         <div id="mainflex">
-            <div id="codepane">
+            <div id="codepane" tabindex="0" class="border">
                 <pre id="prettycode">
 hello:"Hello, world", 0
 
@@ -26,8 +26,8 @@ loop:bez *r0 done;check for null terminator
 done:ret
                 </pre>
             </div>
-            <div class="emulator">
-                <canvas id="screen" width="64" height="64"></canvas><br>
+            <div id="emulator" tabindex="1" class="border">
+                <canvas id="screen" width="64" height="64"></canvas>
                 <button id="run">▶</button>
             </div>
         </div>

@@ -2,6 +2,7 @@
 // TODO: partial updates (split inner code into div list)
 // TODO: compile and run code
 
+let codepane = document.getElementById('codepane');
 let prettycode = document.getElementById('prettycode');
 let screen = document.getElementById('screen').getContext('2d');
 
@@ -88,4 +89,5 @@ document.onkeydown = (event) => {
 };
 
 prettycode.innerHTML = create_page_format(prettycode.innerHTML);
+codepane.focus();
 draw_cursor();
