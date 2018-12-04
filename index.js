@@ -13,42 +13,51 @@ const col_order = ['label', 'code', 'comment'];
 
 const create_page_format = (code, lineno=0) => code.split('\n')
       .map((l) => format_line(l, ++lineno))
-      .join('\n');
+      .join('');
 
 // inner format:
 // f0x1 -- line 0, field 1
 // l0   -- line 0 wrapper
-const new_line = (lineno, label = '', code = '', comment = '') => {
+const new_line = (label = '', code = '', comment = '') => {
     const cols_by_name = {label, code, comment};
     const cols = col_order.map((name, col) => {
         const contents = cols_by_name[name];
-        return `<div class="${name}" id="f${lineno}x${col}">${contents}</div>`;
+        return `<div class="${name}">${contents}</div>`;
     }).join('');
-    const odd = lineno % 2 == 0 ? 'oddline' : '';
-    return `<div class="codeline ${odd}" id=l${lineno}>${cols}</div>`;
+    return `<div class="codeline"}>${cols}</div>`;
 };
+const blank_line = new_line();
 
 const format_line = (line, lineno) => {
     let [, contents, comment] = line.match(/([^;]*)(.*)/);
     let [, label, code] = contents.match(/(\w+:|)\s*(.*)/);
-    return new_line(lineno, label, code, comment);
+    return new_line(label, code, comment);
 };
 
-const getfield = (line = cur_line, field = cur_field) =>
-      document.getElementById(`f${cur_line}x${cur_field}`);
+const getline = (line = cur_line) => prettycode.childNodes[line];
+const getfield = (line, field = cur_field) => getline(line).childNodes[field];
+
+const clear_cursor = () => {
+    const old = document.getElementById('cursor');
+    if (old) {
+        old.parentNode.style.backgroundColor = '';
+        old.remove();
+    }
+};
 
 const draw_cursor = () => {
-    const old = document.getElementById('cursor');
-    if (old) old.remove();
     const field = getfield();
     field.insertAdjacentHTML('beforebegin', '<div id="cursor">█</div>');
+    field.parentNode.style.backgroundColor = '#e0f0e8';
 };
 
 document.onkeydown = (event) => {
-    // HACK: just delete the cursor except when needed
+    clear_cursor();
+
     let key = event.key;
     let not_handled;
     const field = getfield();
+
     let is_input = () => !event.ctrlKey && !event.metaKey && /^.$/u.test(key);
     if (key == 'Backspace') {
         const i = field.innerHTML;
@@ -62,7 +71,8 @@ document.onkeydown = (event) => {
     } else if (key == 'ArrowRight') {
         --cur_char;
     } else if (key == 'Enter') {
-        prettycode.innerHTML += new_line();
+        getline().insertAdjacentHTML('afterend', blank_line);
+        ++cur_line;
     } else if (key == 'Tab') {
         if (event.shiftKey) --cur_field; else ++cur_field;
     } else if (is_input()) {
