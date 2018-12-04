@@ -10,25 +10,28 @@
         <h1>Online Fictional Computer</h1>
         <img src="construction.gif" style="position: fixed; top: 2px; right: 2px;"></img>
         <div id="mainflex">
-            <pre id="code" class="code">
-hello:  "Hello, world", 0
+            <div id="codepane">
+                <div id="cursor">█</div>
+                <pre id="prettycode">
+hello:"Hello, world", 0
 
-main:
-        lod r0 hello  ;load pointer to string
-        call printstr ;call string printing method
-        brk           ;exit program
+main:lod r0 hello;load pointer to string
+ call printstr;call string printing method
+ brk;exit program
 
 printstr:
-loop:   bez *r0 done  ;check for null terminator
-        sto *r0 reg_putc ;write char to debug register
-        inc r0        ;increment pointer
-        jmp loop      ;repeat for next char
-done:   ret</pre>
+loop:bez *r0 done;check for null terminator
+ sto *r0 reg_putc;write char to debug register
+ inc r0;increment pointer
+ jmp loop;repeat for next char
+done:ret
+                </pre>
+            </div>
             <div class="emulator">
                 <canvas id="screen" width="64" height="64"></canvas><br>
                 <button id="run">▶</button>
             </div>
-            <script src="index.js"></script>
         </div>
+        <script src="index.js"></script>
     </body>
 </html>

@@ -1,47 +1,61 @@
-// TODO: cursor navigation
+// TODO: cursor-based editing
 // TODO: compile and run code
 
-let code = document.getElementById('code');
+let prettycode = document.getElementById('prettycode');
 let screen = document.getElementById('screen').getContext('2d');
-let innercode = code.innerHTML;
+let cursor = document.getElementById('cursor');
+// prettycode.innerHTML contains sample code
+let innercode = prettycode.innerHTML;
 
-const format = (lines) => lines.split('\n')
-      .map(format_line)
-      .reduce((acc, v) => acc + '\n' + v)
-      .concat('<div id="cursor">|</div>');
+const edit_pos = {x: 1, y: 5, colx: 1, col: 1};
 
-const format_line = (line) => {
-    const [, code, semi, comment] = line.match(/([^;]*)\s*(;?)(.*)/);
-    // special case for single-line comment
-    if (code === '' && comment !== '') {
-        return `<div class=c_comment> ;;; ${comment}</div>`;
+const code_column = 10;
+const comment_column = 30;
+
+const col_order = ['label', 'code', 'comment'];
+
+const format_lines = (lines, lineno=0) => lines.split('\n')
+      .map((l) => format_line(l, ++lineno));
+
+const format_line = (line, lineno) => {
+    let [, contents, comment] = line.match(/([^;]*)(.*)/);
+    let [, label, code] = contents.match(/(\w+:|)\s*(.*)/);
+
+    // HACK: set cursor pos as side effect
+    if (edit_pos.y == lineno) {
+        const ep = edit_pos;
+        const setpos = (content, rootcol) => {
+            ep.field_width = content.length + 1;
+            ep.x = rootcol + Math.min(ep.colx, ep.field_width);
+        };
+        const col_conf = [
+            [label, 0],
+            [code, code_column],
+            [comment, comment_column],
+        ];
+        setpos(...col_conf[ep.col]);
     }
-    const [, label, rest] = code.match(/(\w+:|)\s*(.*)/);
 
-    const label_code = `<div class="c_label">${label}</div>`;
-
-    // special case for label w/o code
-    const code_code = label !== '' && rest === '' ?
-          '<div class="c_separator"> </div>' :
-          `<div class="c_opcode">${rest}</div>`;
-
-    const comment_code = semi === '' ? '' :
-          `<div class="c_comment">; ${comment}</div>`;
-
-    return label_code + code_code + comment_code;
+    return `<div class="c branchlabel">${label}</div>` +
+        `<div class="c opcode">${code}</div>` +
+        `<div class="c comment">${comment}</div>`;
 };
 
 const tick = () => {
-    setTimeout(tick, 40);
     const coord = () => Math.floor(Math.random() * 64);
     const col = () => Math.random() * 256;
     screen.fillRect(coord(), coord(), 1, 1);
 };
 
-tick();
+setInterval(tick, 40);
 
 const refresh = () => {
-    code.innerHTML = format(innercode);
+    const lines = format_lines(innercode);
+    edit_pos.y = Math.max(1, Math.min(edit_pos.y, lines.length));
+    prettycode.innerHTML = lines.join('\n');
+    cursor.style.left = `${edit_pos.x - 1}ch`;
+    // HACK: fixed line height
+    cursor.style.top = `${edit_pos.y * 18}px`;
 };
 
 refresh();
@@ -52,15 +66,26 @@ document.onkeydown = (event) => {
     let input = () => !event.ctrlKey && !event.metaKey && /^.$/u.test(key);
     if (key == 'Backspace') {
         innercode = innercode.substring(0, innercode.length - 1);
+    } else if (key == 'ArrowDown') {
+        // HACK: Y clamped in refresh to be aware of doc lines
+        ++edit_pos.y;
+    } else if (key == 'ArrowUp') {
+        --edit_pos.y;
+    } else if (key == 'ArrowLeft') {
+        edit_pos.colx = Math.max(
+            1, Math.min(edit_pos.field_width, edit_pos.colx)-1) ;
+    } else if (key == 'ArrowRight') {
+        edit_pos.colx = Math.min(edit_pos.field_width, edit_pos.colx+1);
     } else if (key == 'Enter') {
         innercode += '\n';
     } else if (key == 'Tab') {
-        innercode += ';';
+        if (event.shiftKey) --edit_pos.col; else ++edit_pos.col;
     } else if (input()) {
         innercode += key;
     } else {
         not_handled = true;
     }
+    edit_pos.col %= col_order.length;
     if (!not_handled) {
         event.preventDefault();
     }
