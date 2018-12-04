@@ -75,13 +75,13 @@ document.onkeydown = (event) => {
         getline().insertAdjacentHTML('afterend', blank_line);
         ++cur_line;
     } else if (key == 'Tab') {
-        if (event.shiftKey) --cur_field; else ++cur_field;
+        const offset = event.shiftKey ? -1 : 1;
+        cur_field = (cur_field + offset + col_order.length) % col_order.length;
     } else if (is_input()) {
         field.innerHTML += key;
     } else {
         not_handled = true;
     }
-    cur_field %= col_order.length;
     if (!not_handled) {
         event.preventDefault();
     }
