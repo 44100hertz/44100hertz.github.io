@@ -35,12 +35,12 @@ h1 {
     background-color: black;
     font-size: 20pt;
     text-align: center;
-    margin: 10px;
+    margin: 10pt 4vw;
 }
 
 #codepane {
     flex: 40ch 1 1;
-    margin: 0px 10px;
+    margin-right: 10px;
 
     background-color: ivory;
     padding: 10pt;
@@ -60,9 +60,8 @@ h1 {
     width: calc(100% - 20pt);
     max-height: calc(100vmin - 70px);
     background-color: thistle;
-    border: 10pt;
-    border-style: solid;
-    border-color: darkgrey;
+    border: darkgrey 10pt solid;
+    margin-bottom: 5px;
 }
 
 #cursor {
@@ -79,7 +78,7 @@ h1 {
 }
 
 #run {
-    padding: 5pt 20pt;
+    padding: 5pt 10pt;
     width: 100%;
     font-size: 20pt;
     background-color: lightgrey;
