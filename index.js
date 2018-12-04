@@ -54,10 +54,10 @@ const draw_cursor = () => {
     field.parentNode.style.backgroundColor = '#e0f0e8';
 
     const pos = Math.min(cur_char, fieldlen);
-    document.getElementById('cursor').style.left = pos + 'ch';
+    field.previousSibling.style.left = pos + 'ch';
 };
 
-document.onkeydown = (event) => {
+codepane.onkeydown = (event) => {
     clear_cursor();
 
     let key = event.key;
