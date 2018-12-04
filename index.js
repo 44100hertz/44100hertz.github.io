@@ -1,9 +1,9 @@
-// TODO: cursor-based editing
+// TODO: editing
+// TODO: partial updates (split inner code into div list)
 // TODO: compile and run code
 
 let prettycode = document.getElementById('prettycode');
 let screen = document.getElementById('screen').getContext('2d');
-let cursor = document.getElementById('cursor');
 // prettycode.innerHTML contains sample code
 let innercode = prettycode.innerHTML;
 
@@ -20,13 +20,14 @@ const format_lines = (lines, lineno=0) => lines.split('\n')
 const format_line = (line, lineno) => {
     let [, contents, comment] = line.match(/([^;]*)(.*)/);
     let [, label, code] = contents.match(/(\w+:|)\s*(.*)/);
+    let cursor = '';
 
     // HACK: set cursor pos as side effect
     if (edit_pos.y == lineno) {
         const ep = edit_pos;
         const setpos = (content, rootcol) => {
             ep.field_width = content.length + 1;
-            ep.x = rootcol + Math.min(ep.colx, ep.field_width);
+            ep.x = Math.min(ep.colx, ep.field_width);
         };
         const col_conf = [
             [label, 0],
@@ -34,11 +35,18 @@ const format_line = (line, lineno) => {
             [comment, comment_column],
         ];
         setpos(...col_conf[ep.col]);
+        cursor = '<div id="cursor">█</div>';
     }
 
-    return `<div class="c branchlabel">${label}</div>` +
-        `<div class="c opcode">${code}</div>` +
-        `<div class="c comment">${comment}</div>`;
+    const cols_by_name = {label, code, comment};
+    const cols = col_order.map((name, col) => {
+        const contents = cols_by_name[name];
+        const c = cursor && edit_pos.col == col ? cursor : '';
+        return `${c}<div class="${name}">${contents}</div>`;
+    }).join('');
+
+    const odd = lineno % 2 == 0 ? 'oddline' : '';
+    return `<div class="codeline ${odd}">${cols}</div>`;
 };
 
 const tick = () => {
@@ -53,9 +61,8 @@ const refresh = () => {
     const lines = format_lines(innercode);
     edit_pos.y = Math.max(1, Math.min(edit_pos.y, lines.length));
     prettycode.innerHTML = lines.join('\n');
+    let cursor = document.getElementById('cursor');
     cursor.style.left = `${edit_pos.x - 1}ch`;
-    // HACK: fixed line height
-    cursor.style.top = `${edit_pos.y * 18}px`;
 };
 
 refresh();
@@ -79,6 +86,7 @@ document.onkeydown = (event) => {
     } else if (key == 'Enter') {
         innercode += '\n';
     } else if (key == 'Tab') {
+        edit_pos.colx = 1000;
         if (event.shiftKey) --edit_pos.col; else ++edit_pos.col;
     } else if (input()) {
         innercode += key;
