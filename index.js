@@ -1,32 +1,13 @@
-'use strict';
 // TODO: save/load user asm files
 // TODO: compiler
 // TODO: emulator
 
+import format from "./format.js";
+const num_cols = format.col_order.length;
+
 let codepane = document.getElementById('codepane');
 let prettycode = document.getElementById('prettycode');
 let screen = document.getElementById('screen').getContext('2d');
-
-const col_order = ['label', 'code', 'comment'];
-
-const create_page_format = (code, lineno=0) => code.split('\n')
-      .map((l) => format_line(l, ++lineno))
-      .join('');
-
-const new_line = (lineno, label = '', code = '', comment = '') => {
-    const cols_by_name = {label, code, comment};
-    const cols = col_order.map((name, col) => {
-        const contents = cols_by_name[name];
-        return `<div class="${name}">${contents}</div>`;
-    }).join('');
-    return `<div class="codeline"}>${cols}</div>`;
-};
-
-const format_line = (line, lineno) => {
-    let [, contents, comment] = line.match(/([^;]*);?(.*)/);
-    let [, label, code] = contents.match(/^(\w+|):?\s*(.*)/);
-    return new_line(lineno, label, code, comment);
-};
 
 let [cur_line, cur_field, cur_char] = [0, 0, 0];
 const getline = (line = cur_line) => prettycode.childNodes[line];
@@ -48,7 +29,7 @@ const commands = {
     },
     newline: (l) => {
         const redo = () => {
-            getline(l).insertAdjacentHTML('afterend', new_line());
+            getline(l).insertAdjacentHTML('afterend', format.new_line());
             cur_line = l+1;
         };
         const undo = () => {
@@ -79,25 +60,6 @@ const redo = () => {
     }
 };
 
-const clear_cursor = () => {
-    const old = document.getElementById('cursor');
-    if (old) {
-        old.parentNode.style.backgroundColor = '';
-        old.remove();
-    }
-};
-
-const draw_cursor = () => {
-    const field = getfield();
-    const fieldlen = field.innerHTML.length;
-
-    field.insertAdjacentHTML('beforebegin', '<div id="cursor">|</div>');
-    field.parentNode.style.backgroundColor = '#e0f0e8';
-
-    const pos = Math.min(cur_char, fieldlen);
-    field.previousSibling.style.left = pos + 'ch';
-};
-
 const clamp = (v, l, u) => Math.max(l, Math.min(u, v));
 
 const cur_move_line = (off) =>
@@ -105,7 +67,7 @@ const cur_move_line = (off) =>
 const cur_move_char = (off) =>
       cur_char = clamp(cur_char+off, 0, getfield().innerHTML.length);
 const cur_move_field = (off) =>
-      cur_field = (cur_field + off + col_order.length) % col_order.length;
+      cur_field = (cur_field + off + num_cols) % num_cols;
 
 const edit_remove = (off) => {
     const pos = Math.min(cur_char, getfield().innerHTML.length+off+1);
@@ -120,7 +82,7 @@ const edit_insert = (key) => {
 };
 
 codepane.onkeydown = (event) => {
-    clear_cursor();
+    format.clear_cursor();
 
     const is_input = (event) =>
           !event.ctrlKey && !event.metaKey && /^.$/u.test(event.key);
@@ -147,9 +109,9 @@ codepane.onkeydown = (event) => {
         event.preventDefault();
     }
 
-    draw_cursor();
+    format.draw_cursor(getfield(), cur_char);
 };
 
-prettycode.innerHTML = create_page_format(prettycode.innerHTML);
+prettycode.innerHTML = format.create_page(prettycode.innerHTML);
 codepane.focus();
-draw_cursor();
+format.draw_cursor(getfield(), cur_char);
