@@ -91,7 +91,7 @@ const draw_cursor = () => {
     const field = getfield();
     const fieldlen = field.innerHTML.length;
 
-    field.insertAdjacentHTML('beforebegin', '<div id="cursor">█</div>');
+    field.insertAdjacentHTML('beforebegin', '<div id="cursor">|</div>');
     field.parentNode.style.backgroundColor = '#e0f0e8';
 
     const pos = Math.min(cur_char, fieldlen);
@@ -107,10 +107,10 @@ const cur_move_char = (off) =>
 const cur_move_field = (off) =>
       cur_field = (cur_field + off + col_order.length) % col_order.length;
 
-const edit_remove = () => {
-    const pos = Math.min(cur_char, getfield().innerHTML.length);
+const edit_remove = (off) => {
+    const pos = Math.min(cur_char, getfield().innerHTML.length+off+1);
     if (pos > 0) {
-        do_command(['splice', cur_line, cur_field, pos-1, pos]);
+        do_command(['splice', cur_line, cur_field, pos+off, pos+off+1]);
         cur_move_char(-1);
     }
 };
@@ -137,7 +137,8 @@ codepane.onkeydown = (event) => {
         [key('Enter'),       () => do_command(['newline', cur_line])],
         [key('Tab'),         () => cur_move_field(1)],
         [key('Tab', 0, 1),   () => cur_move_field(-1)],
-        [key('Backspace'),   () => edit_remove()],
+        [key('Backspace'),   () => edit_remove(-1)],
+        [key('Delete'),      () => edit_remove(0)],
         [is_input,           () => edit_insert(event.key)],
     ];
     const match = mapping.find(([pred,]) => pred(event));

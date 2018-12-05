@@ -70,6 +70,7 @@ h1 {
     width: 0;
     height: 0;
     animation: 0.5s linear infinite cursor_blink;
+    transform: translate(-0.5ch, 0);
 }
 
 @keyframes cursor_blink {
