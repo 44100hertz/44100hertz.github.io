@@ -18,8 +18,6 @@ const REG_SP = 7;
 const REG_ZERO = REG_PC | 0x8;
 
 const ROM_START = 0x8000;
-// HACK: avoid generating nibble array (GC avoidance)
-const nib = new Uint8Array(4);
 
 class Emu {
     constructor(rom, timestamp) {
@@ -37,7 +35,9 @@ class Emu {
         }
     }
     frame (timestamp) {
+        let count = 0;
         for (; timestamp > this.next_frame; this.next_frame += frame_ms) {
+            ++count;
             for (let line = 0; line < scan_height; ++line) {
                 for (let col = 0; col < scan_width; ++col) {
                     this.cycle();
@@ -84,12 +84,12 @@ class Emu {
     }
     cycle () {
         const instr = this.next_word;
-        nib[0] = instr >> 12;
-        nib[1] = instr >> 8 & 0xf;
-        nib[2] = instr >> 4 & 0xf;
-        nib[3] = instr & 0xf;
-        if (nib[0]) {
-            switch (nib[0]) {
+        const n0 = instr >> 12;
+        const n1 = instr >> 8 & 0xf;
+        const n2 = instr >> 4 & 0xf;
+        const n3 = instr & 0xf;
+        if (n0) {
+            switch (n0) {
             case 0x1:
                 this.gram[0] = 0;
                 break;
@@ -124,8 +124,8 @@ class Emu {
             case 0xf:
                 break;
             }
-        } else if (nib[1]) {
-            switch (nib[1]) {
+        } else if (n1) {
+            switch (n1) {
             case 0x1:
                 break;
             case 0x2:
@@ -157,8 +157,8 @@ class Emu {
             case 0xf:
                 break;
             }
-        } else if (nib[2]) {
-            switch (nib[3]) {
+        } else if (n2) {
+            switch (n3) {
             case 0x1:
                 break;
             case 0x2:
@@ -190,8 +190,8 @@ class Emu {
             case 0xf:
                 break;
             }
-        } else if (nib[3]) {
-            switch (nib[3]) {
+        } else if (n3) {
+            switch (n3) {
             case 0x0: // NOP
                 break;
             case 0x1:
