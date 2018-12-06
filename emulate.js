@@ -1,4 +1,5 @@
 import * as compile from "./compile.js";
+import {names as inames} from "./instructions.js";
 
 const fps = 60.0;
 const frame_ms = 1000/fps;
@@ -8,20 +9,23 @@ const screen_area = screen_width * screen_height;
 const scan_height = 120;
 const scan_width = 120;
 const scan_area = scan_width * scan_height;
-const clockspeed = scan_area * fps; // 0.245 MHz
+const clockspeed = scan_area * fps;
 
 const screen = document.getElementById('screen');
 const canvas = screen.getContext('2d');
 
-const REG_PC = 6;
-const REG_SP = 7;
+const REG_PC = 5;
+const REG_SP = 6;
 const REG_ZERO = REG_PC | 0x8;
 
 const ROM_START = 0x8000;
 
+const signed = (a) => a & 0x8000 ? -(~a+1) : a;
+
 class Emu {
     constructor(rom, timestamp) {
         this.reg = new Uint16Array(8);
+        this.carry = false;
         this.ram = new Uint16Array(0x10000);
 
         this.gram = new Uint8Array(0x3);
@@ -35,15 +39,14 @@ class Emu {
         }
     }
     frame (timestamp) {
-        let count = 0;
         for (; timestamp > this.next_frame; this.next_frame += frame_ms) {
-            ++count;
             for (let line = 0; line < scan_height; ++line) {
+                const line_off = line * screen_width * 4;
                 for (let col = 0; col < scan_width; ++col) {
                     this.cycle();
                     if (this.break_line) break;
                     if (line < screen_height && col < screen_width) {
-                        const off = (line * screen_width + col) * 4;
+                        const off = line_off + col * 4;
                         for (let i=0; i<3; ++i) {
                             this.pixbuf.data[off+i] = this.gram[i];
                         }
@@ -68,19 +71,31 @@ class Emu {
         nib &= 0x7;
         return nib == 0x7 ? this.next_word : this.reg[nib];
     }
-    read (nib) {
+    r (nib) {
         const v = this.read_val(nib);
-        return nib == REG_ZERO ? 0 : nib & 0x8 ? this.ram[v] : v;
+        return nib == nib & 0x8 ? this.ram[v] : v;
     }
-    write (nib, v) {
+    w (nib, v) {
         // NO BAD WRITE NOPS!! I want these slots for teh futuer
         if (nib == 0x7) throw "tried to write to immediate";
-        if (nib == REG_ZERO) throw "tried to write to zero or rom addr";
         if (nib & 0x8) {
             this.ram[this.read_val(nib)] = v;
         } else {
             this.reg[nib] = v;
         }
+    }
+    w_carry (nib, v) {
+        this.w(nib, v);
+        this.carry = v > 0xffff;
+    }
+    jumpif (cond, dest) {
+        if (cond) this.reg[REG_PC] = dest;
+    }
+    push (v) {
+        this.reg[REG_SP++] = v;
+    }
+    pop () {
+        return this.mem[this.reg[--REG_SP]];
     }
     cycle () {
         const instr = this.next_word;
@@ -88,146 +103,217 @@ class Emu {
         const n1 = instr >> 8 & 0xf;
         const n2 = instr >> 4 & 0xf;
         const n3 = instr & 0xf;
+        let v;
         if (n0) {
             switch (n0) {
-            case 0x1:
-                this.gram[0] = 0;
+            case inames.and:
+                this.w_carry(n1, this.r(n2) & this.r(n3));
                 break;
-            case 0x2:
-                this.gram[0] = 255;
+            case inames.or:
+                this.w_carry(n1, this.r(n2) | this.r(n3));
                 break;
-            case 0x3:
-                this.reg[REG_PC] = ROM_START;
+            case inames.xor:
+                this.w_carry(n1, this.r(n2) ^ this.r(n3));
                 break;
-            case 0x4:
+            case inames.add:
+                this.w_carry(n1, this.r(n2) + this.r(n3));
                 break;
-            case 0x5:
+            case inames.sub:
+                this.w_carry(n1, this.r(n2) + this.r(n3));
                 break;
-            case 0x6:
+            case inames.adc:
+                this.w_carry(n1, this.r(n2) + this.r(n3) + this.carry);
                 break;
-            case 0x7:
+            case inames.sbc:
+                this.w_carry(n1, this.r(n2) - this.r(n3) + this.carry);
                 break;
-            case 0x8:
+            case inames.jeq:
+                this.jumpif(this.r(n1) == this.r(n2), this.r(n3));
                 break;
-            case 0x9:
+            case inames.jne:
+                this.jumpif(this.r(n1) != this.r(n2), this.r(n3));
                 break;
-            case 0xa:
+            case inames.jlt:
+                this.jumpif(this.r(n1) < this.r(n2), this.r(n3));
                 break;
-            case 0xb:
+            case inames.jgt:
+                this.jumpif(this.r(n1) > this.r(n2), this.r(n3));
                 break;
-            case 0xc:
+            case inames.jls:
+                this.jumpif(signed(this.r(n1)) < signed(this.r(n2)), this.r(n3));
                 break;
-            case 0xd:
-                break;
-            case 0xe:
+            case inames.jls:
+                this.jumpif(signed(this.r(n1)) < signed(this.r(n2)), this.r(n3));
                 break;
             case 0xf:
+                // maybe: idx
+                throw 'unimplemented';
                 break;
             }
         } else if (n1) {
             switch (n1) {
-            case 0x1:
+            case inames.mov:
+                this.w(n2, this.r(n3));
                 break;
-            case 0x2:
+            case inames.shr:
+                v = this.r(n3);
+                this.carry = v & 1;
+                this.w(n2, v >> 1);
                 break;
-            case 0x3:
+            case inames.srs:
+                v = this.r(n3);
+                this.carry = v & 1;
+                this.w(n2, v >>> 1);
                 break;
-            case 0x4:
+            case inames.ror:
+                v = this.r(n3);
+                this.carry = v & 1;
+                this.w(n2, v >> 1 | this.carry << 15);
                 break;
-            case 0x5:
+            case inames.shl:
+                v = this.r(n3);
+                this.carry = v & (1 << 15);
+                this.w(n2, v << 1);
                 break;
-            case 0x6:
+            case inames.rol:
+                v = this.r(n3);
+                this.carry = v & (1 << 15);
+                this.w(n2, v << 1 | this.carry);
                 break;
-            case 0x7:
+            case inames.squ:
+                v = this.r(n3);
+                this.w(n2, v*v);
                 break;
-            case 0x8:
+            case inames.inc:
+                this.w_carry(n2, this.r(n3)+1);
                 break;
-            case 0x9:
+            case inames.dec:
+                this.w_carry(n2, this.r(n3)-1);
                 break;
-            case 0xa:
+            case inames.neg:
+                this.w(n3, -this.r(n2));
                 break;
-            case 0xb:
+            case inames.poke:
+                v = this.r(n2);
+                if (v <= 3) {
+                    this.gram[v] = this.r(n3);
+                } else {
+                    throw 'bad memory poke';
+                }
                 break;
             case 0xc:
+                throw 'unimplemented';
                 break;
             case 0xd:
+                throw 'unimplemented';
                 break;
             case 0xe:
+                throw 'unimplemented';
                 break;
             case 0xf:
+                throw 'unimplemented';
                 break;
             }
         } else if (n2) {
-            switch (n3) {
-            case 0x1:
+            switch (n2) {
+            case inames.push:
+                this.push(this.r(n3));
                 break;
-            case 0x2:
+            case inames.pop:
+                this.w(n3, this.pop());
                 break;
-            case 0x3:
-                break;
-            case 0x4:
+            case inames.call:
+                const v = this.r(n3);
+                this.push(this.reg[REG_PC]);
+                this.reg[REG_PC] = v;
                 break;
             case 0x5:
                 break;
             case 0x6:
                 break;
+            case 0x6:
+                throw 'unimplemented';
+                break;
             case 0x7:
+                throw 'unimplemented';
                 break;
-            case 0x8:
+            case inames.jcc:
+                this.jumpif(!this.carry, this.r(n3));
                 break;
-            case 0x9:
+            case inames.jcs:
+                this.jumpif(this.carry, this.r(n3));
                 break;
             case 0xa:
+                throw 'unimplemented';
                 break;
             case 0xb:
+                throw 'unimplemented';
                 break;
             case 0xc:
+                throw 'unimplemented';
                 break;
             case 0xd:
+                throw 'unimplemented';
                 break;
             case 0xe:
+                throw 'unimplemented';
                 break;
             case 0xf:
+                throw 'unimplemented';
                 break;
             }
         } else if (n3) {
             switch (n3) {
-            case 0x0: // NOP
+            case inames.nop:
                 break;
-            case 0x1:
+            case inames.clc:
+                this.carry = false;
                 break;
-            case 0x2:
-                break;
-            case 0x3:
+            case inames.sec:
+                this.carry = true;
                 break;
             case 0x4:
+                throw 'unimplemented';
                 break;
             case 0x5:
+                throw 'unimplemented';
                 break;
             case 0x6:
+                throw 'unimplemented';
                 break;
             case 0x7:
+                throw 'unimplemented';
                 break;
             case 0x8:
+                throw 'unimplemented';
                 break;
             case 0x9:
+                throw 'unimplemented';
                 break;
             case 0xa:
+                throw 'unimplemented';
                 break;
             case 0xb:
+                throw 'unimplemented';
                 break;
             case 0xc:
+                throw 'unimplemented';
                 break;
-            case 0xd: // BRKLINE
+            case inames.brkline: // BRKLINE
                 this.break_line = true;
                 break;
-            case 0xe: // BRKFRAME
+            case inames.brkframe: // BRKFRAME
+                this.break_line = true;
                 this.break_frame = true;
                 break;
-            case 0xf: // BRK
+            case inames.brk: // BRK
+                this.break_line = true;
+                this.break_frame = true;
                 this.break = true;
                 break;
             }
+        } else {
+            throw 'unimplemeted';
         }
     };
 }
