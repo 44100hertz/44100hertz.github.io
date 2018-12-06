@@ -51,7 +51,7 @@ h1 {
 }
 
 #emulator {
-    flex: auto 1 2;
+    flex: 64px 1 2;
     max-width: calc(100vmin - 70px);
     background-color: black;
 }
@@ -78,14 +78,14 @@ h1 {
     50% { opacity: 0.2; }
 }
 
-#run {
+#runbutton {
     padding: 5pt 10pt;
     width: 100%;
     font-size: 20pt;
     background-color: lightgrey;
 }
 
-#run:active {
+#runbutton:active {
     background-color: red;
     color: white;
 }
