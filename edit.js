@@ -1,4 +1,5 @@
-import format from "./format.js";
+import * as format from "./format.js";
+export {};
 
 const num_cols = format.col_order.length;
 
@@ -112,5 +113,3 @@ codepane.onkeydown = (event) => {
 prettycode.innerHTML = format.create_page(prettycode.innerHTML);
 codepane.focus();
 format.draw_cursor(getfield(), cur_char);
-
-export default {};

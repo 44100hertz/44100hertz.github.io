@@ -2,5 +2,4 @@
 // TODO: compiler
 // TODO: emulator
 
-import edit from "./edit.js";
-import "./edit.js";
+import {} from "./edit.js";
