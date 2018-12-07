@@ -110,6 +110,13 @@ codepane.onkeydown = (event) => {
     format.draw_cursor(getfield(), cur_char);
 };
 
+export const get_text = () => {
+    format.clear_cursor();
+    return Array.from(prettycode.childNodes).map(
+        (child) => Array.from(child.childNodes).map(
+                (v) => v.innerHTML));
+};
+
 prettycode.innerHTML = format.create_page(prettycode.innerHTML);
 codepane.focus();
 format.draw_cursor(getfield(), cur_char);

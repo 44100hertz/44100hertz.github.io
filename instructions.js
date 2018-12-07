@@ -1,4 +1,4 @@
-export const bytes = [
+export const words = [
     [
         {},
         {name: 'and', args: ['dest', 'src', 'src']},
@@ -86,8 +86,10 @@ export const bytes = [
 ];
 
 export const names = {};
-for (let shelf of bytes) {
-    for (let byte in shelf) {
-        names[shelf[byte].name] = +byte;
+for (let shelf in words) {
+    for (let byte in words[shelf]) {
+        const name = words[shelf][byte].name;
+        names[name] = +byte;
     }
+    delete names[''];
 }

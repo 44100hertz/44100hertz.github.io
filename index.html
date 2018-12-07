@@ -13,18 +13,14 @@
         <div id="mainflex">
             <div id="codepane" tabindex="0" class="border">
                 <pre id="prettycode">
-hello "Hello, world", 0
-
-main lod r0 hello;load pointer to string
- call printstr;call string printing method
- brk;exit program
-
-printstr
-loop bez *r0 done;check for null terminator
- sto *r0 reg_putc;write char to debug register
- inc r0;increment pointer
- jmp loop;repeat for next char
-done ret
+ poke 0 a;write colors to GPU
+ poke 1 b
+ poke 2 c
+ inc a a;update colors
+ inc b b
+ add b a b
+ add c a b
+ mov pc 32768;back to start
                 </pre>
             </div>
             <div id="emulator" tabindex="1" class="border">
