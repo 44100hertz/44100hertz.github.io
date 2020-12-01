@@ -164,6 +164,10 @@ const quizdata = {
                 _answer:'Capitalism',
                 _description:'Inequality is good for who? While acknowledging in back rooms that private property does not serve the people, capitalists selfishly insist that their minority rule must be preserved.',
             },
+            'Blow everything up with nuclear weapons.': {
+                _answer:'Posadism',
+                _description:'For some reason, Posadas thought that if we were to engage in nuclear warfare, aliens would stop us and then they would establish communism.',
+            },
         },
         'Everybody, to some extent.': {
             _question:'How do we ensure that private ownership doesn\'t result in minority rule?',
