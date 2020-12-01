@@ -1,0 +1,24 @@
+body {
+  max-width: 600pt;
+  margin: auto;
+}
+
+button {
+  background-color: #9999ff;
+  padding: 8pt;
+}
+
+.quizbutton {
+  background-color: #ff9999;
+  margin-left: 20pt;
+  margin-right: 20pt;
+}
+
+.info {
+  color: gray;
+}
+
+#question {
+  background-color: white;
+  margin: 8pt;
+}
