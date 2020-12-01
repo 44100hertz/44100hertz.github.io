@@ -6,7 +6,7 @@ const marxist_branch = {
         _question:'How much revolutionary potential is in the first world?',
         'Absolutely none.': {
             _answer:'Vulgar Third Worldism',
-            _description:'Vulgar TW-ists believe that revolutionary struggles within the first world are completely invalid, rejecting the Marxist notion of revolution in developed capitalist society.',
+            _description:'This belief states that revolutionary struggles within the first world are completely invalid, rejecting the Marxist notion of revolution in developed capitalist society.',
         },
         'More than none.': {
             _question:'What will the state be composed of?',
@@ -59,7 +59,7 @@ const anarchist_branch = {
         _question:'How should things be decided?',
         'Councils of workers and everyday people.': {
             _answer:'Anarcho-Syndicalism',
-            _description:'AnSynds believe that workers should run society, but they should have an an alternative power structure to replace the state.',
+            _description:'AnSynds believe that workers should run society, but that there should be an alternative power structure to replace the state.',
         },
         'Individuals should pursue their own interests.': {
             _answer:'Egoist Anarchism',
@@ -84,11 +84,11 @@ const quizdata = {
                 _question:'How should capitalism be reformed?',
                 'The state should own some firms, or part of firms.': {
                     _answer:'State Capitalism',
-                    _description:'They believe in capitalism with partial state ownership, maybe like Russia. It is hard to call this an advance past capitalism, but I suppose it is better than nothing',
+                    _description:'This is capitalism with partial state ownership, maybe like Russia. It is hard to call this an advance past capitalism, but I suppose it is better than nothing',
                 },
                 'The state should provide free services to the people, feed the hungry, etc.': {
                     _answer:'Welfare Capitalism',
-                    _description:'They believe that we need to soften the blow of poverty and unemployment by giving to the victims of capitalism. It doesn\'t exactly solve the problem, but it could help.',
+                    _description:'We can soften the blow of poverty and unemployment by giving to the victims of capitalism. It doesn\'t solve the problem, but it can reduce suffering.',
                 },
                 'A single tax based on unimproved land rent.': {
                     _answer:'Georgism',
@@ -96,7 +96,7 @@ const quizdata = {
                 },
                 'Provide government jobs for the unemployed and pay for it by printing money.': {
                     _answer:'MMT',
-                    _description:'MMTers believe that the Modern Monetary Theory describes how money currently works, and that this theory can be used to create social programs by printing money while curbing inflation. This rejects some aspects of Marxism, specifically the LTV and currency arising from the commodity-form.',
+                    _description:'Modern Monetary Theory attemps to describe how money currently works, and that this theory can be used to create social programs by printing money while curbing inflation. This rejects some aspects of Marxism, specifically the LTV and currency arising from the commodity-form.',
                 },
             },
             'It will hold itself accountable.': {
@@ -131,11 +131,11 @@ const quizdata = {
                 _question:'After our electoral victory, what will be done?',
                 'Workers unions must take over the state.': {
                     _answer:'De Leonism',
-                    _description:'Similar to an anarcho-syndicalist, they believe a state composed of workers will arise if power is conceded to worker\'s unions through law. This relies on the existence of broad and powerful unions, which has been rendered impossible by current laws.',
+                    _description:'Similar to an anarcho-syndicalist, De Leonists believe a state composed of workers will arise if power is conceded to worker\'s unions through law. This relies on the existence of broad and powerful unions, which has been rendered impossible by current laws.',
                 },
                 'Something else.': {
                     _answer:'Democratic socialism',
-                    _description:'They want radical change to occur, but do not strike at the root of the problem. Though their goals are noble, they concede power to the capitalist class, who will prevent their success.',
+                    _description:'DemSocs want radical change to occur, but do not strike at the root of the problem. Though their goals are noble, they concede power to the capitalist class, who will prevent their success.',
                 },
             },
             'Overthrow the capitalist class.': {
@@ -144,19 +144,19 @@ const quizdata = {
                     _question:'What should the socialist state do first?',
                     'Overthrow capitalist governments abroad.': {
                         _answer:'Trotskyism',
-                        _description:'Believe that only a worldwide revolution is sustainable, Trots would hollow out their own country for the purpose of international warfare.',
+                        _description:'Believing that only a worldwide revolution is sustainable, Trots would hollow out their own country for the purpose of international warfare.',
                     },
                     'Build up their own country.': marxist_branch,
                 },
                 'A classless government.': {
                     _answer:'Ultra-leftism',
-                    _description:'Communism cannot happen right away, it would lead to labor shortages and a revolution incapable of defending itself.',
+                    _description:'Not all ultra-leftists believe this, but the belief in instant communism is one type of it. Communism cannot happen right away, it would lead to labor shortages and a revolution incapable of defending itself.',
                 },
                 'Little to no government.': anarchist_branch,
             },
             'Do not abolish private property, distribute it among the people.': {
                 _answer:'Distributism',
-                _description:'A Christian-influenced ideology, they believe that we need to distribute private property among people. This runs antithetical to the laws of capitalism, so I suppose it takes a little faith.',
+                _description:'A Christian-influenced ideology, distributists believe that we need to distribute private property among people. This runs antithetical to the laws of capitalism, so I suppose it takes a little faith.',
             },
             'We should not abolish private property, because inequality is good.': {
                 _answer:'Capitalism',
@@ -167,7 +167,7 @@ const quizdata = {
             _question:'How do we ensure that private ownership doesn\'t result in minority rule?',
             'Through a market socialist system that builds up to full socialism.': {
                 _answer:'Socialist with Chinese characteristics',
-                _description:'Like China, they believe that a partially state owned capitalist system paves an effective road to future socialism. It remains to be seen.',
+                _description:'In China they state that a partially state owned capitalist system paves an effective road to future socialism. It remains to be seen.',
             },
             'By breaking up private property into many small holdings.': {
                 _answer:'Mutualism',
@@ -175,7 +175,7 @@ const quizdata = {
             },
             'Private ownership does not have this effect.': {
                 _answer:'"Radical" Liberalism',
-                _description:'While say that we need to advance past capitalism or have some sort of revolution, Radlibs do not understand capitalism properly and therefore advocate for private property to be preserved.',
+                _description:'Saying that we need to advance past capitalism or have some sort of revolution, Radlibs do not understand capitalism properly and therefore advocate for private property to be preserved.',
             },
         },
     },
