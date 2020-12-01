@@ -50,24 +50,26 @@ const marxist_branch = {
 };
 
 const anarchist_branch = {
+    _answer: 'Anarchism',
+    _description:'Seeing the individual as the most important unit of society, anarchists believe that the contradictory chaos of individual pursuits is somehow going to best serve the individuals involved.',
     _question:'How do you view the industrial revolution?',
     'The ruin of humanity.': {
         _answer:'Anarcho-Primitivism',
-        _description:'Instead of advancing capitalism, AnPrims want to destroy it and send us back in time. I don\'t look forward to this.',
+        _description:'Instead of advancing capitalism, AnPrims want to send us back in time. I don\'t look forward to this.',
     },
     'The advancement of humanity.': {
         _question:'How should things be decided?',
+        'We will figure it out when we get there.': {
+            _answer:'Anarchism without adjectives',
+            _description:'Many anarchists believe we should support diverse ways of organizing, so long as they meet the critera of anarchism. This open-ended strategy trades away cohesion for popular support.',
+        },
         'Councils of workers and everyday people.': {
             _answer:'Anarcho-Syndicalism',
-            _description:'AnSynds believe that workers should run society, but that there should be an alternative power structure to replace the state.',
-        },
-        'Individuals should pursue their own interests.': {
-            _answer:'Egoist Anarchism',
-            _description:'Anarchists believe that the contradictory chaos of individual pursuits is capable of creating a functioning society.',
+            _description:'AnSynds believe that workers should run society, but that there should be an alternative power structure to replace the state based on transparency and public involevement.',
         },
         'Each community will decide what is in its best interests.': {
             _answer:'Anarcho-Communism',
-            _description:'Beyond wanting communism right away, AnComs believe in a decentralized and self-managed system. This is the goal of Marxism-Leninism, but I would argue that it is not currently feasible.',
+            _description:'Beyond wanting communism right away, AnComs believe in a decentralized and self-managed system. This is similar to the goal of Marxism-Leninism, but I would argue that it is not currently feasible.',
         },
     },
 };
@@ -167,7 +169,7 @@ const quizdata = {
             _question:'How do we ensure that private ownership doesn\'t result in minority rule?',
             'Through a market socialist system that builds up to full socialism.': {
                 _answer:'Socialist with Chinese characteristics',
-                _description:'In China they state that a partially state owned capitalist system paves an effective road to future socialism. It remains to be seen.',
+                _description:'In China, they state that a partially state owned capitalist system paves an effective road to future socialism. It remains to be seen.',
             },
             'By breaking up private property into many small holdings.': {
                 _answer:'Mutualism',
