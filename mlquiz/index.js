@@ -86,7 +86,7 @@ const quizdata = {
                 _question:'How should capitalism be reformed?',
                 'The state should own some firms, or part of firms.': {
                     _answer:'State Capitalism',
-                    _description:'This is capitalism with partial state ownership, maybe like Russia. It is hard to call this an advance past capitalism, but I suppose it is better than nothing',
+                    _description:'This is capitalism with partial state ownership, maybe like Russia. This is going to be better or worse depending on the accountability of the state, and also on which firms are owned by the state, whether they are profit-driven, etc.',
                 },
                 'The state should provide free services to the people, feed the hungry, etc.': {
                     _answer:'Welfare Capitalism',
@@ -98,7 +98,7 @@ const quizdata = {
                 },
                 'Provide government jobs for the unemployed and pay for it by printing money.': {
                     _answer:'MMT',
-                    _description:'Modern Monetary Theory attemps to describe how money currently works, and that this theory can be used to create social programs by printing money while curbing inflation. This rejects some aspects of Marxism, specifically the LTV and currency arising from the commodity-form.',
+                    _description:'Modern Monetary Theory attemps to describe how money currently works, stating that it is possible to create social programs by printing money while curbing inflation. This rejects some aspects of Marxism, specifically the labor theory of value and currency arising from the commodity-form.',
                 },
             },
             'It will hold itself accountable.': {
