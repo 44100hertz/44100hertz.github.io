@@ -164,9 +164,9 @@ const quizdata = {
                 _answer:'Capitalism',
                 _description:'Inequality is good for who? While acknowledging in back rooms that private property does not serve the people, capitalists selfishly insist that their minority rule must be preserved.',
             },
-            'Blow everything up with nuclear weapons.': {
+            'Wait for the inevitable nuclear warfare.': {
                 _answer:'Posadism',
-                _description:'For some reason, Posadas thought that if we were to engage in nuclear warfare, aliens would stop us and then they would establish communism.',
+                _description:'Posadas, an Argentinian Trotskyist and noted organizer, thought that nuclear war was inevitable, and that traditional ideas about socialist revolution were foolishly optimistic.',
             },
         },
         'Everybody, to some extent.': {
