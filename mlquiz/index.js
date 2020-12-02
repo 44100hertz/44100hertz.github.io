@@ -112,11 +112,11 @@ const quizdata = {
                 _question:'How will the state protect private property?',
                 'Through dictatorship.': {
                     _answer:'Fascism',
-                    _description:'When the ruling class is backed into a corner, they will undermine their "democracy" and begin political repression.',
+                    _description:'When the ruling class is backed into a corner, they will undermine their "democracy" and begin political repression in order to stay in power. There will always be a point where this is the only way for capitalism to continue.',
                 },
                 'Through democracy.': {
                     _answer:'Liberalism',
-                    _description:'Bourgeoise democracy only works as long as revolutionaries lack public support.',
+                    _description:'Bourgeoise democracy only works as long as revolutionaries lack public support. If you want to protect private property, you must also protect the laws of the state from democracy, otherwise revolutionaries can vote themselves into power.',
                 },
             },
             'The owners of the property.': {
