@@ -9,6 +9,8 @@ const marxist_branch = {
             _description:'This belief states that revolutionary struggles within the first world are completely invalid, rejecting the Marxist notion of revolution in developed capitalist society.',
         },
         'More than none.': {
+            _answer:'Marxism-Leninism',
+            _description:'This is most common and historically succesful variety of socialism, which was upheld by Stalin.',
             _question:'What will the state be composed of?',
             'Worker\'s councils.': {
                 _answer:'Marxism-Leninism (Stalinist/Hoxhaist)',
@@ -21,8 +23,8 @@ const marxist_branch = {
                     _description:'Maoists are Marxist-Leninists who advance particular ideas of Stalin, and derive new set of strategies from Mao.',
                 },
                 'No.': {
-                    _answer:'Marxism-Leninism',
-                    _description:'MLs identify with the most common and historically succesful variety of socialism, which was upheld by Stalin.',
+                    _answer:'Marxism-Leninism (Other)',
+                    _description:'ML without specifically Maoist or Stalinist ideas. People in this category generally still believe that Stalin and Mao contributed to socialism, they just don\'t choose a specific branch of ideas.',
                 },
             },
         },
