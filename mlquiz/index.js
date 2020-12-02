@@ -189,12 +189,23 @@ const quizdata = {
 
 const intro = {
     _question:`
-Hello, this is a quick political sorting test.
-It aims to determine your ideology from an opinionated Marxist-Leninist perspective in as few questions as possible.
-It is a nonlinear test, wherein each answer you give sets you on a different path of political categories.
-The "Back" button will undo the previous response. When you reach your result, I may put in a short critique of the idea.
-If you think your result was wrong, tell me why using the email in the footer.
-<a href="./info.txt">More Info</a>`,
+<p>Introduction</p>
+
+<p>Hello, this is a quick political sorting test. It aims to differentiate
+ideology from an opinionated Marxist-Leninist perspective in as few questions as
+possible. This test is tree-structured, fundamentally different than a more
+common slider or compass test. Each answer that you give will reveal a different
+set of questions, and/or reveal a unqiue result. The <u>Back</u> button will
+undo the previous response. If you do not like your result, utilize this
+button.</p>
+
+<p>If you have anything to change or add in this quiz, give feedback using the
+email in the footer below. Before adding an ideology, it must have either have
+some distinct group of adherents, or help to illustrate the differences between
+ideologies.</p>
+
+<a href="./info.txt">Some background and thought processes that went into this
+quiz.</a>`,
     'Begin Quiz': quizdata,
 };
 
