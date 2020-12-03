@@ -78,6 +78,10 @@ const socdem_branch = {
     _answer:'Social-democracy',
     _description:'SocDems believe that we need some permutation of welfare programs, trade unions, taxation, regulation, etc. to keep capitalism in check. These policies are reversible and the capitalist class will overturn them over time, especially during one of the inevitable crises of capitalism.',
     _question:'How should capitalism be reformed?',
+    'Give everyone money.': {
+        _answer:'Universal Basic Income',
+        _description:'UBI is the theory that giving everyone money, regardless of employment status, would create a fairer society. Unlike the claims made by some futurists, since UBI effectively lowers the minimum wage, it reduces automation because human laborers become less expensive than machines. Rent controls would also be required in order to prevent landlords from soaking up the added money. Employment insurance, sometimes called unemployment, is a more common system that does not have these problems.',
+    },
     'The state should own some firms, or part of firms.': {
         _answer:'State Capitalism',
         _description:'This is capitalism with partial state ownership, maybe like Russia. This is going to be better or worse depending on the accountability of the state, and also on which firms are owned by the state, whether they are profit-driven, etc.',
