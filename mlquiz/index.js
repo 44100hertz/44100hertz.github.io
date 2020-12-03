@@ -74,33 +74,35 @@ const anarchist_branch = {
     },
 };
 
+const socdem_branch = {
+    _answer:'Social-democracy',
+    _description:'SocDems believe that we need some permutation of welfare programs, trade unions, taxation, regulation, etc. to keep capitalism in check. These policies are reversible and the capitalist class will overturn them over time, especially during one of the inevitable crises of capitalism.',
+    _question:'How should capitalism be reformed?',
+    'The state should own some firms, or part of firms.': {
+        _answer:'State Capitalism',
+        _description:'This is capitalism with partial state ownership, maybe like Russia. This is going to be better or worse depending on the accountability of the state, and also on which firms are owned by the state, whether they are profit-driven, etc.',
+    },
+    'The state should provide free services to the people, feed the hungry, etc.': {
+        _answer:'Welfare Capitalism',
+        _description:'We can soften the blow of poverty and unemployment by giving to the victims of capitalism. It doesn\'t solve the problem, but it can reduce suffering.',
+    },
+    'A single tax based on unimproved land rent.': {
+        _answer:'Georgism',
+        _description:'Congratulations, you have seen the cat! This early theory about regulation of capitalism using land value tax has never been proven.',
+    },
+    'Provide government jobs for the unemployed and pay for it by printing money.': {
+        _answer:'MMT',
+        _description:'Modern Monetary Theory attemps to describe how money currently works, stating that it is possible to create social programs by printing money while curbing inflation. This rejects some aspects of Marxism, specifically the labor theory of value and currency arising from the commodity-form.',
+    },
+};
+
 const quizdata = {
     _question:'Which type of economy better serves the people?',
     'A capitalist economy.': {
         _question:'How should we deal with the threat of communist revolution?',
         'Make capitalism more humanitarian.': {
             _question:'Who will hold the capitalist class accountable?',
-            'The working class.': {
-                _answer:'Social-democracy',
-                _description:'SocDems believe that we need some permutation of welfare programs, trade unions, taxation, regulation, etc. to keep capitalism in check. These policies are reversible and the capitalist class will overturn them over time, especially during one of the inevitable crises of capitalism.',
-                _question:'How should capitalism be reformed?',
-                'The state should own some firms, or part of firms.': {
-                    _answer:'State Capitalism',
-                    _description:'This is capitalism with partial state ownership, maybe like Russia. This is going to be better or worse depending on the accountability of the state, and also on which firms are owned by the state, whether they are profit-driven, etc.',
-                },
-                'The state should provide free services to the people, feed the hungry, etc.': {
-                    _answer:'Welfare Capitalism',
-                    _description:'We can soften the blow of poverty and unemployment by giving to the victims of capitalism. It doesn\'t solve the problem, but it can reduce suffering.',
-                },
-                'A single tax based on unimproved land rent.': {
-                    _answer:'Georgism',
-                    _description:'Congratulations, you have seen the cat! This early theory about regulation of capitalism using land value tax has never been proven.',
-                },
-                'Provide government jobs for the unemployed and pay for it by printing money.': {
-                    _answer:'MMT',
-                    _description:'Modern Monetary Theory attemps to describe how money currently works, stating that it is possible to create social programs by printing money while curbing inflation. This rejects some aspects of Marxism, specifically the labor theory of value and currency arising from the commodity-form.',
-                },
-            },
+            'The working class.': socdem_branch,
             'It will hold itself accountable.': {
                 _answer:'Free-market capitalism',
                 _description:'The capitalist class cannot be trusted to act against their own interests. This will create monopolies and a powerful oligarchy.',
@@ -144,13 +146,21 @@ const quizdata = {
         _question:'How will we abolish private property, which enables the minority rule of the capitalists?',
         'Change the law within capitalist systems.': {
             _question:'After our electoral victory, what will be done?',
+            'That\'s it.': {
+                _question:'You cannot achieve an end to capitalism just by changing who is in power. It is likely that you have misidentified social-democracy as socialism or as non-capitalistic.',
+                'Ok.': socdem_branch,
+            },
             'Workers unions must take over the state.': {
                 _answer:'De Leonism',
-                _description:'Similar to an anarcho-syndicalist, De Leonists believe a state composed of workers will arise if power is conceded to worker\'s unions through law. This relies on the existence of broad and powerful unions, which has been rendered impossible by current laws.',
+                _description:'Similar to an anarcho-syndicalist, De Leonists believe a state composed of workers will arise if power is conceded to worker\'s unions through law. This relies on the existence of broad and powerful unions, which the state will always stop from becoming too powerful.',
             },
-            'Something else.': {
+            'Reform the government to become socialist.': {
                 _answer:'Democratic socialism',
                 _description:'DemSocs want radical change to occur, but do not strike at the root of the problem. Though their goals are noble, they concede power to the capitalist class, who will prevent their success.',
+            },
+            'Anarchy!': {
+                _question:'Most anarchists aren\'t foolish enough to think they can succeed in bourgeoise politics.',
+                'Let me be anarchist anyway.': anarchist_branch,
             },
         },
         'Overthrow the capitalist class.': {
