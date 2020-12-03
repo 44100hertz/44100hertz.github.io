@@ -9,13 +9,13 @@ const marxist_branch = {
             _description:'This belief states that revolutionary struggles within the first world are completely invalid, rejecting the Marxist notion of revolution in developed capitalist society.',
         },
         'More than none.': {
-//            _answer:'Marxism-Leninism',
-//            _question:'What will the state be composed of?',
-//            'Worker\'s councils.': {
-//                _answer:'Marxism-Leninism (Stalinist/Hoxhaist)',
-//                _description:'Hoxhaists believe that the soviet system was the model socialist system, future socialist states should be based on it.'
-//            },
-//            'Local branches of the party.': {
+            //            _answer:'Marxism-Leninism',
+            //            _question:'What will the state be composed of?',
+            //            'Worker\'s councils.': {
+            //                _answer:'Marxism-Leninism (Stalinist/Hoxhaist)',
+            //                _description:'Hoxhaists believe that the soviet system was the model socialist system, future socialist states should be based on it.'
+            //            },
+            //            'Local branches of the party.': {
             _question:'Are there universal aspects to the revolutionary struggle?',
             'Yes, cultural revolution and onging people\'s war.': {
                 _answer:'Marxism-Leninism-Maoism',
@@ -25,7 +25,7 @@ const marxist_branch = {
                 _answer:'Marxism-Leninism',
                 _description:'This is most common and historically succesful variety of socialism, which was upheld by Stalin. Though not specifically Maoist, MLs still acknowledge Mao\'s contributions to socialism.',
             },
-//            },
+            //            },
         },
     },
     'No, it should not be centralized.': {
@@ -125,64 +125,57 @@ const quizdata = {
             },
         },
     },
+    'A semi-capitalist economy.': {
+        _question:'Ok, what will happen with private property?',
+        'Distribute it among the people.': {
+            _answer:'Distributism',
+            _description:'A Christian-influenced ideology, distributists believe that we need to distribute private property among people. This runs antithetical to the laws of capitalism, so I suppose it takes a little faith.',
+        },
+        'Let private property exist, but only when people are using it.': {
+            _answer:'Mutualism',
+            _description:'A synthesis of conflicting ideas, communism and the free market, Mutualism has never been proven in practice. Mutualists believe that everyone is entitled to the full product of their labor, and that private property should simply become public when not in use.',
+        },
+        'We will loan public property as private property for 50 years at a time.': {
+            _answer:'Market Socialism',
+            _description:'In China, they state that a partially state owned capitalist system paves an effective road to future socialism. This theory, established by Deng Xiaoping, is also called Socialism with Chinese Characteristics. China\'s main task is eliminating poverty and building productive forces.',
+        },
+    },
     'A non-capitalist economy.': {
-        _question:'Who benefits from private ownership of factories and land?',
-        'The capitalist class, a minority.': {
-            _question:'How will we abolish private property?',
-            'Change the law within capitalist systems.': {
-                _question:'After our electoral victory, what will be done?',
-                'Workers unions must take over the state.': {
-                    _answer:'De Leonism',
-                    _description:'Similar to an anarcho-syndicalist, De Leonists believe a state composed of workers will arise if power is conceded to worker\'s unions through law. This relies on the existence of broad and powerful unions, which has been rendered impossible by current laws.',
-                },
-                'Something else.': {
-                    _answer:'Democratic socialism',
-                    _description:'DemSocs want radical change to occur, but do not strike at the root of the problem. Though their goals are noble, they concede power to the capitalist class, who will prevent their success.',
-                },
+        _question:'How will we abolish private property, which enables the minority rule of the capitalists?',
+        'Change the law within capitalist systems.': {
+            _question:'After our electoral victory, what will be done?',
+            'Workers unions must take over the state.': {
+                _answer:'De Leonism',
+                _description:'Similar to an anarcho-syndicalist, De Leonists believe a state composed of workers will arise if power is conceded to worker\'s unions through law. This relies on the existence of broad and powerful unions, which has been rendered impossible by current laws.',
             },
-            'Overthrow the capitalist class.': {
-                _question:'What will be established in place of the capitalist state?',
-                'A working-class government.': {
-                    _question:'What should the socialist state do first?',
-                    'Overthrow capitalist governments abroad.': {
-                        _answer:'Trotskyism',
-                        _description:'Believing that only a worldwide revolution is sustainable, Trots would hollow out their own country for the purpose of international warfare.',
-                    },
-                    'Build up their own country.': marxist_branch,
-                },
-                'A classless government.': {
-                    _answer:'Ultra-leftism',
-                    _description:'Not all ultra-leftists believe this, but the belief in instant communism is one type of it. Communism cannot happen right away, it would lead to labor shortages and a revolution incapable of defending itself.',
-                },
-                'Little to no government.': anarchist_branch,
-            },
-            'Do not abolish private property, distribute it among the people.': {
-                _answer:'Distributism',
-                _description:'A Christian-influenced ideology, distributists believe that we need to distribute private property among people. This runs antithetical to the laws of capitalism, so I suppose it takes a little faith.',
-            },
-            'We should not abolish private property, because inequality is good.': {
-                _answer:'Capitalism',
-                _description:'Inequality is good for who? While acknowledging in back rooms that private property does not serve the people, capitalists selfishly insist that their minority rule must be preserved.',
-            },
-            'Wait for the inevitable nuclear warfare.': {
-                _answer:'Posadism',
-                _description:'Posadas, an Argentinian Trotskyist and noted organizer, thought that nuclear war was inevitable, and that traditional ideas about socialist revolution were foolishly optimistic.',
+            'Something else.': {
+                _answer:'Democratic socialism',
+                _description:'DemSocs want radical change to occur, but do not strike at the root of the problem. Though their goals are noble, they concede power to the capitalist class, who will prevent their success.',
             },
         },
-        'Everybody, to some extent.': {
-            _question:'How do we ensure that private ownership doesn\'t result in minority rule?',
-            'Through a market socialist system that builds up to full socialism.': {
-                _answer:'Socialist with Chinese characteristics',
-                _description:'In China, they state that a partially state owned capitalist system paves an effective road to future socialism. It remains to be seen.',
+        'Overthrow the capitalist class.': {
+            _question:'What will be established in place of the capitalist state?',
+            'A working-class government.': {
+                _question:'What should the socialist state do first?',
+                'Overthrow capitalist governments abroad.': {
+                    _answer:'Trotskyism',
+                    _description:'Believing that only a worldwide revolution is sustainable, Trots would hollow out their own country for the purpose of international warfare.',
+                },
+                'Build up their own country.': marxist_branch,
             },
-            'By breaking up private property into many small holdings.': {
-                _answer:'Mutualism',
-                _description:'A synthesis of conflicting ideas, communism and the free market, Mutualism has never been proven in practice.',
+            'A classless government.': {
+                _answer:'Ultra-leftism',
+                _description:'Not all ultra-leftists believe this, but the belief in instant communism is one type of it. Communism cannot happen right away, it would lead to labor shortages and a revolution incapable of defending itself.',
             },
-            'Private ownership does not have this effect.': {
-                _answer:'"Radical" Liberalism',
-                _description:'Saying that we need to advance past capitalism or have some sort of revolution, Radlibs do not understand capitalism properly and therefore advocate for private property to be preserved.',
-            },
+            'Little to no government.': anarchist_branch,
+        },
+        'Do not abolish private property, because inequality is good.': {
+            _answer:'Capitalism',
+            _description:'Inequality is good for who? While acknowledging in back rooms that private property does not serve the people, capitalists selfishly insist that their minority rule must be preserved.',
+        },
+        'Wait for the inevitable nuclear warfare.': {
+            _answer:'Posadism',
+            _description:'Posadas, an Argentinian Trotskyist and noted organizer, thought that nuclear war was inevitable, and that traditional ideas about socialist revolution were foolishly optimistic.',
         },
     },
 };
