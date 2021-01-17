@@ -196,6 +196,7 @@ const quizdata = {
 
 const intro = {
     _question:`
+<img src="intro-image.png" alt="branching political test" >
 <p>Introduction</p>
 
 <p>Hello, this is a quick political sorting test. It aims to differentiate
