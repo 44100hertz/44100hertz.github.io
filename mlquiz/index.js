@@ -9,6 +9,22 @@ const marxist_branch = {
             _description:'This belief states that revolutionary struggles within the first world are completely invalid, rejecting the Marxist notion of revolution in developed capitalist society.',
         },
         'More than none.': {
+            _question:'When will the class struggle be complete?',
+            'When a worker\'s state has been established':{
+                _answer:'Revisionism',
+                _description:'Losing sight of the goal of communism, the Kruschev leadership prevented their country from reaching a higher stage of socialism, setting them on the long path back to capitalism. Doing little more than keeping the state in power, revisionists spell the downfall of socialism.',
+            },
+            'When society has become classless.':{
+                _question:'Are there universal aspects to the revolutionary struggle?',
+                'Yes, cultural revolution and onging people\'s war.': {
+                    _answer:'Marxism-Leninism-Maoism',
+                    _description:'Maoists are Marxist-Leninists who advance particular ideas of Stalin, and derive new set of strategies from Mao.',
+                },
+                'No.': {
+                    _answer:'Marxism-Leninism',
+                    _description:'This is most common and historically succesful variety of socialism, which was upheld by Stalin. Though not specifically Maoist, MLs still acknowledge Mao\'s contributions to socialism.',
+                },
+            },
             //            _answer:'Marxism-Leninism',
             //            _question:'What will the state be composed of?',
             //            'Worker\'s councils.': {
@@ -16,15 +32,6 @@ const marxist_branch = {
             //                _description:'Hoxhaists believe that the soviet system was the model socialist system, future socialist states should be based on it.'
             //            },
             //            'Local branches of the party.': {
-            _question:'Are there universal aspects to the revolutionary struggle?',
-            'Yes, cultural revolution and onging people\'s war.': {
-                _answer:'Marxism-Leninism-Maoism',
-                _description:'Maoists are Marxist-Leninists who advance particular ideas of Stalin, and derive new set of strategies from Mao.',
-            },
-            'No.': {
-                _answer:'Marxism-Leninism',
-                _description:'This is most common and historically succesful variety of socialism, which was upheld by Stalin. Though not specifically Maoist, MLs still acknowledge Mao\'s contributions to socialism.',
-            },
             //            },
         },
     },
