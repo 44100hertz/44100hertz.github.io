@@ -37,23 +37,16 @@ const marxist_branch = {
     },
     'No, it should not be centralized.': {
         _answer:'Titoism',
-        _description:'Yugoslavia followed some Marxist principles, but believed in decentralization and competetion, called worker self management in Yugoslavia. Their revolution fell to balkanization.',
+        _description:'Yugoslavia followed some Marxist principles, but believed in decentralization and competetion, called worker self management. Their revolution fell to balkanization.',
     },
     'No, it should not be democratic.': {
-        _question:'Our country should dominate other countries.',
-        Yes: {
-            _answer:'National Bolshevism',
-            _description:'A close cousin to the fascist, NazBols believe in some Marxist ideas, but do not believe in the democracy needed for a DoTP, and hold nationalist beliefs that run counter to marxism.',
-        },
-        No: {
-            _answer:'Dogmatic socialism',
-            _description:'Even though they follow many Marxist ideas, some people don\'t trust the working class to serve their own interests. This is a the belief of a dictator.',
-        },
+        _answer:'National Bolshevism',
+        _description:'A close cousin to the fascist, NazBols believe in some Marxist ideas, but do not believe in the democracy needed for a DoTP, and hold nationalist beliefs that run counter to marxism.',
     },
-    'No, it should not be centralized or democratic.': {
+    'Yes, but abolish electoral democracy': {
         _answer:'Organic centralist ultra-leftism',
         _description:'Like Bordiga, these typically Italian people believe in an ideologically dissonant and non-democratic system, which gives power to people who get things done. This will make it very difficult to prevent abuses of power.',
-    },
+    }
 };
 
 const anarchist_branch = {
