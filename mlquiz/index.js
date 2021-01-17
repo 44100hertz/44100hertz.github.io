@@ -196,21 +196,19 @@ const quizdata = {
 
 const intro = {
     _question:`
-<img src="intro-image.png" alt="branching political test" >
 <p>Introduction</p>
 
-<p>Hello, this is a quick political sorting test. It aims to differentiate
-ideology from an opinionated Marxist-Leninist perspective in as few questions as
-possible. This test is tree-structured, fundamentally different than a more
-common slider or compass test. Each answer that you give will reveal a different
-set of questions, and/or reveal a unqiue result. The <u>Back</u> button will
-undo the previous response. If you do not like your result, utilize this
-button.</p>
+<img src="intro-image.png" alt="branching political test" >
+
+<p>This is a quick political sorting test. It determines ideology from a
+Marxist-Leninist perspective in only a few questions. This test is
+tree-structured, different than a more common slider or compass test. Each
+answer you give shows a different set of questions, or a result. The <i>Back</i>
+button in the upper-left corner will undo your last response.</p>
 
 <p>If you have anything to change or add in this quiz, give feedback using the
 email in the footer below. Before adding an ideology, it must have either have
-some distinct group of adherents, or help to illustrate the differences between
-ideologies.</p>
+many adherents, or help to map out real differences.</p>
 
 <a href="./info.txt">Some background and thought processes that went into this
 quiz.</a>`,
