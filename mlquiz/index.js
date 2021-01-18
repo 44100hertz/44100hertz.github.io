@@ -198,7 +198,7 @@ const intro = {
     _question:`
 <p>Introduction</p>
 
-<img src="intro-image.png" alt="branching political test" >
+<img src="intro-image.png" alt="branching political test" style="width: 100%;">
 
 <p>This is a quick political sorting test. It determines ideology from a
 Marxist-Leninist perspective in only a few questions. This test is
