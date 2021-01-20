@@ -1,137 +1,217 @@
 import * as format from "./format.js";
-export {};
-
-const num_cols = format.col_order.length;
-
-let codepane = document.getElementById('codepane');
-let prettycode = document.getElementById('prettycode');
-let screen = document.getElementById('screen').getContext('2d');
-
-let [cur_line, cur_field, cur_char] = [0, 0, 0];
-const getline = (line = cur_line) => prettycode.childNodes[line];
-const getfield = (line, field = cur_field) => getline(line).childNodes[field];
-const field_text = (...args) => getfield(...args).innerHTML;
-
-const commands = {
-    splice: (l, f, start, end = start, contents = '') => {
-        const text = getfield(l, f).innerHTML;
-        const result = text.substring(0, start) + contents + text.substring(end);
-        const redo = () => {
-            getfield(l, f).innerHTML = result;
-            [cur_line, cur_field, cur_char] = [l, f, end];
-        };
-        const undo = () => {
-            getfield(l, f).innerHTML = text;
-            [cur_line, cur_field, cur_char] = [l, f, start];
-        };
-        return {redo, undo};
-    },
-    newline: (l) => {
-        const redo = () => {
-            getline(l).insertAdjacentHTML('afterend', format.new_line());
-            cur_line = l+1;
-        };
-        const undo = () => {
-            getline(l).nextSibling.remove();
-            cur_line = l;
-        };
-        return {redo, undo};
-    },
-};
-
-let history = [];
-let history_head = 0;
-
-const do_command = (cmd) => {
-    history[history_head++] = commands[cmd[0]](...cmd.slice(1));
-    history[history_head-1].redo();
-    // note: this discards "future" edits after undoing
-    history = history.slice(0, history_head);
-};
-const undo = () => {
-    if (history_head > 0) {
-        history[--history_head].undo();
-    }
-};
-const redo = () => {
-    if (history_head < history.length) {
-        history[history_head++].redo();
-    }
-};
 
 const clamp = (v, l, u) => Math.max(l, Math.min(u, v));
 
-
-const cur_move_line = (off) =>
-      cur_line = clamp(cur_line+off, 0, prettycode.childNodes.length-1);
-
-const cur_move_field = (off) => {
-    cur_field = (cur_field + off + num_cols) % num_cols;
-    cur_char = 0;
+function is_input_char (event) {
+    return !event.ctrlKey && !event.metaKey && event.key.length == 1;
 }
 
-const cur_move_char = (off) => {
-    cur_char += off;
-    if (cur_char < 0) {
-        cur_move_field(-1);
-        cur_char = field_text().length;
-    } else if (cur_char > field_text().length) {
-        cur_move_field(1);
-        cur_char = 0;
-    }
+function key_detect (k, ctrl, shift) {
+    return (event) =>
+    event.key === k && (!ctrl || event.ctrlKey) && (!shift || event.shiftKey);
 }
 
-const edit_remove = (off) => {
-    const pos = Math.min(cur_char, getfield().innerHTML.length+off+1);
-    do_command(['splice', cur_line, cur_field, pos+off, pos+off+1]);
-    cur_move_char(-1);
-};
+export class Editor {
+    constructor() {
+        this.history = [];
+        this.history_head = 0;
+        this.cursor = new Cursor(this);
+        this.num_cols = format.col_order.length;
+        this.codepane = document.getElementById('codepane');
+        this.prettycode = document.getElementById('prettycode');
+        this.prettycode.innerHTML = format.create_page(this.prettycode.innerHTML);
+        codepane.focus();
+        codepane.onkeydown = (event) => {
+            format.clear_cursor();
+            const match = this.key_mapping.find(([pred,]) => pred(event));
+            if (match) {
+                match[1]();
+                event.preventDefault();
+            }
+            format.draw_cursor(this.field(), this.cursor.char);
+        };
+        format.draw_cursor(this.field(), this.cursor.char);
 
-const edit_insert = (key) => {
-    do_command(['splice', cur_line, cur_field, cur_char, cur_char, key]);
-    cur_move_char(1);
-};
-
-codepane.onkeydown = (event) => {
-    format.clear_cursor();
-
-    const is_input = (event) =>
-          !event.ctrlKey && !event.metaKey && event.key.length == 1;
-    const key = (k, ctrl=0, shift=0) => (event) =>
-          event.key === k && (!ctrl || event.ctrlKey) && (!shift || event.shiftKey);
-
-    const mapping = [
-        [key('ArrowUp'),     () => cur_move_line(-1)],
-        [key('ArrowDown'),   () => cur_move_line(1)],
-        [key('ArrowLeft'),   () => cur_move_char(-1)],
-        [key('ArrowRight'),  () => cur_move_char(1)],
-        [key('z', 1),        undo],
-        [key('Z', 1, 1),     redo],
-        [key('Enter'),       () => do_command(['newline', cur_line])],
-        [key('Tab', 0, 1),   () => cur_move_field(-1)],
-        [key('Tab'),         () => cur_move_field(1)],
-        [key('Backspace'),   () => edit_remove(-1)],
-        [key('Delete'),      () => edit_remove(0)],
-        [key(':'),           () => {cur_field = 1; cur_char = 0}],
-        [key(';'),           () => {cur_field = 2; cur_char = field_text().length;}],
-        [is_input,           () => edit_insert(event.key)],
-    ];
-    const match = mapping.find(([pred,]) => pred(event));
-    if (match) {
-        match[1]();
-        event.preventDefault();
+        this.key_mapping = [
+            [key_detect('ArrowUp'),
+             () => {
+                 this.cursor.move_line(-1);
+             }],
+            [key_detect('ArrowDown'),
+             () => {
+                 this.cursor.move_line(1);
+             }],
+            [key_detect('ArrowLeft'),
+             () => {
+                 this.cursor.move_char(-1);
+             }],
+            [key_detect('ArrowRight'),
+             () => {
+                 this.cursor.move_char(1);
+             }],
+            [key_detect('Enter'),
+             () => {
+                 this.do_command(['newline', this.cursor.line]);
+             }],
+            [key_detect('Tab', 0, 1),
+             () => {
+                 this.cursor.move_field(-1);
+             }],
+            [key_detect('Tab'),
+             () => {
+                 this.cursor.move_field(1);
+             }],
+            [key_detect('Backspace'),
+             () => {
+                 this.remove_at_cursor(-1);
+             }],
+            [key_detect('Delete'),
+             () => {
+                 this.remove_at_cursor(0);
+             }],
+            [key_detect('z', 1), this.undo],
+            [key_detect('Z', 1, 1), this.redo],
+            [key_detect('^'),
+             () => {
+                 this.cursor.field = 0;
+                 this.cursor.char = 0;
+             }],
+            [key_detect(':'),
+             () => {
+                 this.cursor.field = 1;
+                 this.cursor.char = 0;
+             }],
+            [key_detect(';'),
+             () => {
+                 this.cursor.field = 2;
+                 this.cursor.char = 0
+             }],
+            [key_detect('$'),
+             () => {
+                 this.cursor.field = 2;
+                 this.cursor.char = field_text().length;
+             }],
+            [is_input_char,
+             () => {
+                 this.insert_at_cursor(event.key)
+             }],
+        ]
     }
 
-    format.draw_cursor(getfield(), cur_char);
-};
+    line (line = this.cursor.line) {
+        return this.prettycode.childNodes[line];
+    }
 
-export const get_text = () => {
-    format.clear_cursor();
-    return Array.from(prettycode.childNodes).map(
-        (child) => Array.from(child.childNodes).map(
+    field (line, field = this.cursor.field) {
+        return this.line(line).childNodes[field];
+    }
+
+    field_text (...args) {
+        return this.field(...args).innerHTML;
+    }
+
+    get document () {
+        format.clear_cursor();
+        return Array.from(prettycode.childNodes).map(
+            (child) => Array.from(child.childNodes).map(
                 (v) => v.innerHTML));
-};
+    }
 
-prettycode.innerHTML = format.create_page(prettycode.innerHTML);
-codepane.focus();
-format.draw_cursor(getfield(), cur_char);
+    get document_length () {
+        return this.prettycode.childNodes.length;
+    }
+
+    undo () {
+        if (this.history_head > 0) {
+            this.history[--this.history_head].undo();
+        }
+    }
+
+    redo () {
+        if (this.history_head < this.history.length) {
+            this.history[this.history_head++].redo();
+        }
+    }
+
+    do_command (cmd) {
+        this.history[this.history_head++] = this.commands[cmd[0]](...cmd.slice(1));
+        this.history[this.history_head-1].redo();
+        // note: this discards "future" edits after undoing
+        this.history = this.history.slice(0, this.history_head);
+    }
+
+    // Offset = 0: forward delete
+    // Offset =-1: backspace
+    remove_at_cursor (off) {
+        const pos = Math.min(this.cursor.char, this.field().innerHTML.length+off+1);
+        this.do_command(['splice', this.cursor.line, this.cursor.field, pos+off, pos+off+1]);
+        this.cursor.move_char(-1);
+    }
+
+    insert_at_cursor (key) {
+        this.do_command(['splice', this.cursor.line, this.cursor.field, this.cursor.char, this.cursor.char, key]);
+        this.cursor.move_char(1);
+    }
+
+    commands = {
+        splice: (l, f, start, end = start, contents = '') => {
+            const text = this.field(l, f).innerHTML;
+            const result = text.substring(0, start) + contents + text.substring(end);
+            const redo = () => {
+                this.field(l, f).innerHTML = result;
+                [this.cursor.line, this.cursor.field, this.cursor.char] = [l, f, end];
+            };
+            const undo = () => {
+                this.field(l, f).innerHTML = text;
+                [this.cursor.line, this.cursor.field, this.cursor.char] = [l, f, end];
+            };
+            return {redo, undo};
+        },
+        newline: (l) => {
+            const redo = () => {
+                this.line(l).insertAdjacentHTML('afterend', format.new_line());
+                this.cursor.line = l+1;
+            };
+            const undo = () => {
+                this.line(l).nextSibling.remove();
+                this.cursor.line = l;
+            };
+            return {redo, undo};
+        },
+    }
+}
+
+class Cursor {
+    line = 0;
+    field = 0;
+    char = 0;
+
+    constructor (editor) {
+        this.editor = editor;
+    }
+
+    get field_length () {
+        return this.editor.field_text().length;
+    }
+
+    move_line (off) {
+        this.line = clamp(this.line+off, 0, this.editor.document_length-1);
+    }
+
+    move_field (off) {
+        const cols = this.editor.num_cols;
+        this.field = (this.field + off + cols) % cols;
+        this.char = 0;
+    }
+
+    move_char (off) {
+        this.char += off;
+        if (this.char < 0) {
+            this.move_field(-1);
+            this.char = this.field_length;
+        } else if (this.char > this.field_length) {
+            this.move_field(1);
+            this.char = 0;
+        }
+    }
+}
