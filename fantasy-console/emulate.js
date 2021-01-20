@@ -1,3 +1,4 @@
+import {PROGRAM_ADDRESS} from "./address_space.js";
 import * as compile from "./compile.js";
 import {names as inames} from "./instructions.js";
 
@@ -18,9 +19,7 @@ const REG_PC = 5;
 const REG_SP = 6;
 const REG_ZERO = REG_PC | 0x8;
 
-const ROM_START = 0x8000;
-
-const signed = (a) => a & 0x8000 ? -(~a+1) : a;
+const signed = (a) => a & 0x8000 ? -(~a+1) : a; // Used for comparison
 
 class Emu {
     constructor(rom, timestamp) {
@@ -30,8 +29,8 @@ class Emu {
 
         this.gram = new Uint8Array(0x3);
 
-        this.ram.set(rom, ROM_START);
-        this.reg[REG_PC] = ROM_START;
+        this.ram.set(rom, PROGRAM_ADDRESS);
+        this.reg[REG_PC] = PROGRAM_ADDRESS;
         this.next_frame = timestamp;
         this.pixbuf = canvas.createImageData(screen_width, screen_height);
         for (let i in this.pixbuf.data) {

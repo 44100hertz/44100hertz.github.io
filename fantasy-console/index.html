@@ -13,6 +13,7 @@
         <div id="mainflex">
             <div id="codepane" tabindex="0" class="border">
                 <pre id="prettycode">
+loop:
  poke 0 a;write colors to GPU
  poke 1 b
  poke 2 c
@@ -20,7 +21,7 @@
  inc b b
  add b a b
  add c a b
- mov pc 32768;back to start
+ mov pc loop;back to start
                 </pre>
             </div>
             <div id="emulator" tabindex="1" class="border">

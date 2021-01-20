@@ -9,6 +9,10 @@ import * as emu from "./emulate.js";
 const button = document.getElementById('runbutton');
 
 button.addEventListener('click', (event) => {
-    const rom = compile(get_text());
-    emu.run(rom, event.timeStamp);
+    try {
+        const rom = compile(get_text());
+        emu.run(rom, event.timeStamp);
+    } catch (err) {
+        throw `Compile Error\n${err}`;
+    }
 });
