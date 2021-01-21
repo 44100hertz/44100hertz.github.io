@@ -6,9 +6,12 @@ function is_input_char (event) {
     return !event.ctrlKey && !event.metaKey && event.key.length == 1;
 }
 
-function key_detect (k, ctrl, shift) {
+function key_detect (k, mod={}) {
     return (event) =>
-    event.key === k && (!ctrl || event.ctrlKey) && (!shift || event.shiftKey);
+    event.key === k &&
+        (!mod.ctrl || event.ctrlKey) &&
+        (!mod.shift || event.shiftKey) &&
+        (!mod.alt || event.altKey);
 }
 
 export class Editor {
@@ -16,6 +19,7 @@ export class Editor {
         this.history = [];
         this.history_head = 0;
         this.cursor = new Cursor(this);
+        this.mark = new Cursor(this);
         this.num_cols = format.col_order.length;
         this.codepane = document.getElementById('codepane');
         this.prettycode = document.getElementById('prettycode');
@@ -41,9 +45,17 @@ export class Editor {
              () => {
                  this.cursor.move_line(1);
              }],
+            [key_detect('ArrowLeft', {alt: 1}),
+             () => {
+                 this.cursor.alt_jump(-1);
+             }],
             [key_detect('ArrowLeft'),
              () => {
                  this.cursor.move_char(-1);
+             }],
+            [key_detect('ArrowRight', {alt: 1}),
+             () => {
+                 this.cursor.alt_jump(1);
              }],
             [key_detect('ArrowRight'),
              () => {
@@ -53,7 +65,7 @@ export class Editor {
              () => {
                  this.do_command(['newline', this.cursor.line]);
              }],
-            [key_detect('Tab', 0, 1),
+            [key_detect('Tab', {shift: 1}),
              () => {
                  this.cursor.move_field(-1);
              }],
@@ -69,27 +81,19 @@ export class Editor {
              () => {
                  this.remove_at_cursor(0);
              }],
-            [key_detect('z', 1), this.undo],
-            [key_detect('Z', 1, 1), this.redo],
+            [key_detect('z', {ctrl: 1}), () => this.undo()],
+            [key_detect('Z', {ctrl: 1}), () => this.redo()],
             [key_detect('^'),
              () => {
-                 this.cursor.field = 0;
-                 this.cursor.char = 0;
+                 this.cursor.field_jump(0);
              }],
             [key_detect(':'),
              () => {
-                 this.cursor.field = 1;
-                 this.cursor.char = 0;
+                 this.cursor.field_jump(1);
              }],
             [key_detect(';'),
              () => {
-                 this.cursor.field = 2;
-                 this.cursor.char = 0
-             }],
-            [key_detect('$'),
-             () => {
-                 this.cursor.field = 2;
-                 this.cursor.char = field_text().length;
+                 this.cursor.field_jump(2);
              }],
             [is_input_char,
              () => {
@@ -211,6 +215,29 @@ class Cursor {
             this.char = this.field_length;
         } else if (this.char > this.field_length) {
             this.move_field(1);
+            this.char = 0;
+        }
+    }
+
+    alt_jump (off) {
+        if (off == 1) {
+            if (this.char == this.field_length) {
+                this.move_field(1);
+            }
+            this.char = this.field_length;
+        } else if (off == -1) {
+            if (this.char == 0) {
+                this.move_field(-1);
+            }
+            this.char = 0;
+        }
+    }
+
+    field_jump (idx) {
+        if (this.field === idx && this.char === 0) {
+            this.char = this.field_length;
+        } else {
+            this.field = idx;
             this.char = 0;
         }
     }
