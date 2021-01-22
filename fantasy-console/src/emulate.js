@@ -1,5 +1,4 @@
 import {PROGRAM_ADDRESS} from "./address_space.js";
-import * as compile from "./compile.js";
 import {names as inames} from "./instructions.js";
 
 const fps = 60.0;
@@ -141,13 +140,12 @@ class Emu {
             case inames.jls:
                 this.jumpif(signed(this.r(n1)) < signed(this.r(n2)), this.r(n3));
                 break;
-            case inames.jls:
-                this.jumpif(signed(this.r(n1)) < signed(this.r(n2)), this.r(n3));
+            case inames.jgs:
+                this.jumpif(signed(this.r(n1)) > signed(this.r(n2)), this.r(n3));
                 break;
             case 0xf:
                 // maybe: idx
                 throw 'unimplemented';
-                break;
             }
         } else if (n1) {
             switch (n1) {

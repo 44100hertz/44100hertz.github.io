@@ -16,7 +16,7 @@ canvas {
 #mainflex {
     display: flex;
     flex-flow: row wrap-reverse;
-    align-items: start;
+    align-items: stretch;
     margin: 0 2vw;
 }
 
@@ -41,7 +41,6 @@ h1 {
 #codepane {
     flex: 40ch 1 1;
     margin-right: 10px;
-
     background-color: ivory;
     padding: 10pt;
 }

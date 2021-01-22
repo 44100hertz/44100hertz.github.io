@@ -1,24 +1,5 @@
 export const col_order = ['label', 'code', 'comment'];
 
-export const create_page = (code, lineno=0) => code.split('\n')
-      .map((l) => format_line(l, ++lineno))
-      .join('');
-
-export const new_line = (lineno, label = '', code = '', comment = '') => {
-    const cols_by_name = {label, code, comment};
-    const cols = col_order.map((name, col) => {
-        const contents = cols_by_name[name];
-        return `<div class="${name}">${contents}</div>`;
-    }).join('');
-    return `<div class="codeline"}>${cols}</div>`;
-};
-
-export const format_line = (line, lineno) => {
-    let [, contents, comment] = line.match(/([^;]*);?(.*)/);
-    let [, label, code] = contents.match(/^(\w+|):?\s*(.*)/);
-    return new_line(lineno, label, code, comment);
-};
-
 export const clear_cursor = () => {
     const old = document.getElementById('cursor');
     if (old) {
@@ -38,3 +19,30 @@ export const draw_cursor = (field, cur_char) => {
     const pos = Math.min(cur_char, fieldlen);
     field.previousSibling.style.left = pos + 'ch';
 };
+
+function Label ({children}) {
+    return <div class='label'>{children}</div>
+}
+
+function Code ({children}) {
+    return <div class='code'>{children}</div>
+}
+
+function Comment ({children}) {
+    return <div class='comment'>{children}</div>
+}
+
+export function CodeLine ({line}) {
+    let [, contents, comment] = line.match(/([^;]*);?(.*)/);
+    let [, label, code] = contents.match(/^(\w+|):?\s*(.*)/);
+    return <div class="codeline">
+             <Label>{label}</Label>
+             <Code>{code}</Code>
+             <Comment>{comment}</Comment>
+           </div>;
+}
+
+export function PrettyCode ({code}) {
+    return code.split('\n')
+        .map((line, lineno) => <CodeLine {...{line, lineno}}/>);
+}

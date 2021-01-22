@@ -19,7 +19,7 @@ export const compile = (text) => {
         let nibs = [];
         let immed = [];
         nibs[0] = inames[tokens[0]];
-        tokens.slice(1).map((t) => {
+        tokens.slice(1).forEach((t) => {
             if (regs[t] !== undefined) {
                 nibs.push(regs[t]);
             } else {
@@ -28,7 +28,7 @@ export const compile = (text) => {
             }
         });
         program_counter += 1 + immed.length;
-        bin.push(nibs.reduce((a, b) => a << 4 | b));
+        bin.push(nibs.reduce((a, b) => (a << 4) | b));
         bin = bin.concat(immed);
     }
 
@@ -37,11 +37,11 @@ export const compile = (text) => {
             return Number(v);
         } else {
             if (!(v in namespace)) {
-                throw `Undefined label: ${v}`;
+                throw Error(`Undefined label: ${v}`);
             }
             const pc = namespace[v];
             if (pc < PROGRAM_ADDRESS || pc > PROGRAM_ADDRESS_END) {
-                throw `Attempt to jump to out-of-bounds address ${pc} using label ${v}`;
+                throw Error(`Attempt to jump to out-of-bounds address ${pc} using label ${v}`);
             }
             return pc;
         }

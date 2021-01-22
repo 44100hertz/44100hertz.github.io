@@ -1,9 +1,10 @@
+import React from "react";
 import * as format from "./format.js";
 
 const clamp = (v, l, u) => Math.max(l, Math.min(u, v));
 
 function is_input_char (event) {
-    return !event.ctrlKey && !event.metaKey && event.key.length == 1;
+    return !event.ctrlKey && !event.metaKey && event.key.length === 1;
 }
 
 function key_detect (k, mod={}) {
@@ -14,27 +15,15 @@ function key_detect (k, mod={}) {
         (!mod.alt || event.altKey);
 }
 
-export class Editor {
+export class Editor extends React.Component {
     constructor() {
+        super();
         this.history = [];
         this.history_head = 0;
         this.cursor = new Cursor(this);
         this.mark = new Cursor(this);
         this.num_cols = format.col_order.length;
-        this.codepane = document.getElementById('codepane');
-        this.prettycode = document.getElementById('prettycode');
-        this.prettycode.innerHTML = format.create_page(this.prettycode.innerHTML);
-        codepane.focus();
-        codepane.onkeydown = (event) => {
-            format.clear_cursor();
-            const match = this.key_mapping.find(([pred,]) => pred(event));
-            if (match) {
-                match[1]();
-                event.preventDefault();
-            }
-            format.draw_cursor(this.field(), this.cursor.char);
-        };
-        format.draw_cursor(this.field(), this.cursor.char);
+//        format.draw_cursor(this.field(), this.cursor.char);
 
         this.key_mapping = [
             [key_detect('ArrowUp'),
@@ -96,10 +85,41 @@ export class Editor {
                  this.cursor.field_jump(2);
              }],
             [is_input_char,
-             () => {
+             (event) => {
                  this.insert_at_cursor(event.key)
              }],
-        ]
+        ];
+    }
+
+    handle_key () {
+    }
+
+    render () {
+        function onclick (event) {
+            //            format.clear_cursor();
+            const match = this.key_mapping.find(([pred,]) => pred(event));
+            if (match) {
+                match[1]();
+                event.preventDefault();
+            }
+            //            format.draw_cursor(this.field(), this.cursor.char);
+        };
+
+        const sample_code = `
+loop:
+ poke 0 a;write colors to GPU
+ poke 1 b
+ poke 2 c
+ inc a a;update colors
+ inc b b
+ add b a b
+ add c a b
+ mov pc loop;back to start`;
+        return (
+            <div id="codepane" tabIndex='0' class="border">
+              <format.PrettyCode onClick={onclick} code={sample_code}/>
+            </div>
+        );
     }
 
     line (line = this.cursor.line) {
@@ -116,7 +136,7 @@ export class Editor {
 
     get document () {
         format.clear_cursor();
-        return Array.from(prettycode.childNodes).map(
+        return Array.from(this.prettycode.childNodes).map(
             (child) => Array.from(child.childNodes).map(
                 (v) => v.innerHTML));
     }
@@ -159,6 +179,7 @@ export class Editor {
 
     commands = {
         splice: (l, f, start, end = start, contents = '') => {
+            return;
             const text = this.field(l, f).innerHTML;
             const result = text.substring(0, start) + contents + text.substring(end);
             const redo = () => {
@@ -172,8 +193,9 @@ export class Editor {
             return {redo, undo};
         },
         newline: (l) => {
+            return;
             const redo = () => {
-                this.line(l).insertAdjacentHTML('afterend', format.new_line());
+                this.line(l).insertAdjacentHTML('afterend', <format.CodeLine line='' />);
                 this.cursor.line = l+1;
             };
             const undo = () => {
