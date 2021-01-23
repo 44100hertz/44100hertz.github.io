@@ -1,5 +1,6 @@
 import React from "react";
 import * as format from "./format.js";
+import {parse_fields, field_pos, get_field_offset} from "./parse.js";
 
 const clamp = (v, l, u) => Math.max(l, Math.min(u, v));
 
@@ -16,51 +17,54 @@ function key_detect (k, mod={}) {
 }
 
 export class Editor extends React.Component {
-    constructor() {
-        super();
-        this.history = [];
-        this.history_head = 0;
-        this.cursor = new Cursor(this);
-        this.mark = new Cursor(this);
-        this.num_cols = format.col_order.length;
-//        format.draw_cursor(this.field(), this.cursor.char);
+    constructor(props) {
+        super(props);
+        this.state = {
+            history: [],
+            history_head: -1,
+            cursor_x: 0,
+            cursor_y: 0,
+            message: 'normal',
+            code: `loop:
+ poke 0 a;write colors to GPU
+ poke 1 b
+ poke 2 c
+ inc a a;update colors
+ inc b b
+ add b a b
+ add c a b
+ mov pc loop;back to start`.split('\n'),
+        }
+        //        format.draw_cursor(this.field(), this.cursor_char);
 
         this.key_mapping = [
             [key_detect('ArrowUp'),
              () => {
-                 this.cursor.move_line(-1);
+                 this.cursor_move_line(-1);
              }],
             [key_detect('ArrowDown'),
              () => {
-                 this.cursor.move_line(1);
-             }],
-            [key_detect('ArrowLeft', {alt: 1}),
-             () => {
-                 this.cursor.alt_jump(-1);
+                 this.cursor_move_line(1);
              }],
             [key_detect('ArrowLeft'),
              () => {
-                 this.cursor.move_char(-1);
-             }],
-            [key_detect('ArrowRight', {alt: 1}),
-             () => {
-                 this.cursor.alt_jump(1);
+                 this.cursor_move_char(-1);
              }],
             [key_detect('ArrowRight'),
              () => {
-                 this.cursor.move_char(1);
+                 this.cursor_move_char(1);
              }],
             [key_detect('Enter'),
              () => {
-                 this.do_command(['newline', this.cursor.line]);
+                 this.do_command(['newline']);
              }],
             [key_detect('Tab', {shift: 1}),
              () => {
-                 this.cursor.move_field(-1);
+                 this.cursor_move_field(-1);
              }],
             [key_detect('Tab'),
              () => {
-                 this.cursor.move_field(1);
+                 this.cursor_move_field(1);
              }],
             [key_detect('Backspace'),
              () => {
@@ -70,20 +74,11 @@ export class Editor extends React.Component {
              () => {
                  this.remove_at_cursor(0);
              }],
+            [key_detect('^'), () => this.cursor_set_field(0)],
+            [key_detect(':'), () => this.cursor_set_field(1)],
+            [key_detect(';'), () => this.cursor_set_field(2)],
+            [key_detect('Z', {ctrl: 1, shift: 1}), () => this.redo()],
             [key_detect('z', {ctrl: 1}), () => this.undo()],
-            [key_detect('Z', {ctrl: 1}), () => this.redo()],
-            [key_detect('^'),
-             () => {
-                 this.cursor.field_jump(0);
-             }],
-            [key_detect(':'),
-             () => {
-                 this.cursor.field_jump(1);
-             }],
-            [key_detect(';'),
-             () => {
-                 this.cursor.field_jump(2);
-             }],
             [is_input_char,
              (event) => {
                  this.insert_at_cursor(event.key)
@@ -91,176 +86,134 @@ export class Editor extends React.Component {
         ];
     }
 
-    handle_key () {
+    handle_key (event) {
+        const match = this.key_mapping.find(([pred,]) => pred(event));
+        if (match) {
+            match[1](event);
+            event.preventDefault();
+        }
     }
 
     render () {
-        function onclick (event) {
-            //            format.clear_cursor();
-            const match = this.key_mapping.find(([pred,]) => pred(event));
-            if (match) {
-                match[1]();
-                event.preventDefault();
-            }
-            //            format.draw_cursor(this.field(), this.cursor.char);
-        };
-
-        const sample_code = `
-loop:
- poke 0 a;write colors to GPU
- poke 1 b
- poke 2 c
- inc a a;update colors
- inc b b
- add b a b
- add c a b
- mov pc loop;back to start`;
         return (
-            <div id="codepane" tabIndex='0' class="border">
-              <format.PrettyCode onClick={onclick} code={sample_code}/>
+            <div onKeyDown={(event) => this.handle_key(event)} id="codepane" tabIndex='0' className="border">
+              <h2>{`(${this.state.cursor_x}, ${this.state.cursor_y}) ${this.state.message}`}</h2>
+              <format.PrettyCode {...this.state}/>
             </div>
         );
     }
 
-    line (line = this.cursor.line) {
-        return this.prettycode.childNodes[line];
+    line (line = this.state.cursor_y) {
+        return this.state.code[line];
     }
 
-    field (line, field = this.cursor.field) {
-        return this.line(line).childNodes[field];
-    }
-
-    field_text (...args) {
-        return this.field(...args).innerHTML;
+    field (line, field = this.cursor_field) {
+        //        return this.line(line).childNodes[field];
     }
 
     get document () {
-        format.clear_cursor();
-        return Array.from(this.prettycode.childNodes).map(
-            (child) => Array.from(child.childNodes).map(
-                (v) => v.innerHTML));
+        return this.state.code.join('\n');
     }
 
     get document_length () {
-        return this.prettycode.childNodes.length;
+        return this.state.code.length;
     }
 
     undo () {
-        if (this.history_head > 0) {
-            this.history[--this.history_head].undo();
+        const {history, history_head: head} = this.state;
+        if (head >= 0) {
+            history[head].undo();
+            this.setState({history_head: head-1, message: 'undo!'});
+        } else {
+            this.setState({message: 'cannot undo!'});
         }
     }
 
     redo () {
-        if (this.history_head < this.history.length) {
-            this.history[this.history_head++].redo();
+        const {history, history_head: head} = this.state;
+        console.log(history, head);
+        if (head+2 <= history.length) {
+            history[head+1].redo();
+            this.setState({history_head: head+1, message: 'redo!'});
+        } else {
+            this.setState({message: 'cannot redo!'});
         }
     }
 
     do_command (cmd) {
-        this.history[this.history_head++] = this.commands[cmd[0]](...cmd.slice(1));
-        this.history[this.history_head-1].redo();
-        // note: this discards "future" edits after undoing
-        this.history = this.history.slice(0, this.history_head);
+        let {history: old_history, history_head: head} = this.state;
+        const command = this.commands[cmd[0]](...cmd.slice(1));
+        command.redo();
+        const history = [...old_history, command];
+        ++head;
+        this.setState({history, history_head: head});
     }
 
     // Offset = 0: forward delete
     // Offset =-1: backspace
     remove_at_cursor (off) {
-        const pos = Math.min(this.cursor.char, this.field().innerHTML.length+off+1);
-        this.do_command(['splice', this.cursor.line, this.cursor.field, pos+off, pos+off+1]);
-        this.cursor.move_char(-1);
+        const {cursor_x: cx, cursor_y: cy} = this.state;
+        this.do_command(['splice', cy, cx+off, cx+1+off, '']);
+        this.cursor_move_char(off);
     }
 
     insert_at_cursor (key) {
-        this.do_command(['splice', this.cursor.line, this.cursor.field, this.cursor.char, this.cursor.char, key]);
-        this.cursor.move_char(1);
+        const {cursor_x: cx, cursor_y: cy} = this.state;
+        this.do_command(['splice', cy, cx, cx, key]);
     }
 
     commands = {
-        splice: (l, f, start, end = start, contents = '') => {
-            return;
-            const text = this.field(l, f).innerHTML;
-            const result = text.substring(0, start) + contents + text.substring(end);
-            const redo = () => {
-                this.field(l, f).innerHTML = result;
-                [this.cursor.line, this.cursor.field, this.cursor.char] = [l, f, end];
+        splice: (lineno, start, end = start, contents = '') => {
+            const {code} = this.state;
+            const line = code[lineno];
+            const line_result = line.substring(0, start) + contents + line.substring(end);
+            const code_result = this.state.code.map((v,i) => i === lineno ? line_result : v);
+            return {
+                redo: () => {
+                    this.setState({code: code_result, cursor_x: end+1, cursor_y: lineno})
+                },
+                undo: () => {
+                    this.setState({code: code, cursor_x: end+1, cursor_y: lineno})
+                },
             };
-            const undo = () => {
-                this.field(l, f).innerHTML = text;
-                [this.cursor.line, this.cursor.field, this.cursor.char] = [l, f, end];
-            };
-            return {redo, undo};
         },
-        newline: (l) => {
-            return;
-            const redo = () => {
-                this.line(l).insertAdjacentHTML('afterend', <format.CodeLine line='' />);
-                this.cursor.line = l+1;
+
+        newline: (lineno = this.state.cursor_y) => {
+            const {code, cursor_y: s} = this.state;
+            const newcode = [...code.slice(0,s+1), '', ...code.slice(s+1)];
+            return {
+                redo: () => {
+                    this.setState({code: newcode, cursor_y: s+1});
+                },
+                undo: () => {
+                    this.setState({code: code, cursor_y: s+1});
+                },
             };
-            const undo = () => {
-                this.line(l).nextSibling.remove();
-                this.cursor.line = l;
-            };
-            return {redo, undo};
         },
     }
-}
 
-class Cursor {
-    line = 0;
-    field = 0;
-    char = 0;
-
-    constructor (editor) {
-        this.editor = editor;
+    cursor_move_line (off) {
+        const {code, cursor_y} = this.state;
+        this.setState({cursor_y: Math.min(code.length, clamp(cursor_y+off, 0, code.length-1))});
     }
 
-    get field_length () {
-        return this.editor.field_text().length;
-    }
-
-    move_line (off) {
-        this.line = clamp(this.line+off, 0, this.editor.document_length-1);
-    }
-
-    move_field (off) {
-        const cols = this.editor.num_cols;
-        this.field = (this.field + off + cols) % cols;
-        this.char = 0;
-    }
-
-    move_char (off) {
-        this.char += off;
-        if (this.char < 0) {
-            this.move_field(-1);
-            this.char = this.field_length;
-        } else if (this.char > this.field_length) {
-            this.move_field(1);
-            this.char = 0;
+    cursor_set_field (index) {
+        const line = this.line();
+        this.setState({cursor_x: get_field_offset(this.line(), index)});
+        if (index === 2 && !line.includes(';')) {
+            const {cursor_x: cx, cursor_y: cy} = this.state;
+            this.do_command(['splice', cy, cx-1, cx-1, ';']);
         }
     }
 
-    alt_jump (off) {
-        if (off == 1) {
-            if (this.char == this.field_length) {
-                this.move_field(1);
-            }
-            this.char = this.field_length;
-        } else if (off == -1) {
-            if (this.char == 0) {
-                this.move_field(-1);
-            }
-            this.char = 0;
-        }
+    cursor_move_field (off) {
+        const {field} = field_pos(this.state.cursor_x, this.line());
+        this.cursor_set_field((field + off) % 3);
     }
 
-    field_jump (idx) {
-        if (this.field === idx && this.char === 0) {
-            this.char = this.field_length;
-        } else {
-            this.field = idx;
-            this.char = 0;
-        }
+    cursor_move_char (off) {
+        const {cursor_x} = this.state;
+        const line_len = this.line().length;
+        this.setState({cursor_x: (cursor_x + off + line_len + 1) % (line_len + 1)})
     }
 }

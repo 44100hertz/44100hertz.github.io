@@ -1,48 +1,40 @@
+import React from 'react';
+import {parse_fields, field_pos} from './parse.js';
+
 export const col_order = ['label', 'code', 'comment'];
 
-export const clear_cursor = () => {
-    const old = document.getElementById('cursor');
-    if (old) {
-        old.parentNode.style.backgroundColor = '';
-        old.remove();
-    }
-};
-
-// NOTE: drawing the cursor will affect the DOM in a way that makes the editor
-// malfunction. Use clear_cursor before doing edit operations.
-export const draw_cursor = (field, cur_char) => {
-    const fieldlen = field.innerHTML.length;
-
-    field.insertAdjacentHTML('beforebegin', '<div id="cursor">|</div>');
-    field.parentNode.style.backgroundColor = '#e0f0e8';
-
-    const pos = Math.min(cur_char, fieldlen);
-    field.previousSibling.style.left = pos + 'ch';
-};
-
 function Label ({children}) {
-    return <div class='label'>{children}</div>
+    return <div className='label'>{children}</div>
 }
 
 function Code ({children}) {
-    return <div class='code'>{children}</div>
+    return <div className='code'>{children}</div>
 }
 
 function Comment ({children}) {
-    return <div class='comment'>{children}</div>
+    return <div className='comment'>{children}</div>
 }
 
-export function CodeLine ({line}) {
-    let [, contents, comment] = line.match(/([^;]*);?(.*)/);
-    let [, label, code] = contents.match(/^(\w+|):?\s*(.*)/);
-    return <div class="codeline">
-             <Label>{label}</Label>
+function Cursor ({pos}) {
+    return <div id="cursor" style={{left: pos + 'ch'}}>|</div>
+}
+
+export function CodeLine ({line, lineno, key, cursor}) {
+    const {label, code, comment} = parse_fields(line);
+    let {field, offset} = cursor !== false ? field_pos(cursor, line) : {};
+
+    return <div className="codeline" style={{backgroundColor: cursor && '#e0f0e8'}}>
+             {field === 0 && <Cursor pos={offset}/>}
+             <Label>{label && label + ':'}</Label>
+             {field === 1 && <Cursor pos={offset}/>}
              <Code>{code}</Code>
-             <Comment>{comment}</Comment>
+             {field === 2 && <Cursor pos={offset}/>}
+             <Comment>{comment && ';' + comment}</Comment>
            </div>;
 }
 
-export function PrettyCode ({code}) {
-    return code.split('\n')
-        .map((line, lineno) => <CodeLine {...{line, lineno}}/>);
+export function PrettyCode ({code, cursor_x, cursor_y}) {
+    return code.map((line, lineno) =>
+        <CodeLine {...{line, lineno, cursor: (cursor_y === lineno) && Math.min(line.length, cursor_x)}}/>
+    );
 }
