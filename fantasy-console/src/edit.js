@@ -1,6 +1,9 @@
 import React from "react";
 import * as format from "./format.js";
-import {parse_fields, field_pos, get_field_offset} from "./parse.js";
+import * as lex from "./lex.js";
+
+// BUG: spacebar is very weird
+// BUG:
 
 const clamp = (v, l, u) => Math.max(l, Math.min(u, v));
 
@@ -22,21 +25,18 @@ export class Editor extends React.Component {
         this.state = {
             history: [],
             history_head: -1,
-            cursor_x: 0,
-            cursor_y: 0,
+            cursor_pos: [0,0,0],
             message: 'normal',
             code: `loop:
- poke 0 a;write colors to GPU
- poke 1 b
- poke 2 c
- inc a a;update colors
- inc b b
- add b a b
- add c a b
- mov pc loop;back to start`.split('\n'),
+    poke 0 a;write colors to GPU
+    poke 1 b
+    poke 2 c
+    inc a a;update colors
+    inc b b
+    add b a b
+    add c a b
+    mov pc loop;back to start`.split('\n'),
         }
-        //        format.draw_cursor(this.field(), this.cursor_char);
-
         this.key_mapping = [
             [key_detect('ArrowUp'),
              () => {
@@ -74,9 +74,6 @@ export class Editor extends React.Component {
              () => {
                  this.remove_at_cursor(0);
              }],
-            [key_detect('^'), () => this.cursor_set_field(0)],
-            [key_detect(':'), () => this.cursor_set_field(1)],
-            [key_detect(';'), () => this.cursor_set_field(2)],
             [key_detect('Z', {ctrl: 1, shift: 1}), () => this.redo()],
             [key_detect('z', {ctrl: 1}), () => this.undo()],
             [is_input_char,
@@ -84,6 +81,39 @@ export class Editor extends React.Component {
                  this.insert_at_cursor(event.key)
              }],
         ];
+    }
+
+    cursor_move_line (off) {
+        const {cursor_pos: [l,f,o]} = this.state;
+        this.setState({cursor_pos: [clamp(l + off, 0, this.document_length), f, o]});
+    }
+
+    cursor_set_field (field) {
+        const {cursor_pos: [l]} = this.state;
+        field = (field+3)%3;
+        const offset = field === 2 ? 1 : 0;
+        this.setState({cursor_pos: [l, field, offset]});
+    }
+
+    cursor_move_field (off) {
+        const {cursor_pos: [,field]} = this.state;
+        this.cursor_set_field(field + off);
+    }
+
+    cursor_move_char (off) {
+        const {x, y} = this.pos_to_xy();
+        const len = this.line(y).length + 1;
+        this.setState({cursor_pos: this.xy_to_pos({x: (x+off+len)%len, y: y})});
+    }
+
+    render () {
+        const {cursor_pos: [l,f,o]} = this.state;
+        return (
+            <div onKeyDown={(event) => this.handle_key(event)} id="codepane" tabIndex='0' className="border">
+              <h2>({l}:{f}:{o}) {this.state.message}</h2>
+              <format.PrettyCode {...this.state}/>
+            </div>
+        );
     }
 
     handle_key (event) {
@@ -94,21 +124,30 @@ export class Editor extends React.Component {
         }
     }
 
-    render () {
-        return (
-            <div onKeyDown={(event) => this.handle_key(event)} id="codepane" tabIndex='0' className="border">
-              <h2>{`(${this.state.cursor_x}, ${this.state.cursor_y}) ${this.state.message}`}</h2>
-              <format.PrettyCode {...this.state}/>
-            </div>
-        );
+    // Offset = 0: forward delete
+    // Offset =-1: backspace
+    remove_at_cursor (off) {
+        const {cursor_pos: [l, f, o]} = this.state;
+        this.do_command(['splice', [l,f,o+off], [l,f,o+off+1], '']);
+        this.cursor_move_char(off);
     }
 
-    line (line = this.state.cursor_y) {
+    insert_at_cursor (key) {
+        const {cursor_pos: [l, f, o]} = this.state;
+        this.do_command(['splice', [l,f,o], [l,f,o], key]);
+    }
+
+    line (line = this.state.cursor_pos[0]) {
         return this.state.code[line];
     }
 
-    field (line, field = this.cursor_field) {
-        //        return this.line(line).childNodes[field];
+    pos_to_xy ([line, field, offset] = this.state.cursor_pos) {
+        return {x: lex.field_offset_to_column(this.state.code[line], field, offset), y: line};
+    }
+
+    xy_to_pos ({x, y}) {
+        let {field, offset} = lex.column_to_field_offset(this.state.code[y], x);
+        return [y, field, offset];
     }
 
     get document () {
@@ -149,71 +188,35 @@ export class Editor extends React.Component {
         this.setState({history, history_head: head});
     }
 
-    // Offset = 0: forward delete
-    // Offset =-1: backspace
-    remove_at_cursor (off) {
-        const {cursor_x: cx, cursor_y: cy} = this.state;
-        this.do_command(['splice', cy, cx+off, cx+1+off, '']);
-        this.cursor_move_char(off);
-    }
-
-    insert_at_cursor (key) {
-        const {cursor_x: cx, cursor_y: cy} = this.state;
-        this.do_command(['splice', cy, cx, cx, key]);
-    }
-
     commands = {
-        splice: (lineno, start, end = start, contents = '') => {
+        splice: (p1, p2, contents = '') => {
+            // TODO: handle multi-line editing
+            const {x: start, y: line} = this.pos_to_xy(p1);
+            const {x: end} = this.pos_to_xy(p2);
+
             const {code} = this.state;
-            const line = code[lineno];
-            const line_result = line.substring(0, start) + contents + line.substring(end);
-            const code_result = this.state.code.map((v,i) => i === lineno ? line_result : v);
+            const linestr = code[line];
+
+            const line_result = lex.cleanup_line(
+                linestr.substring(0, start) + contents + linestr.substring(end));
+            const code_result = [...code.slice(0, line), line_result, ...code.slice(line + 1)];
+
+            const [l,f,o] = p2;
+            const cursor_pos = [l,f,lex.clamp_field_offset(line_result, f, o+1)];
+
             return {
-                redo: () => {
-                    this.setState({code: code_result, cursor_x: end+1, cursor_y: lineno})
-                },
-                undo: () => {
-                    this.setState({code: code, cursor_x: end+1, cursor_y: lineno})
-                },
+                redo: () => this.setState({code: code_result, cursor_pos}),
+                undo: () => this.setState({code: code, cursor_pos}),
             };
         },
 
         newline: (lineno = this.state.cursor_y) => {
-            const {code, cursor_y: s} = this.state;
-            const newcode = [...code.slice(0,s+1), '', ...code.slice(s+1)];
+            const {code, cursor_line: line} = this.state;
+            const newcode = [...code.slice(0,line+1), '', ...code.slice(line+1)];
             return {
-                redo: () => {
-                    this.setState({code: newcode, cursor_y: s+1});
-                },
-                undo: () => {
-                    this.setState({code: code, cursor_y: s+1});
-                },
+                redo: () => this.setState({code: newcode, cursor_line: line+1}),
+                undo: () => this.setState({code: code, cursor_line: line+1}),
             };
         },
-    }
-
-    cursor_move_line (off) {
-        const {code, cursor_y} = this.state;
-        this.setState({cursor_y: Math.min(code.length, clamp(cursor_y+off, 0, code.length-1))});
-    }
-
-    cursor_set_field (index) {
-        const line = this.line();
-        this.setState({cursor_x: get_field_offset(this.line(), index)});
-        if (index === 2 && !line.includes(';')) {
-            const {cursor_x: cx, cursor_y: cy} = this.state;
-            this.do_command(['splice', cy, cx-1, cx-1, ';']);
-        }
-    }
-
-    cursor_move_field (off) {
-        const {field} = field_pos(this.state.cursor_x, this.line());
-        this.cursor_set_field((field + off) % 3);
-    }
-
-    cursor_move_char (off) {
-        const {cursor_x} = this.state;
-        const line_len = this.line().length;
-        this.setState({cursor_x: (cursor_x + off + line_len + 1) % (line_len + 1)})
     }
 }

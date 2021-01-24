@@ -1,5 +1,5 @@
 import React from 'react';
-import {parse_fields, field_pos} from './parse.js';
+import * as lex from './lex.js';
 
 export const col_order = ['label', 'code', 'comment'];
 
@@ -19,22 +19,29 @@ function Cursor ({pos}) {
     return <div id="cursor" style={{left: pos + 'ch'}}>|</div>
 }
 
-export function CodeLine ({line, lineno, key, cursor}) {
-    const {label, code, comment} = parse_fields(line);
-    let {field, offset} = cursor !== false ? field_pos(cursor, line) : {};
+export function CodeLine ({linestr, lineno, key, cursor_pos}) {
+    const {label, code, comment} = lex.split_fields(linestr);
 
-    return <div className="codeline" style={{backgroundColor: cursor && '#e0f0e8'}}>
+    // Figure out cursor
+    let field, offset;
+    const match_line = lineno === cursor_pos[0];
+    if (match_line) {
+        [, field, offset] = cursor_pos;
+        offset = lex.clamp_field_offset(linestr, field, offset);
+    }
+
+    return <div className="codeline" style={{backgroundColor: match_line && '#e0f0e8'}}>
              {field === 0 && <Cursor pos={offset}/>}
-             <Label>{label && label + ':'}</Label>
+             <Label>{(label || field === 0) && label + ':'}</Label>
              {field === 1 && <Cursor pos={offset}/>}
              <Code>{code}</Code>
-             {field === 2 && <Cursor pos={offset}/>}
-             <Comment>{comment && ';' + comment}</Comment>
+             {field === 2 && <Cursor pos={offset + 1}/>}
+             <Comment>{(comment || field === 2) && ';' + comment}</Comment>
            </div>;
 }
 
-export function PrettyCode ({code, cursor_x, cursor_y}) {
-    return code.map((line, lineno) =>
-        <CodeLine {...{line, lineno, cursor: (cursor_y === lineno) && Math.min(line.length, cursor_x)}}/>
+export function PrettyCode ({code, cursor_pos}) {
+    return code.map((linestr, lineno) =>
+        <CodeLine {...{linestr, lineno, cursor_pos}}/>
     );
 }
