@@ -85,7 +85,7 @@ export class Editor extends React.Component {
 
     cursor_move_line (off) {
         const {cursor_pos: [l,f,o]} = this.state;
-        this.setState({cursor_pos: [clamp(l + off, 0, this.document_length), f, o]});
+        this.setState({cursor_pos: [clamp(l + off, 0, this.document_length-1), f, o]});
     }
 
     cursor_set_field (field) {
@@ -211,11 +211,11 @@ export class Editor extends React.Component {
         },
 
         newline: (lineno = this.state.cursor_y) => {
-            const {code, cursor_line: line} = this.state;
-            const newcode = [...code.slice(0,line+1), '', ...code.slice(line+1)];
+            const {code, cursor_pos: [l,f,o]} = this.state;
+            const newcode = [...code.slice(0,l+1), ':;', ...code.slice(l+1)];
             return {
-                redo: () => this.setState({code: newcode, cursor_line: line+1}),
-                undo: () => this.setState({code: code, cursor_line: line+1}),
+                redo: () => this.setState({code: newcode, cursor_pos: [l+1,f,o]}),
+                undo: () => this.setState({code: code, cursor_pos: [l+1,f,o]}),
             };
         },
     }
