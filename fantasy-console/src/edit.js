@@ -2,9 +2,6 @@ import React from "react";
 import * as format from "./format.js";
 import * as lex from "./lex.js";
 
-// BUG: spacebar is very weird
-// BUG:
-
 const clamp = (v, l, u) => Math.max(l, Math.min(u, v));
 
 function is_input_char (event) {
@@ -27,15 +24,7 @@ export class Editor extends React.Component {
             history_head: -1,
             cursor_pos: [0,0,0],
             message: 'normal',
-            code: `loop:
-    poke 0 a;write colors to GPU
-    poke 1 b
-    poke 2 c
-    inc a a;update colors
-    inc b b
-    add b a b
-    add c a b
-    mov pc loop;back to start`.split('\n'),
+            code: props.code.split('\n').map(l => lex.cleanup_line(l, {trim: true})),
         }
         this.key_mapping = [
             [key_detect('ArrowUp'),
@@ -74,6 +63,16 @@ export class Editor extends React.Component {
              () => {
                  this.remove_at_cursor(0);
              }],
+            [key_detect(';'),
+             () => {
+                 this.insert_at_cursor(';');
+                 this.cursor_set_field(2);
+             }],
+            [key_detect(':'),
+             () => {
+                 this.insert_at_cursor(':');
+                 this.cursor_set_field(1);
+             }],
             [key_detect('Z', {ctrl: 1, shift: 1}), () => this.redo()],
             [key_detect('z', {ctrl: 1}), () => this.undo()],
             [is_input_char,
@@ -89,10 +88,11 @@ export class Editor extends React.Component {
     }
 
     cursor_set_field (field) {
-        const {cursor_pos: [l]} = this.state;
+        const {cursor_pos: [l, f]} = this.state;
         field = (field+3)%3;
-        const offset = field === 2 ? 1 : 0;
-        this.setState({cursor_pos: [l, field, offset]});
+        if (f !== field) {
+            this.setState({cursor_pos: [l, field, 0]});
+        }
     }
 
     cursor_move_field (off) {
@@ -197,8 +197,7 @@ export class Editor extends React.Component {
             const {code} = this.state;
             const linestr = code[line];
 
-            const line_result = lex.cleanup_line(
-                linestr.substring(0, start) + contents + linestr.substring(end));
+            let line_result = linestr.substring(0, start) + contents + linestr.substring(end);
             const code_result = [...code.slice(0, line), line_result, ...code.slice(line + 1)];
 
             const [l,f,o] = p2;

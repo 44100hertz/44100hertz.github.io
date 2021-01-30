@@ -99,15 +99,18 @@ h1 {
     display: inline-block;
     min-width: 15%;
     color: deeppink;
+    white-space: pre;
 }
 
 .code {
     display: inline-block;
     min-width: 30%;
     color: darkred;
+    white-space: pre;
 }
 
 .comment {
     display: inline-block;
     color: peru;
+    white-space: pre;
 }
