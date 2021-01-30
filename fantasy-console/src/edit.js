@@ -75,6 +75,7 @@ export class Editor extends React.Component {
              }],
             [key_detect('Z', {ctrl: 1, shift: 1}), () => this.redo()],
             [key_detect('z', {ctrl: 1}), () => this.undo()],
+            [key_detect('l', {ctrl: 1}), () => this.do_command(['cleanup'])],
             [is_input_char,
              (event) => {
                  this.insert_at_cursor(event.key)
@@ -182,10 +183,12 @@ export class Editor extends React.Component {
     do_command (cmd) {
         let {history: old_history, history_head: head} = this.state;
         const command = this.commands[cmd[0]](...cmd.slice(1));
-        command.redo();
-        const history = [...old_history, command];
-        ++head;
-        this.setState({history, history_head: head});
+        if (command) {
+            command.redo();
+            const history = [...old_history, command];
+            ++head;
+            this.setState({history, history_head: head});
+        }
     }
 
     commands = {
@@ -216,6 +219,26 @@ export class Editor extends React.Component {
                 redo: () => this.setState({code: newcode, cursor_pos: [l+1,f,o]}),
                 undo: () => this.setState({code: code, cursor_pos: [l+1,f,o]}),
             };
+        },
+
+        cleanup: () => {
+            const dirty_code = this.state.code;
+            let diff = false;
+            const clean_code = this.state.code.map(l => {
+                const nl = lex.cleanup_line(l, {trim: true});
+                if (nl !== l) diff = true;
+                return nl;
+            });
+            if (diff) {
+                this.setState({message: 'reformatting code'});
+                return {
+                    redo: () => this.setState({code: clean_code}),
+                    undo: () => this.setState({code: dirty_code}),
+                }
+            } else {
+                this.setState({message: 'nothing to reformat'});
+                return null;
+            }
         },
     }
 }
