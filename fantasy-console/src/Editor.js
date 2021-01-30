@@ -1,5 +1,5 @@
 import React from "react";
-import * as format from "./format.js";
+import CodePane from "./CodePane.js";
 import * as lex from "./lex.js";
 
 const clamp = (v, l, u) => Math.max(l, Math.min(u, v));
@@ -19,7 +19,7 @@ function key_detect (k, mod={}) {
 let line_key_counter = 0;
 function next_line_key () { return line_key_counter++; }
 
-export class Editor extends React.Component {
+export default class Editor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -119,7 +119,7 @@ export class Editor extends React.Component {
         return (
             <div onKeyDown={(event) => this.handle_key(event)} id="codepane" tabIndex='0' className="border">
               <h2>({l}:{f}:{o}) {this.state.message}</h2>
-              <format.PrettyCode {...this.state}/>
+              <CodePane {...this.state}/>
             </div>
         );
     }

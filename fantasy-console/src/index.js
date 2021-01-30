@@ -4,7 +4,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import './style.css';
 
-import {Editor} from "./edit.js";
+import Editor from "./Editor.js";
 import {compile} from "./compile.js";
 //import * as emu from "./emulate.js";
 //

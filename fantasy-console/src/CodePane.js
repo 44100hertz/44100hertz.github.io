@@ -3,23 +3,13 @@ import * as lex from './lex.js';
 
 export const col_order = ['label', 'code', 'comment'];
 
-function Label ({children}) {
-    return <div className='label'>{children}</div>
+export default function CodePane ({code, cursor_pos}) {
+    return code.map((line, lineno) =>
+        <CodeLine key={'cl' + line.key} {...{line, lineno, cursor_pos}}/>
+    );
 }
 
-function Code ({children}) {
-    return <div className='code'>{children}</div>
-}
-
-function Comment ({children}) {
-    return <div className='comment'>{children}</div>
-}
-
-function Cursor ({pos}) {
-    return <div id="cursor" style={{left: pos + 'ch'}}>|</div>
-}
-
-export function CodeLine ({line, lineno, cursor_pos}) {
+function CodeLine ({line, lineno, cursor_pos}) {
     const {label, code, comment} = lex.split_fields(line.text);
 
     // Figure out cursor
@@ -40,8 +30,19 @@ export function CodeLine ({line, lineno, cursor_pos}) {
            </div>;
 }
 
-export function PrettyCode ({code, cursor_pos}) {
-    return code.map((line, lineno) =>
-        <CodeLine key={'cl' + line.key} {...{line, lineno, cursor_pos}}/>
-    );
+function Label ({children}) {
+    return <div className='label'>{children}</div>
 }
+
+function Code ({children}) {
+    return <div className='code'>{children}</div>
+}
+
+function Comment ({children}) {
+    return <div className='comment'>{children}</div>
+}
+
+function Cursor ({pos}) {
+    return <div id="cursor" style={{left: pos + 'ch'}}>|</div>
+}
+
