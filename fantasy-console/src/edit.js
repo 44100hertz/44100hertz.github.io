@@ -45,7 +45,7 @@ export class Editor extends React.Component {
              }],
             [key_detect('Enter'),
              () => {
-                 this.do_command(['newline']);
+                 this.do_command('newline');
              }],
             [key_detect('Tab', {shift: 1}),
              () => {
@@ -75,7 +75,7 @@ export class Editor extends React.Component {
              }],
             [key_detect('Z', {ctrl: 1, shift: 1}), () => this.redo()],
             [key_detect('z', {ctrl: 1}), () => this.undo()],
-            [key_detect('l', {ctrl: 1}), () => this.do_command(['cleanup'])],
+            [key_detect('l', {ctrl: 1}), () => this.do_command('cleanup')],
             [is_input_char,
              (event) => {
                  this.insert_at_cursor(event.key)
@@ -128,14 +128,14 @@ export class Editor extends React.Component {
     // Offset = 0: forward delete
     // Offset =-1: backspace
     remove_at_cursor (off) {
-        const {cursor_pos: [l, f, o]} = this.state;
-        this.do_command(['splice', [l,f,o+off], [l,f,o+off+1], '']);
+        const {code, cursor_pos: [l, f, o]} = this.state;
+        this.do_command('splice', [l,f,o+off], [l,f,o+off+1], '');
         this.cursor_move_char(off);
     }
 
     insert_at_cursor (key) {
         const {cursor_pos: [l, f, o]} = this.state;
-        this.do_command(['splice', [l,f,o], [l,f,o], key]);
+        this.do_command('splice', [l,f,o], [l,f,o], key);
     }
 
     line (line = this.state.cursor_pos[0]) {
@@ -180,7 +180,7 @@ export class Editor extends React.Component {
         }
     }
 
-    do_command (cmd) {
+    do_command (...cmd) {
         let {history: old_history, history_head: head} = this.state;
         const command = this.commands[cmd[0]](...cmd.slice(1));
         if (command) {
@@ -200,7 +200,8 @@ export class Editor extends React.Component {
             const {code} = this.state;
             const linestr = code[line];
 
-            let line_result = linestr.substring(0, start) + contents + linestr.substring(end);
+            let line_result = lex.cleanup_line(
+                linestr.substring(0, start) + contents + linestr.substring(end));
             const code_result = [...code.slice(0, line), line_result, ...code.slice(line + 1)];
 
             const [l,f,o] = p2;
@@ -212,8 +213,9 @@ export class Editor extends React.Component {
             };
         },
 
-        newline: (lineno = this.state.cursor_y) => {
-            const {code, cursor_pos: [l,f,o]} = this.state;
+        newline: (lineno) => {
+            let {code, cursor_pos: [l,f,o]} = this.state;
+            l = lineno ?? l;
             const newcode = [...code.slice(0,l+1), ':;', ...code.slice(l+1)];
             return {
                 redo: () => this.setState({code: newcode, cursor_pos: [l+1,f,o]}),
