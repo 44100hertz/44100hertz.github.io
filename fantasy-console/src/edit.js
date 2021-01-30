@@ -16,6 +16,9 @@ function key_detect (k, mod={}) {
         (!mod.alt || event.altKey);
 }
 
+let line_key_counter = 0;
+function next_line_key () { return line_key_counter++; }
+
 export class Editor extends React.Component {
     constructor(props) {
         super(props);
@@ -24,8 +27,12 @@ export class Editor extends React.Component {
             history_head: -1,
             cursor_pos: [0,0,0],
             message: 'normal',
-            code: props.code.split('\n').map(l => lex.cleanup_line(l, {trim: true})),
-        }
+            code: props.code.split('\n').map(l =>
+                ({
+                    text: lex.cleanup_line(l, {trim: true}),
+                    key: next_line_key(),
+                })),
+        };
         this.key_mapping = [
             [key_detect('ArrowUp'),
              () => {
@@ -103,7 +110,7 @@ export class Editor extends React.Component {
 
     cursor_move_char (off) {
         const {x, y} = this.pos_to_xy();
-        const len = this.line(y).length + 1;
+        const len = this.line(y).text.length + 1;
         this.setState({cursor_pos: this.xy_to_pos({x: (x+off+len)%len, y: y})});
     }
 
@@ -128,7 +135,7 @@ export class Editor extends React.Component {
     // Offset = 0: forward delete
     // Offset =-1: backspace
     remove_at_cursor (off) {
-        const {code, cursor_pos: [l, f, o]} = this.state;
+        const {cursor_pos: [l, f, o]} = this.state;
         this.do_command('splice', [l,f,o+off], [l,f,o+off+1], '');
         this.cursor_move_char(off);
     }
@@ -143,16 +150,16 @@ export class Editor extends React.Component {
     }
 
     pos_to_xy ([line, field, offset] = this.state.cursor_pos) {
-        return {x: lex.field_offset_to_column(this.state.code[line], field, offset), y: line};
+        return {x: lex.field_offset_to_column(this.line(line).text, field, offset), y: line};
     }
 
     xy_to_pos ({x, y}) {
-        let {field, offset} = lex.column_to_field_offset(this.state.code[y], x);
+        let {field, offset} = lex.column_to_field_offset(this.line(y).text, x);
         return [y, field, offset];
     }
 
     get document () {
-        return this.state.code.join('\n');
+        return this.state.code.map(o => o.text).join('\n');
     }
 
     get document_length () {
@@ -198,14 +205,18 @@ export class Editor extends React.Component {
             const {x: end} = this.pos_to_xy(p2);
 
             const {code} = this.state;
-            const linestr = code[line];
+            const linestr = code[line].text;
 
-            let line_result = lex.cleanup_line(
+            const text_result = lex.cleanup_line(
                 linestr.substring(0, start) + contents + linestr.substring(end));
+            const line_result = {
+                text: text_result,
+                key: next_line_key(),
+            };
             const code_result = [...code.slice(0, line), line_result, ...code.slice(line + 1)];
 
             const [l,f,o] = p2;
-            const cursor_pos = [l,f,lex.clamp_field_offset(line_result, f, o+1)];
+            const cursor_pos = [l,f,lex.clamp_field_offset(text_result, f, o+1)];
 
             return {
                 redo: () => this.setState({code: code_result, cursor_pos}),
@@ -216,7 +227,8 @@ export class Editor extends React.Component {
         newline: (lineno) => {
             let {code, cursor_pos: [l,f,o]} = this.state;
             l = lineno ?? l;
-            const newcode = [...code.slice(0,l+1), ':;', ...code.slice(l+1)];
+            const newline = {text: ':;', key: next_line_key()};
+            const newcode = [...code.slice(0,l+1), newline, ...code.slice(l+1)];
             return {
                 redo: () => this.setState({code: newcode, cursor_pos: [l+1,f,o]}),
                 undo: () => this.setState({code: code, cursor_pos: [l+1,f,o]}),
@@ -227,9 +239,13 @@ export class Editor extends React.Component {
             const dirty_code = this.state.code;
             let diff = false;
             const clean_code = this.state.code.map(l => {
-                const nl = lex.cleanup_line(l, {trim: true});
-                if (nl !== l) diff = true;
-                return nl;
+                const nl = lex.cleanup_line(l.text, {trim: true});
+                if (nl !== l.text) {
+                    diff = true;
+                    return {text: nl, key: next_line_key()};
+                } else {
+                    return l;
+                }
             });
             if (diff) {
                 this.setState({message: 'reformatting code'});

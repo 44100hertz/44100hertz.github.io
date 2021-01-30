@@ -19,15 +19,15 @@ function Cursor ({pos}) {
     return <div id="cursor" style={{left: pos + 'ch'}}>|</div>
 }
 
-export function CodeLine ({linestr, lineno, key, cursor_pos}) {
-    const {label, code, comment} = lex.split_fields(linestr);
+export function CodeLine ({line, lineno, cursor_pos}) {
+    const {label, code, comment} = lex.split_fields(line.text);
 
     // Figure out cursor
     let field, offset;
     const match_line = lineno === cursor_pos[0];
     if (match_line) {
         [, field, offset] = cursor_pos;
-        offset = lex.clamp_field_offset(linestr, field, offset);
+        offset = lex.clamp_field_offset(line.text, field, offset);
     }
 
     return <div className="codeline" style={{backgroundColor: match_line && '#e0f0e8'}}>
@@ -41,7 +41,7 @@ export function CodeLine ({linestr, lineno, key, cursor_pos}) {
 }
 
 export function PrettyCode ({code, cursor_pos}) {
-    return code.map((linestr, lineno) =>
-        <CodeLine {...{linestr, lineno, cursor_pos}}/>
+    return code.map((line, lineno) =>
+        <CodeLine key={'cl' + line.key} {...{line, lineno, cursor_pos}}/>
     );
 }
