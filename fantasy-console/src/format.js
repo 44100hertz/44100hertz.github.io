@@ -35,8 +35,8 @@ export function CodeLine ({line, lineno, cursor_pos}) {
              <Label>{(label || field === 0) && label + ':'}</Label>
              {field === 1 && <Cursor pos={offset}/>}
              <Code>{code}</Code>
-             {field === 2 && <Cursor pos={offset + 1}/>}
              <Comment>{(comment || field === 2) && ';' + comment}</Comment>
+             {field === 2 && <Cursor pos={offset - comment.length}/>}
            </div>;
 }
 
