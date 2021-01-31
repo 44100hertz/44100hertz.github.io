@@ -65,7 +65,7 @@ h1 {
 
 #cursor {
     position: relative;
-    display: inline-block;
+    display: inline flow-root;
     width: 0;
     height: 0;
     animation: 0.5s linear infinite cursor_blink;
@@ -95,21 +95,21 @@ h1 {
 }
 
 .label {
-    display: inline-block;
+    display: inline flow-root;
     min-width: 15%;
     color: deeppink;
     white-space: pre;
 }
 
 .code {
-    display: inline-block;
+    display: inline flow-root;
     min-width: 30%;
     color: darkred;
     white-space: pre;
 }
 
 .comment {
-    display: inline-block;
+    display: inline flow-root;
     color: peru;
     white-space: pre;
 }
