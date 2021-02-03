@@ -2,7 +2,6 @@ import {PROGRAM_ADDRESS} from "./address_space.js";
 import {names as inames} from "./instructions.js";
 
 const fps = 60.0;
-const frame_ms = 1000/fps;
 const screen_height = 60;
 const screen_width = 60;
 const screen_area = screen_width * screen_height;
@@ -67,15 +66,15 @@ export default class Emulator {
     }
     read_val (nib) {
         nib &= 0x7;
-        return nib == 0x7 ? this.next_word : this.reg[nib];
+        return nib === 0x7 ? this.next_word : this.reg[nib];
     }
     r (nib) {
         const v = this.read_val(nib);
-        return nib == nib & 0x8 ? this.ram[v] : v;
+        return (nib & 0x8) ? this.ram[v] : v;
     }
     w (nib, v) {
         // NO BAD WRITE NOPS!! I want these slots for teh futuer
-        if (nib == 0x7) throw "tried to write to immediate";
+        if (nib === 0x7) throw Error("tried to write to immediate");
         if (nib & 0x8) {
             this.ram[this.read_val(nib)] = v;
         } else {
@@ -90,16 +89,18 @@ export default class Emulator {
         if (cond) this.reg[REG_PC] = dest;
     }
     push (v) {
-        this.reg[REG_SP++] = v;
+        this.mem[this.reg[REG_SP]] = v;
+        ++this.reg[REG_SP];
     }
     pop () {
-        return this.mem[this.reg[--REG_SP]];
+        --this.reg[REG_SP];
+        return this.mem[this.reg[REG_SP+1]];
     }
     cycle () {
         const instr = this.next_word;
         const n0 = instr >> 12;
-        const n1 = instr >> 8 & 0xf;
-        const n2 = instr >> 4 & 0xf;
+        const n1 = (instr >> 8) & 0xf;
+        const n2 = (instr >> 4) & 0xf;
         const n3 = instr & 0xf;
         let v;
         if (n0) {
@@ -126,10 +127,10 @@ export default class Emulator {
                     this.w_carry(n1, this.r(n2) - this.r(n3) + this.carry);
                     break;
                 case inames.jeq:
-                    this.jumpif(this.r(n1) == this.r(n2), this.r(n3));
+                    this.jumpif(this.r(n1) === this.r(n2), this.r(n3));
                     break;
                 case inames.jne:
-                    this.jumpif(this.r(n1) != this.r(n2), this.r(n3));
+                    this.jumpif(this.r(n1) !== this.r(n2), this.r(n3));
                     break;
                 case inames.jlt:
                     this.jumpif(this.r(n1) < this.r(n2), this.r(n3));
@@ -145,7 +146,7 @@ export default class Emulator {
                     break;
                 case 0xf:
                     // maybe: idx
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
             }
         } else if (n1) {
             switch (n1) {
@@ -165,7 +166,7 @@ export default class Emulator {
                 case inames.ror:
                     v = this.r(n3);
                     this.carry = v & 1;
-                    this.w(n2, v >> 1 | this.carry << 15);
+                    this.w(n2, (v >> 1) | (this.carry << 15));
                     break;
                 case inames.shl:
                     v = this.r(n3);
@@ -175,7 +176,7 @@ export default class Emulator {
                 case inames.rol:
                     v = this.r(n3);
                     this.carry = v & (1 << 15);
-                    this.w(n2, v << 1 | this.carry);
+                    this.w(n2, (v << 1) | this.carry);
                     break;
                 case inames.squ:
                     v = this.r(n3);
@@ -195,20 +196,20 @@ export default class Emulator {
                     if (v <= 3) {
                         this.gram[v] = this.r(n3);
                     } else {
-                        throw 'bad memory poke';
+                        throw new Error('bad memory poke');
                     }
                     break;
                 case 0xc:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0xd:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0xe:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0xf:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
             }
         } else if (n2) {
@@ -227,12 +228,10 @@ export default class Emulator {
                 case 0x5:
                     break;
                 case 0x6:
-                    break;
-                case 0x6:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0x7:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case inames.jcc:
                     this.jumpif(!this.carry, this.r(n3));
@@ -241,22 +240,22 @@ export default class Emulator {
                     this.jumpif(this.carry, this.r(n3));
                     break;
                 case 0xa:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0xb:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0xc:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0xd:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0xe:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0xf:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
             }
         } else if (n3) {
@@ -270,31 +269,31 @@ export default class Emulator {
                     this.carry = true;
                     break;
                 case 0x4:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0x5:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0x6:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0x7:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0x8:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0x9:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0xa:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0xb:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case 0xc:
-                    throw 'unimplemented';
+                    throw new Error('unimplemented');
                     break;
                 case inames.brkline: // BRKLINE
                     this.break_line = true;
@@ -310,7 +309,7 @@ export default class Emulator {
                     break;
             }
         } else {
-            throw 'unimplemeted';
+            throw new Error('unimplemeted');
         }
     };
 }
