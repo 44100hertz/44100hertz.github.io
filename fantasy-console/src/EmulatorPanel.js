@@ -13,7 +13,7 @@ function EmulatorPanel ({code}) {
 
     useEffect(() => {
         if (binary && canvas.current) {
-            const emulator = new Emulator(binary, 0, canvas.current.getContext('2d'));
+            const emulator = new Emulator(binary, canvas.current.getContext('2d'));
             emulator.frame();
             return {
                 if (emulator) {
