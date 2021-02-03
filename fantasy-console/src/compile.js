@@ -1,3 +1,4 @@
+import * as lex from './lex.js';
 import {names as inames} from "./instructions.js";
 import {PROGRAM_ADDRESS, PROGRAM_ADDRESS_END} from "./address_space.js";
 
@@ -9,8 +10,8 @@ export const compile = (text) => {
     };
     const namespace = {};
     let program_counter = PROGRAM_ADDRESS;
-    for (let line of text) {
-        let [label, code] = line;
+    for (let {text: line} of text) {
+        let {label, code} = lex.split_fields(line, {trim: true});
 
         if (label) namespace[label] = program_counter;
         if (!code) continue;

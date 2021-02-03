@@ -17,7 +17,6 @@ function key_detect (k, mod={}) {
 }
 
 let line_key_counter = 0;
-function next_line_key () { return line_key_counter++; }
 
 export default class Editor extends React.Component {
     constructor(props) {
@@ -27,11 +26,6 @@ export default class Editor extends React.Component {
             history_head: -1,
             cursor_pos: [0,0,0],
             message: 'normal',
-            code: props.code.split('\n').map(l =>
-                ({
-                    text: lex.cleanup_line(l, {trim: true}),
-                    key: next_line_key(),
-                })),
         };
         this.key_mapping = [
             [key_detect('ArrowUp'),
@@ -90,6 +84,10 @@ export default class Editor extends React.Component {
         ];
     }
 
+    static next_line_key () {
+        return line_key_counter++;
+    }
+
     cursor_move_line (off) {
         const {cursor_pos: [l,f,o]} = this.state;
         this.setState({cursor_pos: [clamp(l + off, 0, this.document_length-1), f, o]});
@@ -119,7 +117,7 @@ export default class Editor extends React.Component {
         return (
             <div onKeyDown={(event) => this.handle_key(event)} id="codepane" tabIndex='0' className="border">
               <h2>({l}:{f}:{o}) {this.state.message}</h2>
-              <CodePane {...this.state}/>
+              <CodePane code={this.props.code} {...this.state}/>
             </div>
         );
     }
@@ -146,7 +144,7 @@ export default class Editor extends React.Component {
     }
 
     line (line = this.state.cursor_pos[0]) {
-        return this.state.code[line];
+        return this.props.code[line];
     }
 
     pos_to_xy ([line, field, offset] = this.state.cursor_pos) {
@@ -159,11 +157,11 @@ export default class Editor extends React.Component {
     }
 
     get document () {
-        return this.state.code.map(o => o.text).join('\n');
+        return this.props.code.map(o => o.text).join('\n');
     }
 
     get document_length () {
-        return this.state.code.length;
+        return this.props.code.length;
     }
 
     undo () {
@@ -178,7 +176,6 @@ export default class Editor extends React.Component {
 
     redo () {
         const {history, history_head: head} = this.state;
-        console.log(history, head);
         if (head+2 <= history.length) {
             history[head+1].redo();
             this.setState({history_head: head+1, message: 'redo!'});
@@ -204,14 +201,14 @@ export default class Editor extends React.Component {
             const {x: start, y: line} = this.pos_to_xy(p1);
             const {x: end} = this.pos_to_xy(p2);
 
-            const {code} = this.state;
+            const {code} = this.props;
             const linestr = code[line].text;
 
             const text_result = lex.cleanup_line(
                 linestr.substring(0, start) + contents + linestr.substring(end));
             const line_result = {
                 text: text_result,
-                key: next_line_key(),
+                key: Editor.next_line_key(),
             };
             const code_result = [...code.slice(0, line), line_result, ...code.slice(line + 1)];
 
@@ -219,30 +216,43 @@ export default class Editor extends React.Component {
             const cursor_pos = [l,f,lex.clamp_field_offset(text_result, f, o+1)];
 
             return {
-                redo: () => this.setState({code: code_result, cursor_pos}),
-                undo: () => this.setState({code: code, cursor_pos}),
+                redo: () => {
+                    this.props.setCode(code_result);
+                    this.setState({cursor_pos})
+                },
+                undo: () => {
+                    this.props.setCode(code);
+                    this.setState({cursor_pos});
+                },
             };
         },
 
         newline: (lineno) => {
-            let {code, cursor_pos: [l,f,o]} = this.state;
+            let {cursor_pos: [l,f,o]} = this.state;
+            let {code} = this.props;
             l = lineno ?? l;
-            const newline = {text: ':;', key: next_line_key()};
+            const newline = {text: ':;', key: Editor.next_line_key()};
             const newcode = [...code.slice(0,l+1), newline, ...code.slice(l+1)];
             return {
-                redo: () => this.setState({code: newcode, cursor_pos: [l+1,f,o]}),
-                undo: () => this.setState({code: code, cursor_pos: [l+1,f,o]}),
+                redo: () => {
+                    this.props.setCode(newcode);
+                    this.setState({cursor_pos: [l+1,f,o]})
+                },
+                undo: () => {
+                    this.props.setCode(code);
+                    this.setState({cursor_pos: [l+1,f,o]})
+                },
             };
         },
 
         cleanup: () => {
-            const dirty_code = this.state.code;
+            const dirty_code = this.props.code;
             let diff = false;
-            const clean_code = this.state.code.map(l => {
+            const clean_code = this.props.code.map(l => {
                 const nl = lex.cleanup_line(l.text, {trim: true});
                 if (nl !== l.text) {
                     diff = true;
-                    return {text: nl, key: next_line_key()};
+                    return {text: nl, key: Editor.next_line_key()};
                 } else {
                     return l;
                 }
@@ -259,4 +269,6 @@ export default class Editor extends React.Component {
             }
         },
     }
+
+
 }

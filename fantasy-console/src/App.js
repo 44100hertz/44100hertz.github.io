@@ -1,24 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+// TODO: save/load user asm files
+
+import React, {useState} from 'react';
+
+import construction from './construction.gif';
+import './style.css';
+
+import Editor from './Editor.js';
+import EmulatorPanel from './EmulatorPanel.js';
+import * as lex from './lex.js'
+//
+const sample_code = `loop:
+    poke 0 a;write colors to GPU
+    poke 1 b
+    poke 2 c
+    inc a a;update colors
+    inc b b
+    add b a b
+    add c a b
+    mov pc loop;back to start`
+      .split('\n').map(l =>
+        ({
+          text: lex.cleanup_line(l, {trim: true}),
+          key: Editor.next_line_key(),
+        }));
 
 function App() {
+  const [code, setCode] = useState(sample_code);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <h1>Online Fictional Computer</h1>
+      <img src={construction} style={{position: 'fixed', top: '2px', right: '2px'}} alt="under construction"></img>
+      <div id="mainflex">
+        <Editor code={code} setCode={setCode}/>
+        <EmulatorPanel code={code}/>
+      </div>
+    </>
   );
 }
 

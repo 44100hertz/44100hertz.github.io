@@ -11,17 +11,14 @@ const scan_width = 120;
 const scan_area = scan_width * scan_height;
 const clockspeed = scan_area * fps;
 
-const screen = document.getElementById('screen');
-const canvas = screen.getContext('2d');
-
 const REG_PC = 5;
 const REG_SP = 6;
 const REG_ZERO = REG_PC | 0x8;
 
 const signed = (a) => a & 0x8000 ? -(~a+1) : a; // Used for comparison
 
-class Emu {
-    constructor(rom, timestamp) {
+export default class Emulator {
+    constructor(rom, timestamp, canvas) {
         this.reg = new Uint16Array(8);
         this.carry = false;
         this.ram = new Uint16Array(0x10000);
@@ -31,11 +28,13 @@ class Emu {
         this.ram.set(rom, PROGRAM_ADDRESS);
         this.reg[REG_PC] = PROGRAM_ADDRESS;
         this.next_frame = timestamp;
+        this.canvas = canvas;
         this.pixbuf = canvas.createImageData(screen_width, screen_height);
         for (let i in this.pixbuf.data) {
             this.pixbuf.data[i] = 255;
         }
     }
+
     frame (timestamp) {
         for (; timestamp > this.next_frame; this.next_frame += frame_ms) {
             for (let line = 0; line < scan_height; ++line) {
@@ -55,13 +54,14 @@ class Emu {
             }
             this.break_frame = false;
         }
-        canvas.putImageData(this.pixbuf, 0, 0);
+        this.canvas.putImageData(this.pixbuf, 0, 0);
         if (this.break) {
             console.log('terminated with brk');
         } else {
             window.requestAnimationFrame((t) => this.frame(t));
         }
     }
+
     get next_word () {
         return this.ram[this.reg[REG_PC]++];
     }
@@ -314,8 +314,3 @@ class Emu {
         }
     };
 }
-
-export const run = (rom, timestamp) => {
-    const emu = new Emu(rom, timestamp);
-    emu.frame(timestamp+1);
-};
