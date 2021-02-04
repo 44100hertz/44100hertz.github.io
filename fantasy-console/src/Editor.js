@@ -22,8 +22,8 @@ export default class Editor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            history: [],
-            history_head: -1,
+            history: [{code: props.code}],
+            history_head: 0,
             cursor_pos: [0,0,0],
             message: 'normal',
         };
@@ -164,34 +164,41 @@ export default class Editor extends React.Component {
         return this.props.code.length;
     }
 
+    set_history_pos (pos, history = this.state.history) {
+        const item = history[pos];
+        if (item) {
+            this.props.setCode(item.code);
+            this.setState({history_head: pos,
+                           cursor_pos: item.cursor_pos ?? this.state.cursor_pos});
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     undo () {
-        const {history, history_head: head} = this.state;
-        if (head >= 0) {
-            history[head].undo();
-            this.setState({history_head: head-1, message: 'undo!'});
+        if (this.set_history_pos(this.state.history_head - 1)) {
+            this.setState({message: 'undo!'});
         } else {
             this.setState({message: 'cannot undo!'});
         }
     }
 
     redo () {
-        const {history, history_head: head} = this.state;
-        if (head+2 <= history.length) {
-            history[head+1].redo();
-            this.setState({history_head: head+1, message: 'redo!'});
+        if (this.set_history_pos(this.state.history_head + 1)) {
+            this.setState({message: 'redo!'});
         } else {
             this.setState({message: 'cannot redo!'});
         }
     }
 
-    do_command (...cmd) {
-        let {history: old_history, history_head: head} = this.state;
-        const command = this.commands[cmd[0]](...cmd.slice(1));
-        if (command) {
-            command.redo();
-            const history = [...old_history, command];
-            ++head;
-            this.setState({history, history_head: head});
+    do_command (cmd, ...args) {
+        let {history: old_history, history_head} = this.state;
+        const result = this.commands[cmd](...args);
+        if (result) {
+            const history = [...old_history, result];
+            this.setState({history});
+            this.set_history_pos(history_head + 1, history);
         }
     }
 
@@ -215,16 +222,7 @@ export default class Editor extends React.Component {
             const [l,f,o] = p2;
             const cursor_pos = [l,f,lex.clamp_field_offset(text_result, f, o+1)];
 
-            return {
-                redo: () => {
-                    this.props.setCode(code_result);
-                    this.setState({cursor_pos})
-                },
-                undo: () => {
-                    this.props.setCode(code);
-                    this.setState({cursor_pos});
-                },
-            };
+            return {code: code_result, cursor_pos};
         },
 
         newline: (lineno) => {
@@ -233,22 +231,13 @@ export default class Editor extends React.Component {
             l = lineno ?? l;
             const newline = {text: ':;', key: Editor.next_line_key()};
             const newcode = [...code.slice(0,l+1), newline, ...code.slice(l+1)];
-            return {
-                redo: () => {
-                    this.props.setCode(newcode);
-                    this.setState({cursor_pos: [l+1,f,o]})
-                },
-                undo: () => {
-                    this.props.setCode(code);
-                    this.setState({cursor_pos: [l+1,f,o]})
-                },
-            };
+            return {code: newcode, cursor_pos: [l+1, f, o]};
         },
 
         cleanup: () => {
             const dirty_code = this.props.code;
             let diff = false;
-            const clean_code = this.props.code.map(l => {
+            const clean_code = dirty_code.map(l => {
                 const nl = lex.cleanup_line(l.text, {trim: true});
                 if (nl !== l.text) {
                     diff = true;
@@ -259,16 +248,11 @@ export default class Editor extends React.Component {
             });
             if (diff) {
                 this.setState({message: 'reformatting code'});
-                return {
-                    redo: () => this.setState({code: clean_code}),
-                    undo: () => this.setState({code: dirty_code}),
-                }
+                return {code: clean_code};
             } else {
                 this.setState({message: 'nothing to reformat'});
                 return null;
             }
         },
     }
-
-
 }
