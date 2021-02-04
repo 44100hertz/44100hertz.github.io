@@ -10,27 +10,37 @@ export const compile = (text) => {
     };
     const namespace = {};
     let program_counter = PROGRAM_ADDRESS;
-    for (let {text: line} of text) {
+
+    for (let lineno in text) {
+        const {text: line} = text[lineno];
         let {label, code} = lex.split_fields(line, {trim: true});
-
-        if (label) namespace[label] = program_counter;
-        if (!code) continue;
-
-        let tokens = code.split(' ');
-        let nibs = [];
-        let immed = [];
-        nibs[0] = inames[tokens[0]];
-        tokens.slice(1).forEach((t) => {
-            if (regs[t] !== undefined) {
-                nibs.push(regs[t]);
-            } else {
-                nibs.push(7);
-                immed.push(t);
+        if (label) {
+            namespace[label] = program_counter;
+        }
+        const assignment = code.match(/([^=]+)=(.+)/);
+        if (assignment) {
+            const [, lhs, rhs] = assignment.map(t => t.trim());
+            if (isNaN(Number(rhs))) {
+                throw Error(`Cannot evaluate expression ${rhs}`, 'Code Buffer', lineno);
             }
-        });
-        program_counter += 1 + immed.length;
-        bin.push(nibs.reduce((a, b) => (a << 4) | b));
-        bin = bin.concat(immed);
+            namespace[lhs] = Number(rhs);
+        } else if (code) {
+            let tokens = code.split(' ');
+            let nibs = [];
+            let immed = [];
+            nibs[0] = inames[tokens[0]];
+            tokens.slice(1).forEach((t) => {
+                if (regs[t] !== undefined) {
+                    nibs.push(regs[t]);
+                } else {
+                    nibs.push(7);
+                    immed.push(t);
+                }
+            });
+            program_counter += 1 + immed.length;
+            bin.push(nibs.reduce((a, b) => (a << 4) | b));
+            bin = bin.concat(immed);
+        }
     }
 
     bin = bin.map(v => {
@@ -38,12 +48,12 @@ export const compile = (text) => {
             return Number(v);
         } else {
             if (!(v in namespace)) {
-                throw Error(`Undefined label: ${v}`);
+                throw Error(`Undefined variable: ${v}`);
             }
             const pc = namespace[v];
-            if (pc < PROGRAM_ADDRESS || pc > PROGRAM_ADDRESS_END) {
-                throw Error(`Attempt to jump to out-of-bounds address ${pc} using label ${v}`);
-            }
+            // if (pc < PROGRAM_ADDRESS || pc > PROGRAM_ADDRESS_END) {
+            //     throw Error(`Attempt to jump to out-of-bounds address ${pc} using label ${v}`);
+            // }
             return pc;
         }
     });

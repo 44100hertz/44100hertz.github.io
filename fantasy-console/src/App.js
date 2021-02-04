@@ -9,10 +9,14 @@ import Editor from './Editor.js';
 import EmulatorPanel from './EmulatorPanel.js';
 import * as lex from './lex.js'
 //
-const sample_code = `loop:
-    poke 0 a;write colors to GPU
-    poke 1 b
-    poke 2 c
+const sample_code = `
+    gpu_r = 0
+    gpu_g = 1
+    gpu_b = 2
+loop:
+    poke gpu_r a
+    poke gpu_g b
+    poke gpu_b c
     inc a a;update colors
     inc b b
     add b a b
