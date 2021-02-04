@@ -77,17 +77,23 @@ h1 {
     50% { opacity: 0.2; }
 }
 
-#runbutton {
+.emu-button {
     padding: 5pt 10pt;
-    width: 100%;
     font-size: 20pt;
     background-color: lightgrey;
 }
 
-#runbutton:active {
+.emu-button:active {
     background-color: red;
     color: white;
 }
+
+#emu-buttons {
+    display: flex;
+    flex-flow: row nowrap;
+             }
+#run-button {flex-grow: 2;}
+#stop-button {flex-grow: 0;}
 
 .codeline {
     display: block;

@@ -7,18 +7,12 @@ function EmulatorPanel ({code}) {
     const canvas = useRef();
     const [binary, setBinary] = useState();
 
-    function compile_and_run () {
-        setBinary(compile(code));
-    }
-
     useEffect(() => {
         if (binary && canvas.current) {
             const emulator = new Emulator(binary, canvas.current.getContext('2d'));
             emulator.frame();
-            return {
-                if (emulator) {
-                    emulator.break = true;
-                }
+            return () => {
+                emulator.break = true;
             }
         }
     }, [canvas, binary]);
@@ -26,7 +20,10 @@ function EmulatorPanel ({code}) {
     return (
         <div id="emulator" tabIndex="1">
           <canvas ref={canvas} id="screen" width="60" height="60" />
-          <button id="runbutton" onClick={compile_and_run}>▶</button>
+          <div id="emu-buttons">
+            <button className="emu-button" id="run-button" onClick={() => setBinary(compile(code))}>Run</button>
+            <button className="emu-button" id="stop-button" onClick={() => setBinary(null)}>Stop</button>
+          </div>
         </div>
     );
 }
