@@ -84,6 +84,29 @@ export default class Editor extends React.Component {
         ];
     }
 
+    render () {
+        const {cursor_pos: [l,f,o], history, history_head} = this.state;
+        return (
+            <div onKeyDown={(event) => this.handle_key(event)} id="codepane" tabIndex='0' className="border">
+              <div>
+                <button disabled={history_head < 1}
+                        onClick={() => this.undo()}
+                        title='Undo (Ctrl+Z)'>
+                  ↩
+                </button>
+                <button disabled={history_head >= history.length-1}
+                        onClick={() => this.redo()}
+                        title='Redo (Ctrl+Shift+Z)'>
+                  ↪
+                </button>
+                <button onClick={() => this.do_command('cleanup')}>Cleanup Formatting</button>
+              </div>
+              <h2>({l}:{f}:{o}) {this.state.message}</h2>
+              <CodePane code={this.props.code} {...this.state}/>
+            </div>
+        );
+    }
+
     static next_line_key () {
         return line_key_counter++;
     }
@@ -110,16 +133,6 @@ export default class Editor extends React.Component {
         const {x, y} = this.pos_to_xy();
         const len = this.line(y).text.length + 1;
         this.setState({cursor_pos: this.xy_to_pos({x: (x+off+len)%len, y: y})});
-    }
-
-    render () {
-        const {cursor_pos: [l,f,o]} = this.state;
-        return (
-            <div onKeyDown={(event) => this.handle_key(event)} id="codepane" tabIndex='0' className="border">
-              <h2>({l}:{f}:{o}) {this.state.message}</h2>
-              <CodePane code={this.props.code} {...this.state}/>
-            </div>
-        );
     }
 
     handle_key (event) {
