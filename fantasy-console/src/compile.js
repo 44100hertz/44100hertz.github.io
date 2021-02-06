@@ -1,6 +1,6 @@
 import * as lex from './lex.js';
-import {names as inames} from "./instructions.js";
-import {PROGRAM_ADDRESS, PROGRAM_ADDRESS_END} from "./address_space.js";
+import {names as inames} from './instructions.js';
+import {PROGRAM_ADDRESS, PROGRAM_ADDRESS_END} from './constants.js';
 
 export const compile = (text) => {
     let bin = [];

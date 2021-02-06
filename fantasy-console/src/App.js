@@ -10,17 +10,11 @@ import EmulatorPanel from './EmulatorPanel.js';
 import * as lex from './lex.js'
 //
 const sample_code = `
-    gpu_r = 0
-    gpu_g = 1
-    gpu_b = 2
+    gpu_color = 0
 loop:
-    poke gpu_r a
-    poke gpu_g b
-    poke gpu_b c
-    inc a a;update colors
-    inc b b
+    poke gpu_color b
+    inc a a
     add b a b
-    add c a b
     mov pc loop;back to start`
       .split('\n').map(l =>
         ({

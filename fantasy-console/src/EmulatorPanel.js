@@ -2,6 +2,7 @@ import React, {useRef, useState, useEffect} from 'react';
 
 import {compile} from './compile.js';
 import Emulator from './Emulator';
+import {SCREEN_WIDTH, SCREEN_HEIGHT} from './constants.js';
 
 function EmulatorPanel ({code}) {
     const canvas = useRef();
@@ -19,7 +20,7 @@ function EmulatorPanel ({code}) {
 
     return (
         <div id="emulator" tabIndex="1">
-          <canvas ref={canvas} id="screen" width="60" height="60" />
+          <canvas ref={canvas} id="screen" width={SCREEN_WIDTH} height={SCREEN_HEIGHT} />
           <div id="emu-buttons">
             <button className="emu-button" id="run-button" onClick={() => setBinary(compile(code))}>Run</button>
             <button className="emu-button" id="stop-button" onClick={() => setBinary(null)}>Stop</button>

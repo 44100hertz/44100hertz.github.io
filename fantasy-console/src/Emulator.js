@@ -1,15 +1,10 @@
-import {PROGRAM_ADDRESS} from "./address_space.js";
-import {names as inames} from "./instructions.js";
-
-const fps = 60.0;
-const screen_height = 60;
-const screen_width = 60;
-const screen_area = screen_width * screen_height;
-const scan_height = 120;
-const scan_width = 120;
-const scan_area = scan_width * scan_height; // cycles per frame
-const clockspeed = scan_area * fps; // cycles per second
-const cycles_per_pixel = 4;
+import {names as inames} from './instructions.js';
+import {
+    PROGRAM_ADDRESS,
+    SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_AREA,
+    SCAN_WIDTH, SCAN_HEIGHT,
+    CPU_CYCLES_PER_PIXEL,
+} from './constants.js';
 
 const REG_PC = 5;
 const REG_SP = 6;
@@ -18,42 +13,46 @@ const REG_ZERO = REG_PC | 0x8;
 const signed = (a) => a & 0x8000 ? -(~a+1) : a; // Used for comparison
 
 export default class Emulator {
+
     constructor(rom, canvas) {
         this.reg = new Uint16Array(8);
         this.carry = false;
         this.ram = new Uint16Array(0x10000);
 
-        this.gram = new Uint8Array(0x3);
+        this.gram = new Uint8Array(0x1);
 
         this.ram.set(rom, PROGRAM_ADDRESS);
         this.reg[REG_PC] = PROGRAM_ADDRESS;
         this.canvas = canvas;
-        this.pixbuf = canvas.createImageData(screen_width, screen_height);
-        for (let i in this.pixbuf.data) {
-            this.pixbuf.data[i] = 255;
-        }
+        this.rgba_buffer = canvas.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
+        for (let i in this.rgba_buffer.data) this.rgba_buffer.data[i] = 255;
+        this.video_buffer = new Uint8Array(SCREEN_AREA).fill(0);
     }
 
     frame () {
-        for (let line = 0; line < scan_height; ++line) {
-            const line_off = line * screen_width * 4;
-            for (let col = 0; col < scan_width; ++col) {
-                for (let i=0; i<cycles_per_pixel; ++i) {
+        for (let line = 0; line < SCAN_HEIGHT; ++line) {
+            for (let col = 0; col < SCAN_WIDTH; ++col) {
+                for (let i=0; i<CPU_CYCLES_PER_PIXEL; ++i) {
                     this.cycle();
                 }
                 if (this.break_line) break;
-                if (line < screen_height && col < screen_width) {
-                    const off = line_off + col * 4;
-                    for (let i=0; i<3; ++i) {
-                        this.pixbuf.data[off+i] = this.gram[i];
-                    }
+                if (line < SCREEN_HEIGHT && col < SCREEN_WIDTH) {
+                    const off = line * SCREEN_WIDTH + col;
+                    this.video_buffer[off] = this.gram[0];
                 }
             }
             this.break_line = false;
             if (this.break_frame) break;
         }
         this.break_frame = false;
-        this.canvas.putImageData(this.pixbuf, 0, 0);
+
+        for (let i=0; i<SCREEN_AREA; ++i) {
+            for (let c=0; c<3; ++c) {
+                this.rgba_buffer.data[i*4+c] = this.video_buffer[i];
+            }
+        }
+
+        this.canvas.putImageData(this.rgba_buffer, 0, 0);
         if (this.break) {
             console.log('terminated with brk');
         } else {
@@ -70,7 +69,7 @@ export default class Emulator {
     }
     r (nib) {
         const v = this.read_val(nib);
-        return (nib & 0x8) ? this.ram[v] : v;
+        return nib === REG_ZERO ? 0 : (nib & 0x8) ? this.ram[v] : v;
     }
     w (nib, v) {
         // NO BAD WRITE NOPS!! I want these slots for teh futuer
@@ -193,7 +192,7 @@ export default class Emulator {
                     break;
                 case inames.poke:
                     v = this.r(n2);
-                    if (v <= 3) {
+                    if (v < this.gram.length) {
                         this.gram[v] = this.r(n3);
                     } else {
                         throw new Error('bad memory poke');
