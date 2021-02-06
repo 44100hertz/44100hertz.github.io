@@ -209,7 +209,7 @@ export default class Editor extends React.Component {
         let {history: old_history, history_head} = this.state;
         const result = this.commands[cmd](...args);
         if (result) {
-            const history = [...old_history, result];
+            const history = [...old_history.slice(0, history_head+1), result];
             this.setState({history});
             this.set_history_pos(history_head + 1, history);
         }
