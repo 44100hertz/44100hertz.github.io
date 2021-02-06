@@ -37,7 +37,7 @@ export default class PPU {
 
     step_line () {
         while (this.offset % SCREEN_WIDTH > 0) {
-            this.step_pixel();
+            this.step_pixel()
         }
     }
 

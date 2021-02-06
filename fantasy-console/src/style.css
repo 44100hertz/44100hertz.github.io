@@ -8,10 +8,12 @@ body {
     background-image: url("bg.png");
 }
 
+/*
 canvas {
     image-rendering: pixelated;
     image-rendering: optimizeSpeed;
-}
+}*/
+
 
 #mainflex {
     display: flex;

@@ -1,22 +1,22 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect} from 'react'
 
-import {compile} from './compile.js';
-import Emulator from './Emulator';
-import {SCREEN_WIDTH, SCREEN_HEIGHT} from './constants.js';
+import {compile} from './compile.js'
+import Emulator from './Emulator'
+import {SCREEN_WIDTH, SCREEN_HEIGHT} from './constants.js'
 
 function EmulatorPanel ({code}) {
-    const canvas = useRef();
-    const [binary, setBinary] = useState();
+    const canvas = useRef()
+    const [binary, setBinary] = useState()
 
     useEffect(() => {
         if (binary && canvas.current) {
-            const emulator = new Emulator(binary, canvas.current.getContext('2d'));
-            emulator.frame();
+            const emulator = new Emulator(binary, canvas.current.getContext('2d'))
+            emulator.frame()
             return () => {
-                emulator.break = true;
+                emulator.break = true
             }
         }
-    }, [canvas, binary]);
+    }, [canvas, binary])
 
     return (
         <div id="emulator" tabIndex="1">
@@ -26,7 +26,7 @@ function EmulatorPanel ({code}) {
             <button className="emu-button" id="stop-button" onClick={() => setBinary(null)}>Stop</button>
           </div>
         </div>
-    );
+    )
 }
 
-export default EmulatorPanel;
+export default EmulatorPanel

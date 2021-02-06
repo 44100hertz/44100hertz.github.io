@@ -1,12 +1,12 @@
 // TODO: save/load user asm files
 
-import React, {useState} from 'react';
+import React, {useState} from 'react'
 
-import construction from './construction.gif';
-import './style.css';
+import construction from './construction.gif'
+import './style.css'
 
-import Editor from './Editor.js';
-import EmulatorPanel from './EmulatorPanel.js';
+import Editor from './Editor.js'
+import EmulatorPanel from './EmulatorPanel.js'
 import * as lex from './lex.js'
 //
 const sample_code = `
@@ -20,10 +20,10 @@ loop:
         ({
           text: lex.cleanup_line(l, {trim: true}),
           key: Editor.next_line_key(),
-        }));
+        }))
 
 function App() {
-  const [code, setCode] = useState(sample_code);
+  const [code, setCode] = useState(sample_code)
 
   return (
     <>
@@ -34,7 +34,7 @@ function App() {
         <EmulatorPanel code={code}/>
       </div>
     </>
-  );
+  )
 }
 
-export default App;
+export default App

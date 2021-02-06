@@ -83,13 +83,16 @@ export const words = [
         {name: 'brkframe', args: []},
         {name: 'brk', args: []},
     ],
-];
+]
 
-export const names = {};
+export const names = {}
 for (let shelf in words) {
     for (let byte in words[shelf]) {
-        const name = words[shelf][byte].name;
-        names[name] = +byte;
+        const name = words[shelf][byte].name
+        names[name] = +byte
     }
-    delete names[''];
+    delete names['']
 }
+
+Object.freeze(words);
+Object.freeze(names);

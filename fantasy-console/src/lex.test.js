@@ -1,22 +1,22 @@
-import * as lex from './lex.js';
+import * as lex from './lex.js'
 
 it('Strict split clean string', () =>
     expect(lex.split_fields(' first part : second part ; third part ', {strict: true}))
               .toMatchObject({label: ' first part ',
                               code: ' second part ',
-                              comment: ' third part '}));
+                              comment: ' third part '}))
 
 it('Strict split comment colon', () =>
     expect(lex.split_fields('label:code;;comment:comment;', {strict: true}))
               .toMatchObject({label: 'label',
                               code: 'code',
-                              comment: ';comment:comment;'}));
+                              comment: ';comment:comment;'}))
 
 it('Strict split empty line', () =>
     expect(lex.split_fields(':;', {strict: true}))
               .toMatchObject({label: '',
                               code: '',
-                              comment: ''}));
+                              comment: ''}))
 
 const cleanup_code = [
     ['Label',
@@ -46,12 +46,12 @@ const cleanup_code = [
     ['Comment colon',
      'label: code a b ;a:comment',
      'label:code a b;a:comment'],
-];
+]
 
 for (const [name, input, output] of cleanup_code) {
     it('Cleanup line ' + name, () => {
-        expect(lex.cleanup_line(input, {trim: true})).toEqual(output);
-    });
+        expect(lex.cleanup_line(input, {trim: true})).toEqual(output)
+    })
 }
 
 const column_field_offset = [
@@ -77,13 +77,13 @@ const column_field_offset = [
      ':code    ;comment', 9, 1, 8],
     ['Comment after whitespace',
      ':code    ;comment', 10, 2, 0],
-];
+]
 
 for (const [name, linestr, column, field, offset] of column_field_offset) {
     it('Column to Field Offset ' + name, () => {
-        expect(lex.column_to_field_offset(linestr, column)).toMatchObject({field, offset});
-    });
+        expect(lex.column_to_field_offset(linestr, column)).toMatchObject({field, offset})
+    })
     it('Field Offset to Column ' + name, () => {
-        expect(lex.field_offset_to_column(linestr, field, offset)).toEqual(column);
-    });
+        expect(lex.field_offset_to_column(linestr, field, offset)).toEqual(column)
+    })
 }
