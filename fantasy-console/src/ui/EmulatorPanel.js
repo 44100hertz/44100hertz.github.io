@@ -1,8 +1,8 @@
 import React, {useRef, useState, useEffect} from 'react'
 
-import {compile} from './compile.js'
-import Emulator from './Emulator'
-import {SCREEN_WIDTH, SCREEN_HEIGHT} from './constants.js'
+import {compile} from '../assembler/assemble.js'
+import Emulator from '../hz16/Emulator.js'
+import {SCREEN_WIDTH, SCREEN_HEIGHT} from '../hz16/constants.js'
 
 function EmulatorPanel ({code}) {
     const canvas = useRef()

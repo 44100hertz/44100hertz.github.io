@@ -2,12 +2,12 @@
 
 import React, {useState} from 'react'
 
+import Editor from './Editor.js'
+import EmulatorPanel from './EmulatorPanel.js'
 import construction from './construction.gif'
 import './style.css'
 
-import Editor from './Editor.js'
-import EmulatorPanel from './EmulatorPanel.js'
-import * as lex from './lex.js'
+import * as lex from '../assembler/lex.js'
 //
 const sample_code = `
     gpu_color = 0

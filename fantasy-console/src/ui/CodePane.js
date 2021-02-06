@@ -1,5 +1,5 @@
 import React from 'react'
-import * as lex from './lex.js'
+import * as lex from '../assembler/lex.js'
 
 export const col_order = ['label', 'code', 'comment']
 

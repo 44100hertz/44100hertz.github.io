@@ -1,6 +1,6 @@
 import React from 'react'
 import CodePane from './CodePane.js'
-import * as lex from './lex.js'
+import * as lex from '../assembler/lex.js'
 
 const clamp = (v, l, u) => Math.max(l, Math.min(u, v))
 
