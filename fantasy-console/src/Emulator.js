@@ -1,4 +1,5 @@
 import {names as inames} from './instructions.js';
+import PPU from './PPU.js';
 import {
     PROGRAM_ADDRESS,
     SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_AREA,
@@ -19,14 +20,12 @@ export default class Emulator {
         this.carry = false;
         this.ram = new Uint16Array(0x10000);
 
-        this.gram = new Uint8Array(0x1);
+        this.ppu = new PPU(canvas);
 
         this.ram.set(rom, PROGRAM_ADDRESS);
         this.reg[REG_PC] = PROGRAM_ADDRESS;
         this.canvas = canvas;
         this.rgba_buffer = canvas.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
-        for (let i in this.rgba_buffer.data) this.rgba_buffer.data[i] = 255;
-        this.video_buffer = new Uint8Array(SCREEN_AREA).fill(0);
     }
 
     frame () {
@@ -35,24 +34,19 @@ export default class Emulator {
                 for (let i=0; i<CPU_CYCLES_PER_PIXEL; ++i) {
                     this.cycle();
                 }
-                if (this.break_line) break;
-                if (line < SCREEN_HEIGHT && col < SCREEN_WIDTH) {
-                    const off = line * SCREEN_WIDTH + col;
-                    this.video_buffer[off] = this.gram[0];
+                if (this.break_line) {
+                    this.ppu.step_line();
+                    break;
+                } else if (line < SCREEN_HEIGHT && col < SCREEN_WIDTH) {
+                    this.ppu.step_pixel();
                 }
             }
             this.break_line = false;
             if (this.break_frame) break;
         }
         this.break_frame = false;
+        this.ppu.render();
 
-        for (let i=0; i<SCREEN_AREA; ++i) {
-            for (let c=0; c<3; ++c) {
-                this.rgba_buffer.data[i*4+c] = this.video_buffer[i];
-            }
-        }
-
-        this.canvas.putImageData(this.rgba_buffer, 0, 0);
         if (this.break) {
             console.log('terminated with brk');
         } else {
@@ -191,12 +185,7 @@ export default class Emulator {
                     this.w(n3, -this.r(n2));
                     break;
                 case inames.poke:
-                    v = this.r(n2);
-                    if (v < this.gram.length) {
-                        this.gram[v] = this.r(n3);
-                    } else {
-                        throw new Error('bad memory poke');
-                    }
+                    this.ppu.write(this.r(n2), this.r(n3));
                     break;
                 case 0xc:
                     throw new Error('unimplemented');

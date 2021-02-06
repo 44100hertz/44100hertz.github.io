@@ -14,9 +14,9 @@
 //
 export const FRAME_RATE = 60.0;
 export const SCREEN_WIDTH = 480;
-export const SCREEN_HEIGHT = 240;
+export const SCREEN_HEIGHT = 480;
 export const SCAN_WIDTH = 480; // Used for timing
-export const SCAN_HEIGHT = 240;
+export const SCAN_HEIGHT = 480;
 export const SCREEN_AREA = SCREEN_WIDTH * SCREEN_HEIGHT;
 export const SCAN_AREA = SCAN_WIDTH * SCAN_HEIGHT;
 if (SCAN_WIDTH < SCREEN_WIDTH || SCAN_HEIGHT < SCREEN_HEIGHT)
@@ -61,8 +61,8 @@ export const PPU_ADDRESS = 0x0000;
 export const TILE_WIDTH = 8;
 export const TILE_HEIGHT = 8;
 export const TILE_AREA = TILE_WIDTH * TILE_HEIGHT;
-export const BITS_PER_PIXEL = 1;
-export const TILE_SIZE = TILE_AREA * BITS_PER_PIXEL / 8;
+export const BITS_PER_PIXEL = 2;
+export const TILE_SIZE = TILE_AREA * BITS_PER_PIXEL / ADDRESS_BIT_WIDTH;
 
 export const TILESET_ADDRESS = 0x0000;
 export const TILESET_ENTRIES = 256;
@@ -72,7 +72,7 @@ export const TILESET_END = TILESET_ADDRESS + TILESET_SIZE;
 export const TILEMAP_ADDRESS = 0x1000;
 if (TILESET_END > TILEMAP_ADDRESS)
     throw new Error('Tileset and Tilemap overlapping memory.');
-export const TILEMAP_ENTRY_SIZE = 2;
+export const TILEMAP_ENTRY_SIZE = 1;
 // Multiply width or height by 2 to enable scrolling
 export const TILEMAP_WIDTH = Math.ceil(SCREEN_WIDTH / TILE_WIDTH);
 export const TILEMAP_HEIGHT = Math.ceil(SCREEN_HEIGHT / TILE_HEIGHT);
@@ -84,5 +84,7 @@ Address space size: ${ADDRESS_SIZE}
 RAM Size: ${RAM_SIZE}
 Program Address: ${PROGRAM_ADDRESS}
 Screen size: ${SCREEN_WIDTH}x${SCREEN_HEIGHT}
-CPU clock speed: ${CPU_CLOCK_RATE_MHZ}MHz
+Tileset Size: ${TILESET_SIZE} (out of ${TILEMAP_ADDRESS - TILESET_ADDRESS})
+Tilemap Size: ${TILEMAP_SIZE}
+CPU clock speed: ${CPU_CLOCK_RATE_MHZ} MHz
 `);
