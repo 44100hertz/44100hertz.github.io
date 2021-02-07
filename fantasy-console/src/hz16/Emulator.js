@@ -2,7 +2,6 @@ import {names as inames} from './instructions.js'
 import PPU from './PPU.js'
 import {
     PROGRAM_ADDRESS,
-    SCREEN_WIDTH, SCREEN_HEIGHT,
     SCAN_WIDTH, SCAN_HEIGHT,
     CPU_CYCLES_PER_PIXEL,
 } from './constants.js'
@@ -25,17 +24,17 @@ export default class Emulator {
     }
 
     frame () {
+        if (!this.ppu.loaded) {
+            window.requestAnimationFrame((t) => this.frame(t))
+            return
+        }
+
         for (let line = 0; line < SCAN_HEIGHT; ++line) {
             for (let col = 0; col < SCAN_WIDTH; ++col) {
                 for (let i=0; i<CPU_CYCLES_PER_PIXEL; ++i) {
                     this.cycle()
                 }
-                if (this.break_line) {
-                    this.ppu.step_line()
-                    break
-                } else if (line < SCREEN_HEIGHT && col < SCREEN_WIDTH) {
-                    this.ppu.step_pixel()
-                }
+                if (this.break_line) break
             }
             this.break_line = false
             if (this.break_frame) break
