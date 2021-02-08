@@ -10,6 +10,9 @@ import {
     TILEMAP_WIDTH,
     TILEMAP_SIZE,
     TILEMAP_END,
+    PALETTE_ADDRESS,
+    PALETTE_SIZE,
+    PALETTE_END,
 } from './constants.js'
 
 import console_font from './console-rom/consolefont.png'
@@ -26,7 +29,6 @@ import console_font from './console-rom/consolefont.png'
 //   The low byte is the index of the tile within the tileset.
 //   The high byte is currently unused.
 
-
 export default class PPU {
     constructor (canvas) {
         this.canvas = canvas
@@ -40,6 +42,14 @@ export default class PPU {
         img.onload = () => this.tileset = PPU.image_to_2bpp(img)
 
         this.tilemap = new Uint16Array(TILEMAP_SIZE)
+
+        const palette = [
+            0,0,30,0,
+            88,61,90,0,
+            169,143,150,0,
+            255,241,214,0
+        ]
+        this.palette = new Uint8Array(palette)
     }
 
     get loaded () {
@@ -88,6 +98,9 @@ export default class PPU {
         } else if (offset >= TILEMAP_ADDRESS && offset < TILEMAP_END) {
             offset -= TILEMAP_ADDRESS
             this.tilemap[offset] = word
+        } else if (offset >= PALETTE_ADDRESS && offset < PALETTE_END) {
+            offset -= PALETTE_ADDRESS
+            this.palette[offset] = word // Cuts off top 8 bits
         } else {
             throw new Error(`Bad GPU write: ${offset}`)
         }
@@ -95,13 +108,6 @@ export default class PPU {
 
     render () {
         if (!this.loaded) return
-
-        const palette = [
-            [0,0,30],
-            [88,61,90],
-            [169,143,150],
-            [255,241,214],
-        ];
 
         for (let y=0; y<SCREEN_HEIGHT; ++y) {
             for (let x=0; x<SCREEN_WIDTH; ++x) {
@@ -113,13 +119,10 @@ export default class PPU {
                 // Write to screen pixel
                 const ppos = y * SCREEN_WIDTH + x;
                 for (let c=0;c<3;++c) {
-                    this.rgba_buffer.data[ppos*4+c] = palette[pixel][c]
+                    this.rgba_buffer.data[ppos*4+c] = this.palette[pixel*4 + c]
                 }
             }
         }
-
-        //meme code
-        //for (let y=0; y<SCREEN_HEIGHT; ++y) for (let x=0; x<SCREEN_WIDTH; ++x) for (let c=0;c<3;++c) this.rgba_buffer.data[(y*SCREEN_WIDTH + x)*4 + c] = palette[((this.tileset[this.tilemap[Math.floor(y/8) * TILEMAP_WIDTH + Math.floor(x/8)]*TILE_SIZE + y%8] >> ((y%8)*2)) & 3)][c]
 
         this.canvas.putImageData(this.rgba_buffer, 0, 0)
     }
