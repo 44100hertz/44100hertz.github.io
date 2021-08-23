@@ -1,36 +1,64 @@
 'use strict';
 
 const quiz = [
-    ["It is sometimes OK to invade other countries for humanitarian reasons.", 20],
+    // Imperialism
+    ["I apply the same ethical standard to every country on Earth.", 10],
+    ["It is OK to invade other countries for humanitarian reasons.", 20],
+    ["The US is may be imperialist, but China is also imperialist.", 10],
+
+    // Utopianism
+    ["Start with the ideal society, and work from there.", 10],
+    ["Socialism starts with a critique of norms and culture.", 10],
+
+    // Sex
     ["Bestiality is sometimes acceptable.", 10],
-    ["The age of consent is oppressive.", 10],
-    ["We don't need to read books written by old dead white men.", 10],
-    ["White genocide would benefit the world.", 10],
-    ["We have an obligation to vote for the sake of harm reduction.", 5],
-    ["The proper term for Latino or Latina people is Latinx", 5],
-    ["Marx was antisemitic.", 5],
     ["Prostitution is liberating.", 5],
     ["Pornography is liberating.", 5],
-    ["Selling or using drugs is liberating.", 5],
-    ["The drinking age is oppressive.", 5],
-    ["Socialism means the abolition of commodity production.", 5],
-    ["Revolution isn't authoritarian, it is anti-authoritarian.", 5],
-    ["Authority is the root of all evil.", 5],
-    ["We do not need police and prisons.", 5],
-    ["We have to choose individualism over collectivism.", 5],
-    ["Abolish nations and borders.", 5],
-    ["Poverty is virtuous.", 5],
-    ["China was only socialist before Deng Xiaoping's reform.", 5],
-    ["Cuba can't be considered socialist.", 5],
-    ["Venezuela can't be considered socialist.", 5],
+    ["The age of consent is oppressive.", 10],
     ["We must dismantle the traditional family structure.", 5],
+    ["Fascism is the result of sexual repression.", 10],
+
+    // Idpol
+    ["We don't need to read books written by old dead white men.", 10],
+    ["Marx was antisemitic.", 5],
     ["Socialism without LGBTQ+ rights is not socialism.", 5],
+    ["The proper term for Latino or Latina people is Latinx.", 10],
+    ["We can dismantle capitalism by dismantling patriarchy.", 10],
+    ["White people in the US need to go back to Europe.", 10],
+    ["White people in the US are labor aristocracy, not workers.", 5],
+
+    // Reformism
+    ["We have an obligation to vote for the sake of harm reduction.", 5],
+    ["The Nordic model is the best system to date.", 5],
+    ["The Bolsheviks should have just ran for office instead of revolting.", 10],
+    ["Revolution is immoral because it is violent.", 10],
+
+    // Marxoid-ism
+    ["Socialism means the abolition of commodity production.", 10],
     ["Profit harms workers.", 5],
-    ["Large industry has to be broken up to save the planet.", 5],
-    ["Socialism will eliminate all inequality.", 5],
-    ["We need to re-examine our culture and weed out problematic elements.", 5],
-    ["The Nordic model is the best governmental system to date.", 5],
-    ["We can vote our way into socialism.", 5],
+    ["Vietnam can't be considered socialist, since it has markets.", 10],
+    ["Venezuela can't be considered socialist, since it isn't explicitly Marxist.", 5],
+
+    // Anarchism
+    ["The black market is the way to freedom.", 10],
+    ["Selling or using drugs is liberating.", 10],
+    ["We do not need police and prisons.", 5],
+    ["Abolish nations and borders.", 10],
+    ["Politics only gets in the way of making real change.", 10],
+    ["We must choose individualism over collectivism.", 10],
+    ["To change the world, start by changing yourself.", 10],
+    ["Kill and destroy whatever it is you hate, and others will follow.", 15],
+    ["We don't need a state, we can just voluntarily exchange goods and services.", 10],
+
+    // Primitivism
+    ["Large industry has to be broken up to save the planet.", 10],
+    ["We need to reduce the population.", 10],
+    ["The human lifestyle has become too costly for the planet.", 5],
+
+    // Vulgar materialism
+    ["Religion is meaningless.", 10],
+    ["Muslim faith leads to violent extremism.", 20],
+    ["We should always trust science.", 10],
 ]
 
 let default_weight = 0;
@@ -59,7 +87,7 @@ function get_result(total_score, weight) {
                 "Your mind has been thoroughly rotted by western leftism."]
     } else {
         return ["Terminal leftoid",
-                "Your politics is a complete joke. You are thoroughly divorced from all impactful leftist movements in the world."]
+                "Your politics is a complete joke. You probably struggle in everyday life."]
     }
 }
 
@@ -73,7 +101,9 @@ function do_question (question_index) {
     console.log(score, total_weight, score / total_weight);
     if (question_index === quiz.length) {
         const [result, description] = get_result(score, total_weight);
-        e_question.innerHTML = '<p>Result: ' + result + '</p><p>' + description + '</p>';
+        e_question.innerHTML = `
+<p>Result: ${result}</p>
+<p>${description}</p>`;
         e_buttons.innerHTML = '';
         return;
     }
@@ -117,8 +147,7 @@ e_question.innerHTML = `
 <p> Are you a leftoid? A leftoid is someone who has been set on the wrong path
 by western leftism. Without a coherent view of Marxism or Socialism, these
 people have been tricked into wasting their time and energy while failing to
-challenge the established US global order, and to offer a meaningful alternative
-that uplifts the people. </p>
+challenge the established US global order, or to offer a meaningful alternative. </p>
 
 <p> The following questions will try to assess whether or not you are a leftoid,
 and if so how severe of a problem it is.</p> `;
