@@ -2,47 +2,47 @@
 
 const quiz = [
     // Imperialism
-    ["I apply the same ethical standard to every country on Earth.", 10],
+    ["We should apply different ethical standards to every country.", 10, true],
     ["It is OK to invade other countries for humanitarian reasons.", 20],
-    ["The US is may be imperialist, but China is also imperialist.", 10],
+    ["The US may be imperialist, but China is also.", 10],
 
     // Utopianism
     ["Start with the ideal society, and work from there.", 10],
-    ["Socialism starts with a critique of norms and culture.", 10],
+    ["Socialism cannot be based on a critique of norms and culture.", 10, true],
 
     // Sex
-    ["Bestiality is sometimes acceptable.", 10],
+    ["Bestiality is always unacceptable.", 10, true],
     ["Prostitution is liberating.", 5],
-    ["Pornography is liberating.", 5],
-    ["The age of consent is oppressive.", 10],
+    ["Pornography is harmful to society.", 5, true],
+    ["We should not allow adults to have sex with children.", 10, true],
     ["We must dismantle the traditional family structure.", 5],
     ["Fascism is the result of sexual repression.", 10],
 
     // Idpol
     ["We don't need to read books written by old dead white men.", 10],
-    ["Marx was antisemitic.", 5],
+    ["Marx was not antisemitic.", 5, true],
     ["Socialism without LGBTQ+ rights is not socialism.", 5],
-    ["The proper term for Latino or Latina people is Latinx.", 10],
+    ["The term 'Latinx' is preferable to Latino or Latina", 10],
     ["We can dismantle capitalism by dismantling patriarchy.", 10],
-    ["White people in the US need to go back to Europe.", 10],
-    ["White people in the US are labor aristocracy, not workers.", 5],
+    ["White people in the US should go back to Europe.", 10],
+    ["White and black people in the US are both suffering from poverty.", 5, true],
 
     // Reformism
-    ["We have an obligation to vote for the sake of harm reduction.", 5],
+    ["We have an obligation to vote for the sake of harm reduction.", 5, true],
     ["The Nordic model is the best system to date.", 5],
     ["The Bolsheviks should have just ran for office instead of revolting.", 10],
     ["Revolution is immoral because it is violent.", 10],
 
     // Marxoid-ism
-    ["Socialism means the abolition of commodity production.", 10],
+    ["Socialism can still have commodity production.", 10, true],
     ["Profit harms workers.", 5],
-    ["Vietnam can't be considered socialist, since it has markets.", 10],
+    ["Vietnam can be considered socialist, even though it has markets.", 10, true],
     ["Venezuela can't be considered socialist, since it isn't explicitly Marxist.", 5],
 
     // Anarchism
     ["The black market is the way to freedom.", 10],
-    ["Selling or using drugs is liberating.", 10],
-    ["We do not need police and prisons.", 5],
+    ["It is good for some drugs to be illegal.", 10, true],
+    ["Police and prisons are needed for an orderly society.", 5, true],
     ["Abolish nations and borders.", 10],
     ["Politics only gets in the way of making real change.", 10],
     ["We must choose individualism over collectivism.", 10],
@@ -52,13 +52,13 @@ const quiz = [
 
     // Primitivism
     ["Large industry has to be broken up to save the planet.", 10],
-    ["We need to reduce the population.", 10],
+    ["The Earth can sustain 10 billion people or more.", 10, true],
     ["The human lifestyle has become too costly for the planet.", 5],
 
     // Vulgar materialism
     ["Religion is meaningless.", 10],
     ["Muslim faith leads to violent extremism.", 20],
-    ["We should always trust science.", 10],
+    ["We should not always trust science.", 10, true],
 ]
 
 let default_weight = 0;
@@ -72,7 +72,7 @@ function get_result(total_score, weight) {
     }
     if (score <= 0) {
         return ["Non-Leftoid",
-                "You either spam-clicked disagree, or you are actually based."]
+                "You are based."]
     } else if (score < 0.1) {
         return ["Slight leftoid",
                 "You have leftoid tendencies, but it isn't that bad."]
@@ -108,7 +108,7 @@ function do_question (question_index) {
         return;
     }
 
-    const [text, weight] = quiz[question_index];
+    const [text, weight, invert] = quiz[question_index];
 
     e_question.innerHTML = text;
     e_buttons.innerHTML = `
@@ -125,7 +125,7 @@ function do_question (question_index) {
 
     btn_agree.addEventListener('click', () => {
         total_weight += weight;
-        score += weight;
+        if (!invert) score += weight;
         do_question(question_index + 1);
     })
     btn_neutral.addEventListener('click', () => {
@@ -134,6 +134,7 @@ function do_question (question_index) {
     })
     btn_disagree.addEventListener('click', () => {
         total_weight += weight;
+        if (invert) score += weight;
         do_question(question_index + 1);
     })
     btn_idk.addEventListener('click', () => {
