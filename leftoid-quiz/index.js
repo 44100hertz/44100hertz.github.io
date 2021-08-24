@@ -2,25 +2,25 @@
 
 const quiz = [
     // Imperialism
-    ["We should apply different ethical standards to every country.", 10, true],
-    ["It is OK to invade other countries for humanitarian reasons.", 20],
+    ["We should apply the same ethical standards to every country.", 10],
+    ["It is OK to invade another country to export liberal democracy.", 20],
     ["The US may be imperialist, but China is also.", 10],
 
     // Utopianism
     ["Start with the ideal society, and work from there.", 10],
-    ["Socialism cannot be based on a critique of norms and culture.", 10, true],
+    ["Socialism is primarily economic, not cultural.", 10, true],
 
     // Sex
-    ["Bestiality is always unacceptable.", 10, true],
+    ["Bestiality should be made legal.", 10],
     ["Prostitution is liberating.", 5],
-    ["Pornography is harmful to society.", 5, true],
+    ["Pornography can be harmful to society.", 5, true],
     ["We should not allow adults to have sex with children.", 10, true],
-    ["We must dismantle the traditional family structure.", 5],
+    ["We must dismantle the existing family structure.", 5],
     ["Fascism is the result of sexual repression.", 10],
 
     // Idpol
     ["We don't need to read books written by old dead white men.", 10],
-    ["Marx was not antisemitic.", 5, true],
+    ["Karl Marx was thoroughly antisemitic.", 5],
     ["Socialism without LGBTQ+ rights is not socialism.", 5],
     ["The term 'Latinx' is preferable to Latino or Latina", 10],
     ["We can dismantle capitalism by dismantling patriarchy.", 10],
@@ -28,21 +28,21 @@ const quiz = [
     ["White and black people in the US are both suffering from poverty.", 5, true],
 
     // Reformism
-    ["We have an obligation to vote for the sake of harm reduction.", 5, true],
+    ["We can move towards socialism by voting for the lesser evil.", 5, true],
     ["The Nordic model is the best system to date.", 5],
     ["The Bolsheviks should have just ran for office instead of revolting.", 10],
     ["Revolution is immoral because it is violent.", 10],
 
     // Marxoid-ism
     ["Socialism can still have commodity production.", 10, true],
-    ["Profit harms workers.", 5],
+    ["Workers can benefit from profit.", 5, true],
     ["Vietnam can be considered socialist, even though it has markets.", 10, true],
     ["Venezuela can't be considered socialist, since it isn't explicitly Marxist.", 5],
 
     // Anarchism
     ["The black market is the way to freedom.", 10],
     ["It is good for some drugs to be illegal.", 10, true],
-    ["Police and prisons are needed for an orderly society.", 5, true],
+    ["Police and prisons must exist in every society.", 5, true],
     ["Abolish nations and borders.", 10],
     ["Politics only gets in the way of making real change.", 10],
     ["We must choose individualism over collectivism.", 10],
@@ -52,8 +52,7 @@ const quiz = [
 
     // Primitivism
     ["Large industry has to be broken up to save the planet.", 10],
-    ["The Earth can sustain 10 billion people or more.", 10, true],
-    ["The human lifestyle has become too costly for the planet.", 5],
+    ["We need to reduce the human population.", 10],
 
     // Vulgar materialism
     ["Religion is meaningless.", 10],
