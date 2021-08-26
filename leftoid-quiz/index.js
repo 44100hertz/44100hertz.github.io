@@ -37,7 +37,7 @@ const quiz = [
 
     // Marxoid-ism
     ["Socialism can still have commodity production.", 10, true],
-    ["Workers can benefit from profit.", 5, true],
+    ["Worker co-ops should not try to make profit.", 5, true],
     ["Vietnam can be considered socialist, even though it has markets.", 10, true],
     ["Venezuela can't be considered socialist, since it isn't explicitly Marxist.", 5, false],
 
@@ -48,7 +48,7 @@ const quiz = [
     ["Abolish nations and borders.", 10, false],
     ["Politics only gets in the way of making real change.", 10, false],
     ["We must choose individualism over collectivism.", 10, false],
-    ["To change the world, start by changing yourself.", 10, false],
+    ["Before trying to change the world, you must perfect your own lifestyle.", 10, false],
     ["Kill and destroy whatever it is you hate, and others will follow.", 15, false],
     ["We don't need a state, we can just voluntarily exchange goods and services.", 10, false],
 
