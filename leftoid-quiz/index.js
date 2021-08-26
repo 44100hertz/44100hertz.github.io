@@ -1,62 +1,64 @@
 'use strict';
 
+const $ = (id) => document.getElementById(id);
+
 const quiz = [
     // Imperialism
-    ["We should apply the same ethical standards to every country.", 10],
-    ["It is OK to invade another country to export liberal democracy.", 20],
-    ["The US may be imperialist, but China is also.", 10],
+    ["We should apply the same ethical standards to every country.", 10, false],
+    ["It is OK to invade another country to export liberal democracy.", 20, false],
+    ["The US may be imperialist, but China is also.", 10, false],
 
     // Utopianism
-    ["Start with the ideal society, and work from there.", 10],
+    ["Start with the ideal society, and work from there.", 10, false],
     ["Socialism is primarily economic, not cultural.", 10, true],
 
     // Sex
-    ["Bestiality should be made legal.", 10],
-    ["Prostitution is liberating.", 5],
+    ["Bestiality should be made legal.", 10, false],
+    ["Prostitution is liberating.", 5, false],
     ["Pornography can be harmful to society.", 5, true],
     ["We should not allow adults to have sex with children.", 10, true],
-    ["We must dismantle the existing family structure.", 5],
-    ["Fascism is the result of sexual repression.", 10],
+    ["We must dismantle the existing family structure.", 5, false],
+    ["Fascism is the result of sexual repression.", 10, false],
 
     // Idpol
-    ["We don't need to read books written by old dead white men.", 10],
-    ["Karl Marx was thoroughly antisemitic.", 5],
-    ["Socialism without LGBTQ+ rights is not socialism.", 5],
-    ["The term 'Latinx' is preferable to Latino or Latina", 10],
-    ["We can dismantle capitalism by dismantling patriarchy.", 10],
-    ["White people in the US should go back to Europe.", 10],
+    ["We don't need to read books written by old dead white men.", 10, false],
+    ["Karl Marx was thoroughly antisemitic.", 5, false],
+    ["Socialism without LGBTQ+ rights is not socialism.", 5, false],
+    ["The term 'Latinx' is preferable to Latino or Latina", 10, false],
+    ["We can dismantle capitalism by dismantling patriarchy.", 10, false],
+    ["White people in the US should go back to Europe.", 10, false],
     ["White and black people in the US are both suffering from poverty.", 5, true],
 
     // Reformism
-    ["We can move towards socialism by voting for the lesser evil.", 5, true],
-    ["The Nordic model is the best system to date.", 5],
-    ["The Bolsheviks should have just ran for office instead of revolting.", 10],
-    ["Revolution is immoral because it is violent.", 10],
+    ["We can move towards socialism by voting for the lesser evil.", 5, false],
+    ["The Nordic model is the best system to date.", 5, false],
+    ["The Bolsheviks should have just ran for office instead of revolting.", 10, false],
+    ["Revolution is immoral because it is violent.", 10, false],
 
     // Marxoid-ism
     ["Socialism can still have commodity production.", 10, true],
     ["Workers can benefit from profit.", 5, true],
     ["Vietnam can be considered socialist, even though it has markets.", 10, true],
-    ["Venezuela can't be considered socialist, since it isn't explicitly Marxist.", 5],
+    ["Venezuela can't be considered socialist, since it isn't explicitly Marxist.", 5, false],
 
     // Anarchism
-    ["The black market is the way to freedom.", 10],
+    ["The black market is the way to freedom.", 10, false],
     ["It is good for some drugs to be illegal.", 10, true],
     ["Police and prisons must exist in every society.", 5, true],
-    ["Abolish nations and borders.", 10],
-    ["Politics only gets in the way of making real change.", 10],
-    ["We must choose individualism over collectivism.", 10],
-    ["To change the world, start by changing yourself.", 10],
-    ["Kill and destroy whatever it is you hate, and others will follow.", 15],
-    ["We don't need a state, we can just voluntarily exchange goods and services.", 10],
+    ["Abolish nations and borders.", 10, false],
+    ["Politics only gets in the way of making real change.", 10, false],
+    ["We must choose individualism over collectivism.", 10, false],
+    ["To change the world, start by changing yourself.", 10, false],
+    ["Kill and destroy whatever it is you hate, and others will follow.", 15, false],
+    ["We don't need a state, we can just voluntarily exchange goods and services.", 10, false],
 
     // Primitivism
-    ["Large industry has to be broken up to save the planet.", 10],
-    ["We need to reduce the human population.", 10],
+    ["Large industry has to be broken up to save the planet.", 10, false],
+    ["We need to reduce the human population.", 10, false],
 
     // Vulgar materialism
-    ["Religion is meaningless.", 10],
-    ["Muslim faith leads to violent extremism.", 20],
+    ["Religion is meaningless.", 10, false],
+    ["Muslim faith leads to violent extremism.", 20, false],
     ["We should not always trust science.", 10, true],
 ]
 
@@ -74,36 +76,45 @@ function get_result(total_score, weight) {
                 "You are based."]
     } else if (score < 0.1) {
         return ["Slight leftoid",
-                "You have leftoid tendencies, but it isn't that bad."]
+                "You have leftoid tendencies, but it isn't that bad.", true]
     } else if (score < 0.2) {
         return ["Average leftoid",
-                "You're kind of a leftoid."]
+                "You're kind of a leftoid.", true]
     } else if (score < 0.3) {
         return ["Acute leftoid",
-                "You have gone over the deep end."]
+                "You have gone over the deep end.", true]
     } else if (score < 0.4) {
         return ["Extreme leftoid",
-                "Your mind has been thoroughly rotted by western leftism."]
+                "Your mind has been thoroughly rotted by western leftism.", true]
     } else {
         return ["Terminal leftoid",
-                "Your politics is a complete joke. You probably struggle in everyday life."]
+                "Your politics is a complete joke. You probably struggle in everyday life.", true]
     }
 }
 
-const e_question = document.getElementById('question');
-const e_buttons = document.getElementById('buttons');
+const e_question = $('question');
+const e_buttons = $('buttons');
 
 let score = 0
 let total_weight = 0
+let leftoid_answers = []
 
 function do_question (question_index) {
     console.log(score, total_weight, score / total_weight);
     if (question_index === quiz.length) {
-        const [result, description] = get_result(score, total_weight);
+        const [result, description, is_leftoid] = get_result(score, total_weight);
         e_question.innerHTML = `
 <p>Result: ${result}</p>
 <p>${description}</p>`;
-        e_buttons.innerHTML = '';
+        if (is_leftoid) {
+            e_buttons.innerHTML = '<button class="quizbutton" id="btn_why">Why am I a leftoid?';
+            $('btn_why').addEventListener('click', () => {
+                for (const i of leftoid_answers) {
+                    e_question.innerHTML += `<p>You answered ${quiz[i][2] ? 'Disagree' : 'Agree'} to "${quiz[i][0]}"</p>`;
+                }
+                $('btn_why').disabled = true;
+            })
+        }
         return;
     }
 
@@ -117,26 +128,27 @@ function do_question (question_index) {
 <button class="quizbutton" id="btn_idk">Don't Know
 `
 
-    const btn_agree = document.getElementById('btn_agree');
-    const btn_neutral = document.getElementById('btn_neutral');
-    const btn_disagree = document.getElementById('btn_disagree');
-    const btn_idk = document.getElementById('btn_idk');
-
-    btn_agree.addEventListener('click', () => {
+    $('btn_agree').addEventListener('click', () => {
         total_weight += weight;
-        if (!invert) score += weight;
+        if (!invert) {
+            score += weight;
+            leftoid_answers.push(question_index);
+        }
         do_question(question_index + 1);
     })
-    btn_neutral.addEventListener('click', () => {
+    $('btn_neutral').addEventListener('click', () => {
         total_weight += weight / 2.0;
         do_question(question_index + 1);
     })
-    btn_disagree.addEventListener('click', () => {
+    $('btn_disagree').addEventListener('click', () => {
         total_weight += weight;
-        if (invert) score += weight;
+        if (invert) {
+            score += weight;
+            leftoid_answers.push(question_index);
+        }
         do_question(question_index + 1);
     })
-    btn_idk.addEventListener('click', () => {
+    $('btn_idk').addEventListener('click', () => {
         do_question(question_index + 1);
     })
 }
@@ -153,5 +165,4 @@ challenge the established US global order, or to offer a meaningful alternative.
 and if so how severe of a problem it is.</p> `;
 e_buttons.innerHTML = `<div><button class="quizbutton" id="btn_begin">Begin</div>`
 
-const btn_begin = document.getElementById('btn_begin');
-btn_begin.addEventListener('click', () => do_question(0));
+$('btn_begin').addEventListener('click', () => do_question(0));
