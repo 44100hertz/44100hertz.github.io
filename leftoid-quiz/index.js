@@ -2,7 +2,7 @@
 
 const $ = (id) => document.getElementById(id);
 
-const quiz = [
+let quiz = [
     // Imperialism
     ["We should apply the same ethical standards to every country.", 10, false],
     ["It is OK to invade another country to export liberal democracy.", 20, false],
@@ -40,6 +40,7 @@ const quiz = [
     ["Worker co-ops should not try to make profit.", 5, false],
     ["Vietnam can be considered socialist, even though it has markets.", 10, true],
     ["Venezuela can't be considered socialist, since it isn't explicitly Marxist.", 5, false],
+    ["There should be no rich people.", 5, false],
 
     // Anarchism
     ["The black market is the way to freedom.", 10, false],
@@ -61,6 +62,14 @@ const quiz = [
     ["Muslim faith leads to violent extremism.", 20, false],
     ["We should not always trust science.", 10, true],
 ]
+
+const shuffled = [];
+while (quiz.length > 0) {
+    const idx = Math.floor(Math.random() * quiz.length);
+    shuffled.push(quiz[idx]);
+    quiz.splice(idx, 1);
+}
+quiz = shuffled;
 
 let default_weight = 0;
 for (const [_, weight] of quiz) default_weight += weight;
@@ -100,7 +109,6 @@ let total_weight = 0
 let leftoid_answers = []
 
 function do_question (question_index) {
-    console.log(score, total_weight, score / total_weight);
     if (question_index === quiz.length) {
         const [result, description, is_leftoid] = get_result(score, total_weight);
         e_question.innerHTML = `
@@ -157,12 +165,12 @@ e_question.innerHTML = `
 <p>Introduction</p>
 
 <p> Are you a leftoid? A leftoid is someone who has been set on the wrong path
-by western leftism. Without a coherent view of Marxism or Socialism, these
-people have been tricked into wasting their time and energy while failing to
-challenge the established US global order, or to offer a meaningful alternative. </p>
+by western leftism.</p>
 
 <p> The following questions will try to assess whether or not you are a leftoid,
-and if so how severe of a problem it is.</p> `;
+and if so how severe of a problem it is. <u>Think before you answer, and
+if you are uncertain say 'Neutral' or 'I don't know'.</u></p>`;
+
 e_buttons.innerHTML = `<div><button class="quizbutton" id="btn_begin">Begin</div>`
 
 $('btn_begin').addEventListener('click', () => do_question(0));
