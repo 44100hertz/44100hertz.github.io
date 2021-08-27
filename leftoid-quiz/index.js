@@ -37,7 +37,7 @@ const quiz = [
 
     // Marxoid-ism
     ["Socialism can still have commodity production.", 10, true],
-    ["Worker co-ops should not try to make profit.", 5, true],
+    ["Worker co-ops should not try to make profit.", 5, false],
     ["Vietnam can be considered socialist, even though it has markets.", 10, true],
     ["Venezuela can't be considered socialist, since it isn't explicitly Marxist.", 5, false],
 
