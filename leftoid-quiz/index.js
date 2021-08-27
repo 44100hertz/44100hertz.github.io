@@ -10,7 +10,7 @@ let quiz = [
 
     // Utopianism
     ["Start with the ideal society, and work from there.", 10, false],
-    ["Socialism is primarily economic, not cultural.", 10, true],
+    ["Socialism is more economic than cultural.", 10, true],
     ["Abolish nations and borders ASAP.", 10, false],
 
     // Sex
@@ -46,7 +46,7 @@ let quiz = [
     ["The black market is the way to freedom.", 10, false],
     ["It is good for some drugs to be illegal.", 10, true],
     ["Police and prisons exist in every modern society.", 5, true],
-    ["Politics only gets in the way of making real change.", 10, false],
+    ["Real progress is made through non-political struggle.", 10, false],
     ["We must choose individualism over collectivism.", 10, false],
     ["Before trying to change the world, you must perfect your own lifestyle.", 10, false],
     ["Kill and destroy whatever it is you hate, and others will follow.", 15, false],
