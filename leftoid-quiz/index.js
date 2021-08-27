@@ -48,7 +48,7 @@ let quiz = [
     ["Police and prisons exist in every modern society.", 5, true],
     ["Real progress is made through non-political struggle.", 10, false],
     ["We must choose individualism over collectivism.", 10, false],
-    ["Before trying to change the world, you must perfect your own lifestyle.", 10, false],
+    ["The best way to change the world is by changing your personal habits.", 10, false],
     ["Kill and destroy whatever it is you hate, and others will follow.", 15, false],
     ["We don't need a state, we can just voluntarily exchange goods and services.", 10, false],
 
@@ -121,6 +121,8 @@ function do_question (question_index) {
                 }
                 $('btn_why').disabled = true;
             })
+        } else {
+            e_buttons.innerHTML = '';
         }
         return;
     }
