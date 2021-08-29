@@ -5,61 +5,70 @@ const $ = (id) => document.getElementById(id);
 let quiz = [
     // Imperialism
     ["We should apply the same moral standards to every country.", 10, false],
-    ["It is OK to invade another country to export democracy.", 20, false],
+    ["It is OK to invade another country if that country is authoritarian.", 20, false],
     ["The US may be imperialist, but China is also.", 10, false],
+    ["Hong Kong and Taiwan are part of China.", 10, true],
 
     // Utopianism
     ["Start with the ideal society, and work from there.", 10, false],
     ["Socialism is more economic than cultural.", 10, true],
     ["Abolish nations and borders ASAP.", 10, false],
+    ["Instead of class struggle, we just need to convince everyone of the right ideas.", 10, false],
 
     // Sex
-    ["Bestiality should be made legal.", 10, false],
+    ["Under socialism, all of our sexual impulses will be freed.", 20, false],
+    ["Fascism is the result of sexual repression.", 10, false],
     ["Prostitution is liberating.", 5, false],
     ["Pornography can be harmful to society.", 5, true],
-    ["We should not allow adults to have sex with children.", 10, true],
     ["We must dismantle the existing family structure.", 5, false],
-    ["Fascism is the result of sexual repression.", 10, false],
 
     // Idpol
+    ["All white workers in the US are labor aristocracy.", 15, false],
+    ["White people in the US are colonisers and should go back to Europe.", 10, false],
+    ["We can dismantle capitalism by dismantling patriarchy.", 10, false],
     ["We don't need to read books written by old dead white men.", 10, false],
+    ["The term 'Latinx' is preferable to Latino or Latina", 5, false],
     ["Karl Marx was thoroughly antisemitic.", 5, false],
     ["Socialism without LGBTQ+ rights is not socialism.", 5, false],
-    ["The term 'Latinx' is preferable to Latino or Latina", 10, false],
-    ["We can dismantle capitalism by dismantling patriarchy.", 10, false],
-    ["White people in the US should go back to Europe.", 10, false],
-    ["White and black people in the US are both suffering from poverty.", 5, true],
 
     // Reformism
+    ["Revolution is immoral because it is violent.", 10, false],
+    ["The Bolsheviks should have just ran for office instead of revolting.", 10, false],
     ["We can move towards socialism by voting for the lesser evil.", 5, false],
     ["The Nordic model is the best system to date.", 5, false],
-    ["The Bolsheviks should have just ran for office instead of revolting.", 10, false],
-    ["Revolution is immoral because it is violent.", 10, false],
 
     // Marxoid-ism
     ["Socialism can still have commodity production.", 10, true],
-    ["Worker co-ops should not try to make profit.", 5, false],
     ["Vietnam can be considered socialist, even though it has markets.", 10, true],
+    ["Worker co-ops should not try to make profit.", 5, false],
     ["Venezuela can't be considered socialist, since it isn't explicitly Marxist.", 5, false],
 
     // Anarchism
+    ["Kill and destroy whatever it is you hate, and others will follow.", 15, false],
     ["The black market is the way to freedom.", 10, false],
     ["It is good for some drugs to be illegal.", 10, true],
-    ["Police and prisons exist in every modern society.", 5, true],
-    ["Real progress is made through non-political struggle.", 10, false],
     ["We must choose individualism over collectivism.", 10, false],
-    ["The best way to change the world is by changing your personal habits.", 10, false],
-    ["Kill and destroy whatever it is you hate, and others will follow.", 15, false],
     ["We don't need a state, we can just voluntarily exchange goods and services.", 10, false],
+    ["The best way to change the world is by changing your personal habits.", 5, false],
+    ["Police and prisons exist in every modern society.", 5, true],
 
     // Primitivism
     ["Large industry has to be broken up to save the planet.", 10, false],
     ["We need to reduce the human population.", 10, false],
+    ["Humanity will not return to a primitive lifestyle.", 5, true],
+    ["It is good to be poor because that uses less resources.", 5, false],
 
     // Vulgar materialism
-    ["Religion is meaningless.", 10, false],
     ["Muslim faith leads to violent extremism.", 20, false],
+    ["Religion is meaningless.", 10, false],
     ["We should not always trust science.", 10, true],
+    ["Materialists do not rely on faith or assumptions.", 5, false],
+    ["Everything that is true can be measured and scientifically proven.", 5, false],
+
+    // Being a loser
+    ["I have never had a boyfriend/girlfriend because of capitalism.", 40, false],
+    ["It is pointless to try to get a good-paying job, because capitalism ruins everything.", 20, false],
+    ["Nobody wants to work.", 5, false],
 ]
 
 const shuffled = [];
@@ -82,16 +91,16 @@ function get_result(total_score, weight) {
     if (score <= 0) {
         return ["Non-Leftoid",
                 "You are based."]
-    } else if (score < 0.1) {
+    } else if (score < 0.08) {
         return ["Slight leftoid",
                 "You have leftoid tendencies, but it isn't that bad.", true]
-    } else if (score < 0.2) {
+    } else if (score < 0.16) {
         return ["Average leftoid",
                 "You're kind of a leftoid.", true]
-    } else if (score < 0.3) {
+    } else if (score < 0.24) {
         return ["Acute leftoid",
                 "You have gone over the deep end.", true]
-    } else if (score < 0.4) {
+    } else if (score < 0.32) {
         return ["Extreme leftoid",
                 "Your mind has been thoroughly rotted by western leftism.", true]
     } else {
