@@ -31,6 +31,8 @@ let quiz_man = [
     ["Strong men intimidate me.", {dominant: -1}],
     ["There is no woman in the world good enough for me.", {dominant: 1, social: -1}],
     ["I have stolen someone's woman before.", {social: -1, dominant: 2}],
+    ["I want to be pegged by a woman.", {dominant: -2}],
+    ["Women ignore me despite how nice I am.", {dominant: -2}],
 ]
 
 let quiz_woman = [
@@ -42,26 +44,34 @@ let quiz_woman = [
     ["I hate it when men do things for me. I'll do it myself.", {dominant: 1, social: -0.5}],
     ["There is no man in the world good enough for me.", {dominant: 1, social: -1}],
     ["I have stolen someone's man before.", {social: -1, dominant: 2}],
+    ["I would peg a man.", {dominant: 2}],
+    ["Men ignore me despite how nice I am.", {dominant: -2}],
 ]
 
 let quiz_unisex = [
+    ["I have cried after breaking up with someone.", {social: 2}],
     ["After a conversation, I worry what people think of me.", {social: 1, dominant: -0.5}],
     ["I have close friends.", {social: 1}],
     ["I like to be in a long-term relationship.", {social: 1}],
     ["I'm a fun and likeable person.", {social: 1}],
+    ["I have never been in a relationship and never will be.", {social: -2}],
     ["When people tell me I'm rude, it doesn't bother me.", {social: -1}],
     ["I would have no trouble firing an elderly woman from her job.", {social: -1}],
     ["I have never given money to the homeless or charity.", {social: -1}],
     ["Most people are stupid and fake.", {social: -1}],
 
+    ["I have been in a physical fight and won.", {dominant: 2}],
     ["I know how to use a weapon to protect myself.", {dominant: 1}],
     ["I have mastered a particular skill.", {dominant: 1}],
     ["People are jealous of my financial success.", {dominant: 1}],
     ["When I'm in an organization, I naturally become a leader.", {dominant: 1}],
     ["I avoid drugs because they make me weak.", {dominant: 1}],
     ["When someone says something incorrect, it really bothers me.", {dominant: -1, social: 0.5}],
-    ["In a fight, I would probably run away.", {dominant: -1}],
     ["When people have power over me, I do what they tell me.", {dominant: -1}],
+    ["I would let someone else have sex with my partner.", {dominant: -2}],
+    ["I don't like sports.", {dominant: -2, social: -1}],
+
+    ["I often feel lonely.", {social: 1, dominant: -1}],
 
     ["The question isn’t who is going to let me; it’s who is going to stop me.", {social: -1, dominant: 1}],
     ["Nobody can insult me and get away with it.", {social: -1, dominant: 1}],
