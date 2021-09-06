@@ -5,6 +5,21 @@ const $ = (id) => document.getElementById(id);
 let quiz;
 let gender_id;
 
+const result_table = [
+    [['Omega', "Both submissive and socially isolated, you are an embarrassment to your family and to the world."],
+     ['Submissive', "You have a submissive personality somewhere between Beta and Omega. It's time to get your act together."],
+     ['Beta', "Socially extraverted but submissive, you are the most annoying type of person. If you get your life together, you can become Alpha and make the world a better place."],
+    ],
+    [['Reclusive', "You are sort of a lone wolf, but its unclear whether you are a dominant person. You lie somewhere between Sigma and Omega."],
+     ['Average', "You're just an average person."],
+     ['Extraverted', "Somewhere between Alpha and Beta, you are friendly and probably nice to be around."],
+    ],
+    [['Sigma', "Dominant but socially isolated, you are a real lone wolf sigma that nobody can mess with."],
+     ['Dominant', "Between Sigma and Alpha, you are dominant but socially ambiguous."],
+     ['Alpha', "Dominant and extraverted, you are everyone's favorite type of person. Betas are jealous but you aren't bothered by the haters."],
+    ],
+];
+
 let quiz_man = [
     ["I always hold the door open for women.", {social: 1, dominant: -0.5}],
     ["Women annoy me.", {social: -1}],
@@ -13,7 +28,7 @@ let quiz_man = [
     ["I will physically defend women in trouble.", {dominant: 1, social: 1}],
     ["Strong men intimidate me.", {dominant: -1}],
     ["There is no woman in the world good enough for me.", {dominant: 1, social: -1}],
-    ["I have stolen someone's woman before.", {social: -1, dominant: 1}],
+    ["I have stolen someone's woman before.", {social: -1, dominant: 2}],
 ]
 
 let quiz_woman = [
@@ -24,7 +39,7 @@ let quiz_woman = [
     ["I turn to men for physical protection.", {dominant: -1}],
     ["I hate it when men do things for me. I'll do it myself.", {dominant: 1, social: -0.5}],
     ["There is no man in the world good enough for me.", {dominant: 1, social: -1}],
-    ["I have stolen someone's man before.", {social: -1, dominant: 1}],
+    ["I have stolen someone's man before.", {social: -1, dominant: 2}],
 ]
 
 let quiz_unisex = [
@@ -48,6 +63,7 @@ let quiz_unisex = [
 
     ["The question isn’t who is going to let me; it’s who is going to stop me.", {social: -1, dominant: 1}],
     ["Nobody can insult me and get away with it.", {social: -1, dominant: 1}],
+    ["I could kill without remorse.", {social: -2, dominant: 1}],
 
     // shrigma
     // ["I'm very down-to-earth.", {shrigma: 1}],
@@ -56,36 +72,21 @@ let quiz_unisex = [
     // ["I don't like wearing hats.", {shrigma: -1}],
 ]
 
-function get_result(score_table, weight_table) {
-    const social_score = score_table.social / weight_table.social;
-    const dominant_score = score_table.dominant / weight_table.dominant;
-
-    const result_table = [
-        [['Omega', "Both submissive and socially isolated, you are an embarrassment to your family and to the world."],
-         ['Submissive', "You have a submissive personality somewhere between Beta and Omega. It's time to get your act together."],
-         ['Beta', "Socially extraverted but submissive, you are the most annoying type of person. If you get your life together, you can become Alpha and make the world a better place."],
-        ],
-        [['Reclusive', "You are sort of a lone wolf, but its unclear whether you are a dominant person. You lie somewhere between Sigma and Omega."],
-         ['Average', "You're just an average person."],
-         ['Extraverted', "Somewhere between Alpha and Beta, you are friendly and probably nice to be around."],
-        ],
-        [['Sigma', "Dominant but socially isolated, you are a real lone wolf sigma that nobody can mess with."],
-         ['Dominant', "Between Sigma and Alpha, you are dominant but socially ambiguous."],
-         ['Alpha', "Dominant and extraverted, you are everyone's favorite type of person. Betas are jealous but you aren't bothered by the haters."],
-        ],
-    ];
-
+function get_result(scores) {
     const get_index = (value) => {
         if (value < -0.3) return 0;
         if (value > 0.3) return 2;
         return 1;
     }
 
-    const social_index = get_index(social_score);
-    const dominant_index = get_index(dominant_score);
+    const extreme = (Math.abs(scores.dominant) > 0.6 || Math.abs(scores.social) > 0.6);
 
-    let res = result_table[dominant_index][social_index];
+    const social_index = get_index(scores.social);
+    const dominant_index = get_index(scores.dominant);
+
+    let res = result_table[dominant_index][social_index].slice();
     res[0] += gender_id;
+    if (extreme) res[0] += ' (extreme)';
     return res;
 }
 
@@ -97,10 +98,16 @@ let total_weight = {social: 0, dominant: 0};
 
 function do_question (question_index) {
     if (question_index === quiz.length) {
-        const [result, description] = get_result(total_score, total_weight);
+        const scores = {};
+        for (let k in total_score) scores[k] = total_score[k] / total_weight[k];
+        const [result, description] = get_result(scores);
         e_question.innerHTML = `
 <p>Result: ${result}</p>
-<p>${description}</p>`;
+<p>${description}</p>
+<p><canvas width="1000" height="1000" id="compass"></canvas></p>
+`;
+        const renderer = $('compass').getContext('2d');
+        render_compass(renderer, scores);
         e_buttons.innerHTML = '';
         return;
     }
@@ -114,7 +121,7 @@ function do_question (question_index) {
 <button class="quizbutton" id="btn_2">Maybe
 <button class="quizbutton" id="btn_3">Slight Disagree
 <button class="quizbutton" id="btn_4">Disagree
-`
+`;
 
     const add_to_total = (score, weight = 1) => {
         for (const k in table_effect) {
@@ -143,6 +150,33 @@ function shuffle(quiz) {
     return shuffled;
 }
 
+function render_compass(rdr, scores) {
+    for (let x=0; x<3; ++x) {
+        for (let y=0; y<3; ++y) {
+            rdr.fillStyle = `hsl(${x * -30 + y * 100 + 30}, 90%, 90%)`;
+            rdr.fillRect(200+200*x, 200+200*y, 200,200);
+            rdr.font = "24px serif";
+            rdr.fillStyle = `#000`;
+            rdr.fillText(result_table[2-y][x][0], 200+200*x, 200+200*y + 20);
+        }
+    }
+    rdr.strokeStyle = `#777`;
+    rdr.lineWidth = 2.0;
+    rdr.beginPath();
+    rdr.moveTo(500, 0);
+    rdr.lineTo(500, 1000);
+    rdr.moveTo(0, 500);
+    rdr.lineTo(1000, 500);
+    rdr.stroke();
+
+    rdr.strokeStyle = `#000`;
+    rdr.fillStyle = `#e00`;
+    rdr.beginPath();
+    rdr.arc(scores.social * 500 + 500, scores.dominant * -500 + 500, 25, 0, 2 * Math.PI);
+    rdr.fill();
+    rdr.stroke();
+}
+
 e_question.innerHTML = `
 <p>Introduction</p>
 
@@ -157,6 +191,8 @@ e_buttons.innerHTML = `
 <div><button class="quizbutton" id="btn_woman">Begin Female Quiz</div>
 <div><button class="quizbutton" id="btn_unisex">Begin Unisex Quiz</div>
 `
+
+//<div><button class="quizbutton" id="btn_debug">Begin Unisex Quiz</div>
 
 $('btn_man').addEventListener('click', () => {
     quiz = shuffle([...quiz_unisex, ...quiz_man]);
@@ -175,3 +211,9 @@ $('btn_unisex').addEventListener('click', () => {
     gender_id = '';
     do_question(0);
 });
+
+// $('btn_debug').addEventListener('click', () => {
+//     quiz = shuffle([...quiz_unisex]);
+//     gender_id = '';
+//     do_question(15);
+// });
