@@ -5,6 +5,8 @@ const $ = (id) => document.getElementById(id);
 let quiz;
 let gender_id;
 
+const result_threshold = 0.3;
+
 const result_table = [
     [['Omega', "Both submissive and socially isolated, you are an embarrassment to your family and to the world."],
      ['Submissive', "You have a submissive personality somewhere between Beta and Omega. It's time to get your act together."],
@@ -74,8 +76,8 @@ let quiz_unisex = [
 
 function get_result(scores) {
     const get_index = (value) => {
-        if (value < -0.3) return 0;
-        if (value > 0.3) return 2;
+        if (value < -result_threshold) return 0;
+        if (value > result_threshold) return 2;
         return 1;
     }
 
@@ -151,13 +153,16 @@ function shuffle(quiz) {
 }
 
 function render_compass(rdr, scores) {
+    const rr = result_threshold * 1000;
+    const comp_size = rr * 3;
+    const offset = (1000 - comp_size) / 2.0;
     for (let x=0; x<3; ++x) {
         for (let y=0; y<3; ++y) {
             rdr.fillStyle = `hsl(${x * -30 + y * 100 + 30}, 90%, 90%)`;
-            rdr.fillRect(200+200*x, 200+200*y, 200,200);
+            rdr.fillRect(offset+rr*x, offset+rr*y, rr,rr);
             rdr.font = "24px serif";
             rdr.fillStyle = `#000`;
-            rdr.fillText(result_table[2-y][x][0], 200+200*x, 200+200*y + 20);
+            rdr.fillText(result_table[2-y][x][0], offset+rr*x, offset+rr*y + 20);
         }
     }
     rdr.strokeStyle = `#777`;
@@ -175,6 +180,8 @@ function render_compass(rdr, scores) {
     rdr.arc(scores.social * 500 + 500, scores.dominant * -500 + 500, 25, 0, 2 * Math.PI);
     rdr.fill();
     rdr.stroke();
+
+    console.log(scores);
 }
 
 e_question.innerHTML = `
