@@ -223,7 +223,7 @@ function render_compass(rdr, scores) {
             rdr.fillRect(rr*x, rr*y, rr,rr);
             rdr.font = "24px serif";
             rdr.fillStyle = `#000`;
-            rdr.fillText(result_table[2-y][x][0], rr*x, rr*y + 20);
+            rdr.fillText(result_table[2-y][x].title, rr*x, rr*y + 20);
         }
     }
     rdr.translate(-offset, -offset);
