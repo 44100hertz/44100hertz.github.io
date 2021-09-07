@@ -2,20 +2,21 @@
 
 const $ = (id) => document.getElementById(id);
 
-const result_threshold = 0.3;
+const RESULT_THRESHOLD = 0.3;
+const FIELDS = ['social', 'dominant', 'mushroom'];
 
 const result_table = [
-    [['Omega', "Both submissive and socially isolated, you are an embarrassment to your family and to the world."],
-     ['Submissive', "You have a submissive personality somewhere between Beta and Omega. It's time to get your act together."],
-     ['Beta', "Socially extraverted but submissive, you are the most annoying type of person. If you get your life together, you can become Alpha and make the world a better place."],
+    [{title: 'Omega', description: "Both submissive and socially isolated, you are an embarrassment to your family and to the world."},
+     {title: 'Submissive', description: "You have a submissive personality somewhere between Beta and Omega. It's time to get your act together."},
+     {title: 'Beta', description: "Socially extraverted but submissive, you are the most annoying type of person. If you get your life together, you can become Alpha and make the world a better place."},
     ],
-    [['Antisocial', "You are sort of a lone wolf, but its unclear whether you are a dominant person. You lie somewhere between Sigma and Omega."],
-     ['Average', "You're probably just an average person."],
-     ['Social', "Somewhere between Alpha and Beta, you are friendly and probably nice to be around."],
+    [{title: 'Antisocial', description: "You are sort of a lone wolf, but its unclear whether you are a dominant person. You lie somewhere between Sigma and Omega."},
+     {title: 'Average', description: "You're probably just an average person."},
+     {title: 'Social', description: "Somewhere between Alpha and Beta, you are friendly and probably nice to be around."},
     ],
-    [['Sigma', "Dominant but socially isolated, you are a real lone wolf sigma that nobody can mess with."],
-     ['Dominant', "Between Sigma and Alpha, you are dominant but socially ambiguous."],
-     ['Alpha', "Dominant and extraverted, you are everyone's favorite type of person. Betas are jealous but you aren't bothered by the haters."],
+    [{title: 'Sigma', description: "Dominant but socially isolated, you are a real lone wolf sigma that nobody can mess with."},
+     {title: 'Dominant', description: "Between Sigma and Alpha, you are dominant but socially ambiguous."},
+     {title: 'Alpha', description: "Dominant and extraverted, you are everyone's favorite type of person. Betas are jealous but you aren't bothered by the haters."},
     ],
 ];
 
@@ -70,10 +71,11 @@ const quiz_unisex = [
     ["I prefer the internet to real life.", {dominant: -1}],
 
     // shrigma
-    // ["I'm very down-to-earth.", {shrigma: 1}],
-    // ["Sometimes I trip people out.", {shrigma: 1}],
-    // ["I like to hang out in cool, damp places.", {shrigma: 1}],
-    // ["I don't like wearing hats.", {shrigma: -1}],
+    ["I'm not a human being.", {mushroom: 10}],
+    ["I'm very down-to-earth.", {mushroom: 1}],
+    ["Sometimes I trip people out.", {mushroom: 1}],
+    ["I like to hang out in cool, damp places.", {mushroom: 1}],
+    ["I don't like wearing hats.", {mushroom: -1}],
 ]
 
 //
@@ -96,10 +98,12 @@ e_buttons.innerHTML = `
 <div><button class="quizbutton" id="btn_woman">Begin Female Quiz</div>
 <div><button class="quizbutton" id="btn_unisex">Begin Unisex Quiz</div>
 `;
+//<div><button class="quizbutton" id="btn_debug">Debug</div>
 
 $('btn_man').addEventListener('click', () => do_quiz([...quiz_unisex, ...quiz_man], ' male'));
 $('btn_woman').addEventListener('click', () => do_quiz([...quiz_unisex, ...quiz_woman], ' female'));
 $('btn_unisex').addEventListener('click', () => do_quiz([...quiz_unisex], ''));
+//$('btn_debug').addEventListener('click', () => do_quiz([], ''));
 
 function do_quiz(quizdata, gender_id) {
     const q = new Quiz(quizdata, gender_id);
@@ -117,8 +121,12 @@ class Quiz {
         }
         this.quizdata = shuffled;
 
-        this.scores = {social: 0, dominant: 0};
-        this.weights = {social: 0, dominant: 0};
+        this.scores = {};
+        this.weights = {};
+        for (let k of FIELDS) {
+            this.scores[k] = 0;
+            this.weights[k] = 0;
+        }
 
         this.gender_id = gender_id;
     }
@@ -159,7 +167,6 @@ class Quiz {
             $('btn_' + i).addEventListener('click', () => {
                 let score = ((i / 4) - 0.5) * -2;
                 add_to_total(score, 1);
-                console.log(this.scores, this.weights);
                 this.do_question(question_index + 1);
             });
         }
@@ -167,26 +174,44 @@ class Quiz {
 
     get_result() {
         let scores_w = []; // Weighted scores
-        for (let k in this.scores) scores_w[k] = this.scores[k] / this.weights[k];
+        for (let k of FIELDS) scores_w[k] = this.scores[k] / this.weights[k];
+        if (scores_w.mushroom === 1) {
+            return {title: 'Shrigma', description: ".rellevart emit wollef a era uoy fi em liame esaelP .8302 fo raw PME taerg eht ni deyortsed neeb evah dluohs ziuq siht dna 3503 raey eht litnu seiceps a sa egreme ton od samgirhs ecnis ,ziuq siht deniatbo gnieb amgirhs a woh si noitseuq tsrif yM .tluser ytilanosrep a evig ot tpmetta ton lliw I os ,smret namuh ni ebircsed ot tluciffid ytilanosrep a evah samgirhs taht dias si tI .moorhsum dna namuh neewteb dirbyh a si hcihw seiceps tnereffid a yllautca era uoy ,gnieb namuh a ton era uoY".split('').reverse().join(''), scores_w};
+        }
+
         const get_index = (value) => {
-            if (value < -result_threshold) return 0;
-            if (value > result_threshold) return 2;
+            if (value < -RESULT_THRESHOLD) return 0;
+            if (value > RESULT_THRESHOLD) return 2;
             return 1;
         }
 
         const social_index = get_index(scores_w.social);
         const dominant_index = get_index(scores_w.dominant);
 
-        let [title, desc] = result_table[dominant_index][social_index].slice();
+        let {title, description} = result_table[dominant_index][social_index];
+        title = title.slice();
         title += this.gender_id;
         if (Math.abs(scores_w.dominant) > 0.8 || Math.abs(scores_w.social) > 0.8)
             title += ' (extreme)';
-        return {title, description: desc, scores_w};
+        return {title, description, scores_w};
     }
 }
 
 function render_compass(rdr, scores) {
-    const rr = result_threshold * 1000;
+    if (scores.mushroom === 1) {
+        const f = (h) => {
+            rdr.fillStyle = `hsl(${h + 180}, 100%, 50%)`;
+            rdr.fillRect(0, 0, 1000, 1000);
+            rdr.fillStyle = `hsl(${h}, 100%, 50%)`;
+            rdr.font = "600px serif";
+            rdr.fillText("????", 100, 700);
+            window.requestAnimationFrame(() => f(h+10));
+        }
+        f(0);
+        return;
+    }
+
+    const rr = RESULT_THRESHOLD * 1000;
     const comp_size = rr * 3;
     const offset = (1000 - comp_size) / 2.0;
     // Draw compass squares
