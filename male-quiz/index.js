@@ -91,7 +91,7 @@ function get_result(scores) {
         return 1;
     }
 
-    const extreme = (Math.abs(scores.dominant) > 0.6 || Math.abs(scores.social) > 0.6);
+    const extreme = (Math.abs(scores.dominant) > 0.8 || Math.abs(scores.social) > 0.8);
 
     const social_index = get_index(scores.social);
     const dominant_index = get_index(scores.dominant);
