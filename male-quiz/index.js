@@ -8,7 +8,7 @@ const FIELDS = ['social', 'dominant', 'mushroom'];
 const result_table = [
     [{title: 'Omega', description: "Both submissive and socially isolated, you are an embarrassment to your family and to the world."},
      {title: 'Submissive', description: "You have a submissive personality somewhere between Beta and Omega. It's time to get your act together."},
-     {title: 'Beta', description: "Socially extraverted but submissive, you are the most annoying type of person. If you get your life together, you can become Alpha and make the world a better place."},
+     {title: 'Beta', description: "Socially extraverted but submissive, you are the least sigma type of person. If you become more dominant, you can at least become an Alpha, but if you try too hard you will just be extra Beta."},
     ],
     [{title: 'Antisocial', description: "You are sort of a lone wolf, but its unclear whether you are a dominant person. You lie somewhere between Sigma and Omega."},
      {title: 'Average', description: "You're probably just an average person."},
