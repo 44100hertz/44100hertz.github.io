@@ -18,11 +18,12 @@
       "
       contenteditable="true"
       spellcheck="false"
+      id="card"
     >
       <img style="position: absolute; z-index: -1; filter: opacity(0.2); rotate: 30deg; scale: 1.5; translate: 1in 0"
         src="./bgglobe.png"
       />
-      <div class="title slogan">
+      <div class="title slogan" id="name">
         SAM BISMUTH
       </div>
       <div class="slogan">
@@ -63,8 +64,8 @@
     .title {
         font-size: 0.28in;
         letter-spacing: 0.028in;
+        text-decoration: underline;
     }
-
 
     .wideflex {
       display: flex;
@@ -72,4 +73,24 @@
       justify-content: space-between;
     }
   </style>
+<script>
+  // resize name to a maximum size of 0.28in, in order to fit the card.
+  function resizeName() {
+    const name = document.getElementById("name");
+    const card = document.getElementById("card");
+    card.scrollTop = 0;
+    card.scrollLeft = 0;
+    name.style.fontSize = "0.28in";
+    name.style.letterSpacing = "0.028in";
+    const nameHeight = name.getBoundingClientRect().height;
+    if (nameHeight > 0.5 * 96) {
+      name.style.fontSize = "0.23in";
+      name.style.letterSpacing = "0";
+      name.style.paddingBottom = "0.05in";
+    } else {
+      name.style.fontSize = "0.28in";
+    }
+  }
+  document.addEventListener("keyup", resizeName);
+</script>
 </html>
