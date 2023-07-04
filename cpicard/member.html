@@ -82,13 +82,12 @@
     card.scrollLeft = 0;
     name.style.fontSize = "0.28in";
     name.style.letterSpacing = "0.028in";
+    name.style.paddingBottom = "0";
     const nameHeight = name.getBoundingClientRect().height;
     if (nameHeight > 0.5 * 96) {
       name.style.fontSize = "0.23in";
       name.style.letterSpacing = "0";
       name.style.paddingBottom = "0.05in";
-    } else {
-      name.style.fontSize = "0.28in";
     }
   }
   document.addEventListener("keyup", resizeName);
