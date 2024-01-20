@@ -1,0 +1,37 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    width: 100svw;
+    height: 100svh;
+    margin: 0;
+    background: black;
+}
+
+#playfield {
+    cursor: none;
+    width: 100svw;
+    height: 100svw;
+    outline: 4px solid white;
+}
+
+@media (min-aspect-ratio: 1/1) {
+    #playfield {
+        width: 100svh;
+        height: 100svh;
+    }
+}
+
+.game-entity {
+    background: #fff;
+    display: block;
+    position: fixed;
+}
+
+.brick {
+    background: linear-gradient(#f00 0%, #00f 100%);
+    outline: 1px solid white;
+    border-radius: 2px;
+    box-shadow: 0px 0px 10px red;
+}

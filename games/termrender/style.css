@@ -1,0 +1,49 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100svw;
+    height: 100svh;
+    margin: 0;
+    background: black;
+}
+
+#terminal {
+    display: grid;
+    width: 100svw;
+    height: 100svw;
+    outline: 4px solid white;
+    overflow: hidden;
+}
+
+@media (min-aspect-ratio: 1/1) {
+    #terminal {
+        width: 100svh;
+        height: 100svh;
+    }
+}
+
+/* Text elements */
+#terminal pre {
+    grid-area: 1 / 1;
+    transform-origin: 0px 0px;
+    width: fit-content;
+    height: fit-content;
+    margin: 0;
+}
+
+#terminal canvas {
+    image-rendering: pixelated;
+    grid-area: 1 / 1;
+    width: 100%;
+    height: 100%;
+}
+
+.isolator {
+    isolation: isolate;
+    grid-area: 1 / 1;
+    display: grid;
+    width: 100%;
+    height: 100%;
+}
