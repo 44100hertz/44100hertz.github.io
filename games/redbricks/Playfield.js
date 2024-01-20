@@ -58,32 +58,19 @@ export default class Playfield {
 }
 
 export class Entity {
-    constructor(playfield, {position, size, ...props}) {
+    constructor(playfield, {position, size, classList, ...props}) {
         this.playfield = playfield;
         this.element = document.createElement('div');
         this.element.classList.add('game-entity');
-        this._position = position ?? new Point(0,0);
-        this._size = size ?? new Point(0,0);
+        if(classList) {
+            classList.forEach((c) => this.element.classList.add(c));
+        }
+        this.size = size ?? new Point(0,0);
+        this.position = position ?? new Point(0,0);
 
         if (props.round) {
             this.element.style['border-radius'] = `${playfield.gameScale() * props.round}px`;
         }
-
-        this.redraw();
-    }
-
-    redraw() {
-        const elemPos = this.playfield.gameToClientPos(this._position);
-        const elemSize = this.playfield.gameToClientSize(this._size);
-        this.element.style.left = `${elemPos.x - elemSize.x/2}px`;
-        this.element.style.top = `${elemPos.y - elemSize.y/2}px`;
-        this.element.style.width = `${elemSize.x}px`;
-        this.element.style.height = `${elemSize.y}px`;
-    }
-
-    set(prop, value) {
-        this[prop] = value;
-        this.redraw();
     }
 
     set x(x) { this.position = new Point(x, this.position.y); }
@@ -91,10 +78,21 @@ export class Entity {
     set y(y) { this.position = new Point(this.position.x, y); }
     get y() { return this.position.y }
 
-    set position(newpos) { this.set('_position', newpos) }
+    set position(newpos) {
+        this._position = newpos;
+        const elemPos = this.playfield.gameToClientPos(this._position);
+        const elemSize = this.playfield.gameToClientSize(this._size);
+        this.element.style.left = `${elemPos.x - elemSize.x/2}px`;
+        this.element.style.top = `${elemPos.y - elemSize.y/2}px`;
+    }
     get position() { return this._position; }
 
-    set size(newpos) { this.set('_size', newpos) }
+    set size(newsize) {
+        this._size = newsize;
+        const elemSize = this.playfield.gameToClientSize(this._size);
+        this.element.style.width = `${elemSize.x}px`;
+        this.element.style.height = `${elemSize.y}px`;
+    }
     get size() { return this._size; }
 }
 
