@@ -8,24 +8,29 @@ addEventListener('load', load);
 function load() {
     const gameSize = new Point(240,240);
     const playfield = new Playfield('playfield', gameSize);
-    const game = new Game(playfield, gameSize);
-    game.loadLevel(2);
-    game.beginPlay();
+    let level = 1;
+    function start() {
+        const game = new Game(playfield, gameSize, level,
+            (status) => {
+                if (status == 'win') ++level;
+                setTimeout(start, 1000)
+            });
+    }
+    start();
 }
 
 class Game {
-    constructor(playfield, gameSize) {
+    constructor(playfield, gameSize, level, stopCallback) {
         this.playfield = playfield;
         this.gameSize = gameSize;
+        this.stopCallback = stopCallback;
         this.scoreboard = document.getElementById('scoreboard');
-    }
 
-    loadLevel(level) {
-        this.running = false;
+        console.log(`Loading level ${level}...`);
 
         // Difficulty values
         this.level = level;
-        this.ball_speed = 1.2;
+        this.ball_speed = 1.5;
 
         // Other settings
         this.gravity = 100;
@@ -45,6 +50,7 @@ class Game {
         this.ball = this.playfield.addEntity({
             size: new Point(8, 8),
             position: this.gameSize.sub(new Point(0, this.paddle.position.y - 2)),
+            velocity: new Point(0,0),
         })
         this.ball.element.classList.add('ball');
         this.ball_stuck = true;
@@ -86,29 +92,14 @@ class Game {
                 brick.element.classList.add('brick');
             }
         }
-    }
 
-    beginPlay() {
-        this.running = true;
-        if (!this.level) throw new Error('attempt to start game without loading level!');
-
-        const update = (time) => {
-            this.update(time);
-            if (this.running) requestAnimationFrame(update);
-        }
-        update();
+        this.update();
         this.playfield.bindEvent('mousemove', this.mousemove.bind(this));
         this.playfield.bindEvent('keydown', this.keydown.bind(this));
     }
 
-    endPlay() {
-        this.running = false;
-        this.playfield.clearEvents();
-    }
-
     update(newtime) {
-        const dt = (newtime - (this.lastTime ?? newtime)) / 1000;
-        this.dt = dt;
+        const dt = ((newtime - this.lastTime) / 1000) || 1/240;
         this.lastTime = newtime;
 
         // Ball movement and collision
@@ -119,7 +110,7 @@ class Game {
                 Math.min(this.max_ball_speed,
                     Math.max(-this.max_ball_speed,
                         this.ball.velocity.x))
-            this.ball.velocity.y += this.gravity * dt;
+            this.ball.velocity.y += this.gravity * dt * this.ball_speed;
 
             const next_ball_pos = () => {
                 return this.ball.position
@@ -143,24 +134,42 @@ class Game {
             }
 
             ([collision_x, collision_y]).forEach(({kind, entity}) => {
+                if (kind == 'bottom') {
+                    this.stopStatus = 'die';
+                }
                 if (kind == 'brick' && entity.kind != 'solid') {
                     this.playfield.removeEntity(entity);
-                    this.bricks = this.bricks.filter((brick) => brick != entity);
+                    this.bricks = this.bricks
+                        .filter((brick) => brick != entity);
+                    const remaining_brick = this.bricks
+                        .find((brick) => brick.kind != 'solid')
+                    if (!remaining_brick) {
+                        this.stopStatus = 'win';
+                    }
                 }
             })
 
             this.ball.position = next_ball_pos();
         }
 
-        this.paddle_xvel = (this.paddle.x - this.last_paddle_x) / dt;
+        this.paddle_xvel = ((this.paddle.x - this.last_paddle_x) / dt) || 0;
         this.last_paddle_x = this.paddle.x;
+
+        if (this.stopStatus) {
+            this.playfield.reset();
+            this.stopCallback(this.stopStatus);
+        } else {
+            requestAnimationFrame(this.update.bind(this));
+        }
     }
 
     getBallCollision(pos) {
         const ball_rect = Rect.centered(pos, this.ball.size);
-        if( !ball_rect.within(this.playfield.rect) ) {
+        if (ball_rect.origin.y > this.gameSize.y) {
+            return {kind: 'bottom'};
+        } else if ( ball_rect.origin.x < 0 || ball_rect.end.x > this.gameSize.x ) {
             return {kind: 'viewport'};
-        } else if ( ball_rect.overlaps(this.paddle.rect) ) {
+        } else if ( ball_rect.overlaps(this.paddle.rect) && ball_rect.end.y < this.paddle.position.y ) {
             return {kind: 'paddle'};
         } else {
             for(const brick of this.bricks) {

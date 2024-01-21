@@ -1,19 +1,22 @@
 import Point from '../lib/Point.js';
 
-export function brickPattern(level) {
-    const getBrickKind = (x, y) => {
-        switch (level) {
-            case 1:
-                return 'normal';
-            case 2:
-                return ((y == 2 || y == 1) && (x == 2 || x == 5)) ? 'solid' : 'normal';
-        }
+const levels = [
+    {
+        kind: () => 'normal',
+        num: new Point(6,4),
+    },
+    {
+        kind: (x,y) =>
+            ((y == 2 || y == 1) && (x == 2 || x == 5)) ?
+            'solid' : 'normal',
+        num: new Point(8,4),
     }
+];
 
-    const numBricks = new Point(8,4);
-
+export function brickPattern(level) {
+    const {kind, num} = levels[level-1];
     return {
-        numBricks,
-        getBrickKind,
+        numBricks: num,
+        getBrickKind: kind,
     }
 }

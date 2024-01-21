@@ -36,8 +36,9 @@ export default class Playfield {
         }
     }
 
-    clearEvents() {
-        this.eventBinds.forEach(removeEventListener);
+    reset() {
+        this.eventBinds.forEach((ev) => removeEventListener(document, ev));
+        this.#e_viewport.innerHTML = '';
     }
 
     addEntity(props) {

@@ -11,7 +11,7 @@ body {
 }
 
 #playfield {
-    cursor: none;
+    cursor: crosshair;
     width: 100svw;
     height: 100svw;
     outline: 4px solid white;
@@ -42,7 +42,8 @@ body {
 }
 
 .brick.solid {
-    background: gray;
+    background: transparent;
+    outline: 1px solid gray;
 }
 
 .ball {
