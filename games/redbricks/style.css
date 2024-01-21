@@ -47,6 +47,36 @@ body {
     outline: 1px solid gray;
 }
 
+.brick.killer {
+    outline: 1px solid #c0f;
+}
+
+.killBlock {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    outline: 1px solid white;
+    animation-name: danger;
+    animation-direction: alternate;
+    animation-duration: 0.125s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes danger {
+    0% {
+        outline-color: white;
+    }
+    100% {
+        outline-color: red;
+    }
+}
+
+.killBlock::before {
+    font-size: 14px;
+    content: '☠';
+    color: white;
+}
+
 .ball {
     background: white;
 }

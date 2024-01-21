@@ -37,7 +37,8 @@ class Game {
         this.paddleSpeed = 20.0; // Rate of moving toward cursor
         this.paddleFriction = 0.5; // Movement affecting bounce
         this.paddleSurface = 10; // Rate of paddle side shifting ball angle
-        const brickHeight = 12;
+        this.killBlockSpeed = 80;
+        const brickHeight = 14;
         const brickOffset = 10;
         const brickGap = new Point(3, 3);
 
@@ -85,6 +86,9 @@ class Game {
                 switch (brick.kind) {
                     case "normal":
                         break;
+                    case "killer":
+                        brick.element.classList.add("killer");
+                        break;
                     case "solid":
                         brick.element.classList.add("solid");
                         break;
@@ -93,6 +97,8 @@ class Game {
                 brick.element.classList.add("brick");
             }
         }
+
+        this.killBlocks = [];
 
         this.update();
         this.playfield.bindEvent("pointermove", this.pointermove.bind(this));
@@ -140,6 +146,14 @@ class Game {
                     this.stopStatus = "die";
                 }
                 if (kind == "brick" && entity.kind != "solid") {
+                    if(entity.kind == 'killer') {
+                        const killBlock = this.playfield.addEntity({
+                            position: entity.position,
+                            size: new Point(12, 12),
+                        })
+                        killBlock.element.classList.add('killBlock');
+                        this.killBlocks.push(killBlock);
+                    }
                     this.playfield.removeEntity(entity);
                     this.bricks = this.bricks.filter(
                         (brick) => brick != entity
@@ -161,6 +175,18 @@ class Game {
             (this.paddleTarget - this.paddle.x) *
             Math.exp(-dt);
         this.paddle.x += this.paddleVelX * dt;
+
+        this.killBlocks.forEach((block) => {
+            block.inBounds = block.rect.origin.y < this.playfield.rect.end.y;
+            if (!block.inBounds) {
+                this.playfield.removeEntity(block);
+            }
+            if (block.rect.overlaps(this.paddle.rect)) {
+                this.stopStatus = "die";
+            }
+            block.y += this.killBlockSpeed * dt;
+        })
+        this.killBlocks = this.killBlocks.filter((block) => block.inBounds);
 
         if (this.stopStatus) {
             this.playfield.reset();
