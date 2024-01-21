@@ -16,6 +16,10 @@ body {
     outline: 4px solid white;
 }
 
+.viewport {
+    transform-origin: 0px 0px;
+}
+
 @media (min-aspect-ratio: 1/1) {
     #playfield {
         width: 100svh;
@@ -26,7 +30,7 @@ body {
 .game-entity {
     background: #fff;
     display: block;
-    position: fixed;
+    position: absolute;
 }
 
 .brick {

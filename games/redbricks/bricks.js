@@ -16,13 +16,11 @@ class Game {
         this.paddle = this.playfield.addEntity({
             size: new Point(32, 8),
             position: this.gameSize.sub(new Point(this.gameSize.x / 2, 16)),
-            round: 8,
         });
 
         this.ball = this.playfield.addEntity({
             size: new Point(8, 8),
             position: this.gameSize.sub(new Point(0, this.paddle.position.y - 2)),
-            round: 8,
         })
         this.ball_stuck = true;
 
