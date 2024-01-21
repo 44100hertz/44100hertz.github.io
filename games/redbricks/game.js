@@ -34,6 +34,9 @@ class Game {
         // Other settings
         this.gravity = 100;
         this.maxBallSpeed = 300;
+        this.paddleSpeed = 20.0; // Rate of moving toward cursor
+        this.paddleFriction = 0.5; // Movement affecting bounce
+        this.paddleSurface = 10; // Rate of paddle side shifting ball angle
         const brickHeight = 12;
         const brickOffset = 10;
         const brickGap = new Point(3, 3);
@@ -49,9 +52,7 @@ class Game {
         // Ball
         this.ball = this.playfield.addEntity({
             size: new Point(8, 8),
-            position: this.gameSize.sub(
-                new Point(0, this.paddle.position.y - 2)
-            ),
+            position: this.gameSize.sub(new Point(0, this.paddle.y - 2)),
             velocity: new Point(0, 0),
         });
         this.ball.element.classList.add("ball");
@@ -63,10 +64,7 @@ class Game {
             (this.gameSize.x - brickGap.x * 2) / numBricks.x,
             brickHeight + brickGap.y
         );
-        const brickSize = new Point(
-            brickSpacing.x - brickGap.x,
-            brickHeight
-        );
+        const brickSize = new Point(brickSpacing.x - brickGap.x, brickHeight);
         this.bricks = [];
 
         for (let iy = 0; iy < numBricks.y; ++iy) {
@@ -123,18 +121,18 @@ class Game {
                 );
             };
 
-            const testY = new Point(this.ball.position.x, nextBallPos().y);
+            const testY = new Point(this.ball.x, nextBallPos().y);
             const collisionY = this.getBallCollision(testY);
             if (collisionY.kind) this.ball.velocity.y *= -1;
 
-            const testX = new Point(nextBallPos().x, this.ball.position.y);
+            const testX = new Point(nextBallPos().x, this.ball.y);
             const collisionX = this.getBallCollision(testX);
             if (collisionX.kind) this.ball.velocity.x *= -1;
 
             if (collisionY.kind == "paddle") {
-                this.ball.velocity.x += this.paddleSpeedX / 2;
+                this.ball.velocity.x += this.paddleVelX * this.paddleFriction;
                 this.ball.velocity.x +=
-                    this.ball.position.x < this.paddle.position.x ? -10 : 10;
+                    this.paddleSurface * (this.ball.x < this.paddle.x ? -1 : 1);
             }
 
             [collisionX, collisionY].forEach(({ kind, entity }) => {
@@ -158,8 +156,11 @@ class Game {
             this.ball.position = nextBallPos();
         }
 
-        this.paddleSpeedX = 10 * (this.paddleTarget - this.paddle.x) * Math.exp(-dt);
-        this.paddle.x += this.paddleSpeedX * dt;
+        this.paddleVelX =
+            this.paddleSpeed *
+            (this.paddleTarget - this.paddle.x) *
+            Math.exp(-dt);
+        this.paddle.x += this.paddleVelX * dt;
 
         if (this.stopStatus) {
             this.playfield.reset();
@@ -173,10 +174,7 @@ class Game {
         const ballRect = Rect.centered(pos, this.ball.size);
         if (ballRect.origin.y > this.gameSize.y) {
             return { kind: "bottom" };
-        } else if (
-            ballRect.origin.x < 0 ||
-            ballRect.end.x > this.gameSize.x
-        ) {
+        } else if (ballRect.origin.x < 0 || ballRect.end.x > this.gameSize.x) {
             return { kind: "viewport" };
         } else if (
             ballRect.overlaps(this.paddle.rect) &&
@@ -198,7 +196,7 @@ class Game {
             this.ballStuck = false;
             const jitter = Math.random() < 0.5 ? -10 : 10;
             this.ball.velocity = new Point(
-                this.paddleSpeedX / this.ballSpeed + jitter,
+                this.paddleVelX / this.ballSpeed + jitter,
                 -200
             );
         }
