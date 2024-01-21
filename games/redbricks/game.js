@@ -44,6 +44,7 @@ class Game {
             position: this.gameSize.sub(new Point(this.gameSize.x / 2, 16)),
         });
         this.paddle.element.classList.add("paddle");
+        this.paddleTarget = this.paddle.x;
 
         // Ball
         this.ball = this.playfield.addEntity({
@@ -96,8 +97,10 @@ class Game {
         }
 
         this.update();
-        this.playfield.bindEvent("mousemove", this.mousemove.bind(this));
-        this.playfield.bindEvent("keydown", this.keydown.bind(this));
+        this.playfield.bindEvent("pointermove", this.pointermove.bind(this));
+        this.playfield.bindEvent("pointerdown", this.tryLaunch.bind(this));
+        this.playfield.bindEvent("pointerdown", this.pointermove.bind(this));
+        this.playfield.bindEvent("keydown", this.tryLaunch.bind(this));
     }
 
     update(newtime) {
@@ -155,8 +158,8 @@ class Game {
             this.ball.position = nextBallPos();
         }
 
-        this.paddleSpeedX = (this.paddle.x - this.lastPaddleX) / dt || 0;
-        this.lastPaddleX = this.paddle.x;
+        this.paddleSpeedX = 10 * (this.paddleTarget - this.paddle.x) * Math.exp(-dt);
+        this.paddle.x += this.paddleSpeedX * dt;
 
         if (this.stopStatus) {
             this.playfield.reset();
@@ -190,7 +193,7 @@ class Game {
         return {};
     }
 
-    keydown() {
+    tryLaunch() {
         if (this.ballStuck) {
             this.ballStuck = false;
             const jitter = Math.random() < 0.5 ? -10 : 10;
@@ -201,9 +204,9 @@ class Game {
         }
     }
 
-    mousemove(mousePos) {
+    pointermove(mousePos) {
         const pwidth = this.paddle.size.x;
-        this.paddle.x = Math.max(
+        this.paddleTarget = Math.max(
             pwidth / 2,
             Math.min(mousePos.x, this.gameSize.x - pwidth / 2)
         );

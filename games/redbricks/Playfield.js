@@ -24,7 +24,8 @@ export default class Playfield {
 
     bindEvent(event, callback) {
         switch (event) {
-            case "mousemove":
+            case "pointermove":
+            case "pointerdown":
                 this.eventBinds.push(
                     addEventListener(event, (ev) =>
                         callback(
