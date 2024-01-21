@@ -58,13 +58,10 @@ export default class Playfield {
 }
 
 export class Entity {
-    constructor(playfield, {position, size, classList, ...props}) {
+    constructor(playfield, {position, size, ...props}) {
         this.playfield = playfield;
         this.element = document.createElement('div');
         this.element.classList.add('game-entity');
-        if(classList) {
-            classList.forEach((c) => this.element.classList.add(c));
-        }
         this.size = size ?? new Point(0,0);
         this.position = position ?? new Point(0,0);
 
