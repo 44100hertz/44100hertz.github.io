@@ -4,6 +4,7 @@ import Rect from "../lib/Rect.js";
 export default class Playfield {
     #e_playfield;
     #e_viewport;
+    #e_entities;
 
     constructor(id, gameSize) {
         this.gameSize = gameSize;
@@ -11,15 +12,13 @@ export default class Playfield {
         this.eventBinds = [];
 
         this.#e_playfield = document.getElementById(id);
-        this.#e_viewport = document.createElement("div");
-        this.#e_playfield.appendChild(this.#e_viewport);
-
+        this.#e_viewport = document.querySelector(`#${id} .viewport`);
         this.#e_viewport.style.width = `${gameSize.x}px`;
         this.#e_viewport.style.height = `${gameSize.y}px`;
-        this.#e_viewport.classList.add("viewport");
-
         addEventListener("resize", () => this.#rescale());
         this.#rescale();
+
+        this.#e_entities = document.querySelector(`#${id} .entities`);
     }
 
     bindEvent(event, callback) {
@@ -43,12 +42,12 @@ export default class Playfield {
 
     reset() {
         this.eventBinds.forEach((ev) => removeEventListener(document, ev));
-        this.#e_viewport.innerHTML = "";
+        this.#e_entities.innerHTML = "";
     }
 
     addEntity(props) {
         const entity = new Entity(props);
-        this.#e_viewport.appendChild(entity.element);
+        this.#e_entities.appendChild(entity.element);
         return entity;
     }
 

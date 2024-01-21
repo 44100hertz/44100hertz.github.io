@@ -1,0 +1,17 @@
+export const tips = [
+    "try again",
+    "try again again",
+    "try again again again",
+    "you have more control than you think",
+    "this game is not easy",
+    "...but it's easier than it looks",
+    "finesse is everything",
+    "you didn't use enough finesse",
+    "try again again again again again",
+    "patience is key",
+    "patience is still key",
+    "hang in there",
+    "you got this",
+    "don't give up",
+    "you can't give up yet",
+];

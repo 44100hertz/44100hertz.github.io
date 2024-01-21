@@ -2,16 +2,30 @@ import Point from "../lib/Point.js";
 import Rect from "../lib/Rect.js";
 import Playfield from "./Playfield.js";
 import { brickPattern } from "./brickpattern.js";
+import { tips } from "./tips.js";
 
 addEventListener("load", load);
 
 function load() {
     const gameSize = new Point(240, 240);
     const playfield = new Playfield("playfield", gameSize);
+    const e_message = document.querySelector(".statusMessage div");
+    let deathCount = 0;
     let level = 1;
     function start() {
+        e_message.textContent = '';
         const game = new Game(playfield, gameSize, level, (status) => {
-            if (status == "win") ++level;
+            switch(status) {
+                case "win":
+                    ++level;
+                    break;
+                case "die":
+                    e_message.textContent = `
+${tips[deathCount % tips.length]}
+deaths: ${deathCount+1}
+                    `
+                    ++deathCount;
+            }
             setTimeout(start, 1000);
         });
     }

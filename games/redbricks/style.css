@@ -11,7 +11,12 @@ body {
     color: white;
 }
 
+pre {
+    margin: 0;
+}
+
 #playfield {
+    user-select: none;
     cursor: crosshair;
     width: 100svw;
     height: 100svw;
@@ -21,6 +26,24 @@ body {
 .viewport {
     transform-origin: 0px 0px;
     overflow: hidden;
+}
+
+.statusMessage {
+    display: flex;
+    align-items: center;
+    justify-content: stretch;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+.statusMessage div {
+    font-family: serif;
+    font-size: 10px;
+    font-style: italic;
+    width: 100%;
+    white-space: pre;
+    text-align: center;
 }
 
 @media (min-aspect-ratio: 1/1) {
@@ -88,6 +111,5 @@ body {
 
 #scoreboard {
     position: absolute;
-    margin: 0;
     z-index: 1;
 }
