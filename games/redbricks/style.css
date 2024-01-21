@@ -48,11 +48,11 @@ body {
 }
 
 .ball {
-    outline: 1px solid #fff;
-    z-index: 1;
+    background: white;
 }
 
 .paddle {
+    border-top: 1px solid white;
     background: #08f;
 }
 
