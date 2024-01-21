@@ -11,6 +11,7 @@ export default class Playfield {
         this.e_viewport.style.height = `${gameSize.y}px`;
         this.e_viewport.classList.add('viewport');
         this.entities = [];
+        addEventListener('resize', () => this.rescale());
         this.rescale();
     }
 
@@ -49,7 +50,7 @@ export default class Playfield {
     }
 
     addEntity(props) {
-        const entity = new Entity(this, props);
+        const entity = new Entity(props);
         this.entities.push(entity);
         this.e_viewport.appendChild(entity.element);
         return entity;
@@ -57,8 +58,7 @@ export default class Playfield {
 }
 
 export class Entity {
-    constructor(playfield, {position, size}) {
-        this.playfield = playfield;
+    constructor({position, size}) {
         this.element = document.createElement('div');
         this.element.classList.add('game-entity');
         this.size = size ?? new Point(0,0);
