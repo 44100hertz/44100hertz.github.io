@@ -1,4 +1,5 @@
 import Point from '../lib/Point.js';
+import Rect from '../lib/Rect.js';
 
 export default class Playfield {
     #e_playfield;
@@ -6,6 +7,9 @@ export default class Playfield {
 
     constructor(id, gameSize) {
         this.gameSize = gameSize;
+        this.rect = new Rect(new Point(0, 0), gameSize);
+        this.eventBinds = [];
+
         this.#e_playfield = document.getElementById(id);
         this.#e_viewport = document.createElement('div');
         this.#e_playfield.appendChild(this.#e_viewport);
@@ -21,19 +25,29 @@ export default class Playfield {
     bindEvent(event, callback) {
         switch (event) {
             case 'mousemove':
-                addEventListener(event, (ev) => {
-                    callback(this.#clientToGamePos(new Point(ev.clientX, ev.clientY)));
-                });
+                this.eventBinds.push(
+                    addEventListener(event, (ev) =>
+                        callback(this.#clientToGamePos(
+                            new Point(ev.clientX, ev.clientY)))));
                 break;
             default:
-                addEventListener(event, callback);
+                this.eventBinds.push(
+                    addEventListener(event, callback));
         }
+    }
+
+    clearEvents() {
+        this.eventBinds.forEach(removeEventListener);
     }
 
     addEntity(props) {
         const entity = new Entity(props);
         this.#e_viewport.appendChild(entity.element);
         return entity;
+    }
+
+    removeEntity(entity) {
+        entity.element.remove();
     }
 
     #clientRect() {
@@ -60,7 +74,8 @@ class Entity {
     #size;
     #position;
 
-    constructor({position, size}) {
+    constructor({position, size, ...props}) {
+        Object.assign(this, props);
         this.element = document.createElement('div');
         this.element.classList.add('game-entity');
         this.size = size ?? new Point(0,0);
@@ -93,6 +108,10 @@ class Entity {
         this.element.style.height = `${this.size.y}px`;
     }
     get size() { return this.#size; }
+
+    get rect() {
+        return Rect.centered(this.position, this.size);
+    }
 }
 
 
