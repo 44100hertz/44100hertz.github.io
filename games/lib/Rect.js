@@ -1,4 +1,4 @@
-import Point from './Point.js';
+import Point from "./Point.js";
 
 export default class Rect {
     constructor(origin, size) {
@@ -16,7 +16,7 @@ export default class Rect {
             this.origin.y >= other.origin.y &&
             this.end.x <= other.end.x &&
             this.end.y <= other.end.y
-        )
+        );
     }
 
     overlaps(other) {
@@ -25,7 +25,7 @@ export default class Rect {
             this.origin.y <= other.end.y &&
             this.end.x >= other.origin.x &&
             this.end.y >= other.origin.y
-        )
+        );
     }
 
     get end() {

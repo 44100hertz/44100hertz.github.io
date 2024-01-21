@@ -1,20 +1,19 @@
-import Point from '../lib/Point.js';
-import Rect from '../lib/Rect.js';
-import Playfield from './Playfield.js';
-import { brickPattern } from './brickpattern.js';
+import Point from "../lib/Point.js";
+import Rect from "../lib/Rect.js";
+import Playfield from "./Playfield.js";
+import { brickPattern } from "./brickpattern.js";
 
-addEventListener('load', load);
+addEventListener("load", load);
 
 function load() {
-    const gameSize = new Point(240,240);
-    const playfield = new Playfield('playfield', gameSize);
+    const gameSize = new Point(240, 240);
+    const playfield = new Playfield("playfield", gameSize);
     let level = 1;
     function start() {
-        const game = new Game(playfield, gameSize, level,
-            (status) => {
-                if (status == 'win') ++level;
-                setTimeout(start, 1000)
-            });
+        const game = new Game(playfield, gameSize, level, (status) => {
+            if (status == "win") ++level;
+            setTimeout(start, 1000);
+        });
     }
     start();
 }
@@ -24,136 +23,140 @@ class Game {
         this.playfield = playfield;
         this.gameSize = gameSize;
         this.stopCallback = stopCallback;
-        this.scoreboard = document.getElementById('scoreboard');
+        this.scoreboard = document.getElementById("scoreboard");
 
         console.log(`Loading level ${level}...`);
 
         // Difficulty values
         this.level = level;
-        this.ball_speed = 1.5;
+        this.ballSpeed = 1.5;
 
         // Other settings
         this.gravity = 100;
-        this.max_ball_speed = 300;
-        const brick_height = 12;
-        const brick_offset = 10;
-        const brick_gap = new Point(3,3);
+        this.maxBallSpeed = 300;
+        const brickHeight = 12;
+        const brickOffset = 10;
+        const brickGap = new Point(3, 3);
 
         // Paddle
         this.paddle = this.playfield.addEntity({
             size: new Point(32, 8),
             position: this.gameSize.sub(new Point(this.gameSize.x / 2, 16)),
         });
-        this.paddle.element.classList.add('paddle');
+        this.paddle.element.classList.add("paddle");
 
         // Ball
         this.ball = this.playfield.addEntity({
             size: new Point(8, 8),
-            position: this.gameSize.sub(new Point(0, this.paddle.position.y - 2)),
-            velocity: new Point(0,0),
-        })
-        this.ball.element.classList.add('ball');
-        this.ball_stuck = true;
+            position: this.gameSize.sub(
+                new Point(0, this.paddle.position.y - 2)
+            ),
+            velocity: new Point(0, 0),
+        });
+        this.ball.element.classList.add("ball");
+        this.ballStuck = true;
 
         // Bricks
         const { numBricks, getBrickKind } = brickPattern(level);
-        const brick_spacing = new Point(
-            (this.gameSize.x - brick_gap.x*2) / numBricks.x,
-            brick_height + brick_gap.y
+        const brickSpacing = new Point(
+            (this.gameSize.x - brickGap.x * 2) / numBricks.x,
+            brickHeight + brickGap.y
         );
-        const brick_size = new Point(brick_spacing.x - brick_gap.x,
-            brick_height
+        const brickSize = new Point(
+            brickSpacing.x - brickGap.x,
+            brickHeight
         );
         this.bricks = [];
 
-        for (let iy=0; iy<numBricks.y; ++iy) {
-            for(let ix=0; ix<numBricks.x; ++ix) {
+        for (let iy = 0; iy < numBricks.y; ++iy) {
+            for (let ix = 0; ix < numBricks.x; ++ix) {
                 const kind = getBrickKind(ix, iy);
-                if (kind == 'empty') {
+                if (kind == "empty") {
                     continue;
                 }
                 const brick = this.playfield.addEntity({
-                    size: brick_size,
-                    position: brick_spacing
-                        .mul(new Point(ix,iy))
-                        .add(brick_gap)
-                        .add(new Point(0, brick_offset))
-                        .add(brick_spacing.div(new Point(2,2))),
-                    kind
-                })
+                    size: brickSize,
+                    position: brickSpacing
+                        .mul(new Point(ix, iy))
+                        .add(brickGap)
+                        .add(new Point(0, brickOffset))
+                        .add(brickSpacing.div(new Point(2, 2))),
+                    kind,
+                });
                 switch (brick.kind) {
-                    case 'normal':
+                    case "normal":
                         break;
-                    case 'solid':
-                        brick.element.classList.add('solid')
+                    case "solid":
+                        brick.element.classList.add("solid");
                         break;
                 }
                 this.bricks.push(brick);
-                brick.element.classList.add('brick');
+                brick.element.classList.add("brick");
             }
         }
 
         this.update();
-        this.playfield.bindEvent('mousemove', this.mousemove.bind(this));
-        this.playfield.bindEvent('keydown', this.keydown.bind(this));
+        this.playfield.bindEvent("mousemove", this.mousemove.bind(this));
+        this.playfield.bindEvent("keydown", this.keydown.bind(this));
     }
 
     update(newtime) {
-        const dt = ((newtime - this.lastTime) / 1000) || 1/240;
+        const dt = (newtime - this.lastTime) / 1000 || 1 / 240;
         this.lastTime = newtime;
 
         // Ball movement and collision
-        if (this.ball_stuck) {
+        if (this.ballStuck) {
             this.ball.position = this.paddle.position.add(new Point(0, -10));
         } else {
-            this.ball.velocity.x =
-                Math.min(this.max_ball_speed,
-                    Math.max(-this.max_ball_speed,
-                        this.ball.velocity.x))
-            this.ball.velocity.y += this.gravity * dt * this.ball_speed;
+            this.ball.velocity.x = Math.min(
+                this.maxBallSpeed,
+                Math.max(-this.maxBallSpeed, this.ball.velocity.x)
+            );
+            this.ball.velocity.y += this.gravity * dt * this.ballSpeed;
 
-            const next_ball_pos = () => {
-                return this.ball.position
-                    .add(this.ball.velocity
-                        .mul(new Point(dt * this.ball_speed)))
-            }
+            const nextBallPos = () => {
+                return this.ball.position.add(
+                    this.ball.velocity.mul(new Point(dt * this.ballSpeed))
+                );
+            };
 
-            const test_y = new Point(this.ball.position.x, next_ball_pos().y);
-            const collision_y = this.getBallCollision(test_y);
-            if (collision_y.kind) this.ball.velocity.y *= -1;
+            const testY = new Point(this.ball.position.x, nextBallPos().y);
+            const collisionY = this.getBallCollision(testY);
+            if (collisionY.kind) this.ball.velocity.y *= -1;
 
-            const test_x = new Point(next_ball_pos().x, this.ball.position.y);
-            const collision_x = this.getBallCollision(test_x);
-            if (collision_x.kind) this.ball.velocity.x *= -1;
+            const testX = new Point(nextBallPos().x, this.ball.position.y);
+            const collisionX = this.getBallCollision(testX);
+            if (collisionX.kind) this.ball.velocity.x *= -1;
 
-            if (collision_y.kind == 'paddle') {
-                this.ball.velocity.x += this.paddle_xvel / 2;
+            if (collisionY.kind == "paddle") {
+                this.ball.velocity.x += this.paddleSpeedX / 2;
                 this.ball.velocity.x +=
-                    this.ball.position.x < this.paddle.position.x ?
-                    -10 : 10
+                    this.ball.position.x < this.paddle.position.x ? -10 : 10;
             }
 
-            ([collision_x, collision_y]).forEach(({kind, entity}) => {
-                if (kind == 'bottom') {
-                    this.stopStatus = 'die';
+            [collisionX, collisionY].forEach(({ kind, entity }) => {
+                if (kind == "bottom") {
+                    this.stopStatus = "die";
                 }
-                if (kind == 'brick' && entity.kind != 'solid') {
+                if (kind == "brick" && entity.kind != "solid") {
                     this.playfield.removeEntity(entity);
-                    this.bricks = this.bricks
-                        .filter((brick) => brick != entity);
-                    const remaining_brick = this.bricks
-                        .find((brick) => brick.kind != 'solid')
-                    if (!remaining_brick) {
-                        this.stopStatus = 'win';
+                    this.bricks = this.bricks.filter(
+                        (brick) => brick != entity
+                    );
+                    const remainingBrick = this.bricks.find(
+                        (brick) => brick.kind != "solid"
+                    );
+                    if (!remainingBrick) {
+                        this.stopStatus = "win";
                     }
                 }
-            })
+            });
 
-            this.ball.position = next_ball_pos();
+            this.ball.position = nextBallPos();
         }
 
-        this.paddle_xvel = ((this.paddle.x - this.last_paddle_x) / dt) || 0;
-        this.last_paddle_x = this.paddle.x;
+        this.paddleSpeedX = (this.paddle.x - this.lastPaddleX) / dt || 0;
+        this.lastPaddleX = this.paddle.x;
 
         if (this.stopStatus) {
             this.playfield.reset();
@@ -164,17 +167,23 @@ class Game {
     }
 
     getBallCollision(pos) {
-        const ball_rect = Rect.centered(pos, this.ball.size);
-        if (ball_rect.origin.y > this.gameSize.y) {
-            return {kind: 'bottom'};
-        } else if ( ball_rect.origin.x < 0 || ball_rect.end.x > this.gameSize.x ) {
-            return {kind: 'viewport'};
-        } else if ( ball_rect.overlaps(this.paddle.rect) && ball_rect.end.y < this.paddle.position.y ) {
-            return {kind: 'paddle'};
+        const ballRect = Rect.centered(pos, this.ball.size);
+        if (ballRect.origin.y > this.gameSize.y) {
+            return { kind: "bottom" };
+        } else if (
+            ballRect.origin.x < 0 ||
+            ballRect.end.x > this.gameSize.x
+        ) {
+            return { kind: "viewport" };
+        } else if (
+            ballRect.overlaps(this.paddle.rect) &&
+            ballRect.end.y < this.paddle.position.y
+        ) {
+            return { kind: "paddle" };
         } else {
-            for(const brick of this.bricks) {
-                if (ball_rect.overlaps(brick.rect)) {
-                    return {kind: 'brick', entity: brick};
+            for (const brick of this.bricks) {
+                if (ballRect.overlaps(brick.rect)) {
+                    return { kind: "brick", entity: brick };
                 }
             }
         }
@@ -182,11 +191,11 @@ class Game {
     }
 
     keydown() {
-        if (this.ball_stuck) {
-            this.ball_stuck = false;
+        if (this.ballStuck) {
+            this.ballStuck = false;
             const jitter = Math.random() < 0.5 ? -10 : 10;
             this.ball.velocity = new Point(
-                (this.paddle_xvel / this.ball_speed) + jitter,
+                this.paddleSpeedX / this.ballSpeed + jitter,
                 -200
             );
         }
@@ -194,7 +203,9 @@ class Game {
 
     mousemove(mousePos) {
         const pwidth = this.paddle.size.x;
-        this.paddle.x = Math.max(pwidth/2,
-            Math.min(mousePos.x, this.gameSize.x - pwidth/2));
+        this.paddle.x = Math.max(
+            pwidth / 2,
+            Math.min(mousePos.x, this.gameSize.x - pwidth / 2)
+        );
     }
 }

@@ -4,19 +4,19 @@ export default class Point {
         this.y = y ?? x;
     }
 
-    add({x, y}) {
+    add({ x, y }) {
         return new Point(this.x + x, this.y + y);
     }
 
-    sub({x, y}) {
+    sub({ x, y }) {
         return new Point(this.x - x, this.y - y);
     }
 
-    mul({x, y}) {
+    mul({ x, y }) {
         return new Point(this.x * x, this.y * y);
     }
 
-    div({x, y}) {
+    div({ x, y }) {
         return new Point(this.x / x, this.y / y);
     }
 }

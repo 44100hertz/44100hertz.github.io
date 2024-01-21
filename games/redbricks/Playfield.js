@@ -1,5 +1,5 @@
-import Point from '../lib/Point.js';
-import Rect from '../lib/Rect.js';
+import Point from "../lib/Point.js";
+import Rect from "../lib/Rect.js";
 
 export default class Playfield {
     #e_playfield;
@@ -11,34 +11,38 @@ export default class Playfield {
         this.eventBinds = [];
 
         this.#e_playfield = document.getElementById(id);
-        this.#e_viewport = document.createElement('div');
+        this.#e_viewport = document.createElement("div");
         this.#e_playfield.appendChild(this.#e_viewport);
 
         this.#e_viewport.style.width = `${gameSize.x}px`;
         this.#e_viewport.style.height = `${gameSize.y}px`;
-        this.#e_viewport.classList.add('viewport');
+        this.#e_viewport.classList.add("viewport");
 
-        addEventListener('resize', () => this.#rescale());
+        addEventListener("resize", () => this.#rescale());
         this.#rescale();
     }
 
     bindEvent(event, callback) {
         switch (event) {
-            case 'mousemove':
+            case "mousemove":
                 this.eventBinds.push(
                     addEventListener(event, (ev) =>
-                        callback(this.#clientToGamePos(
-                            new Point(ev.clientX, ev.clientY)))));
+                        callback(
+                            this.#clientToGamePos(
+                                new Point(ev.clientX, ev.clientY)
+                            )
+                        )
+                    )
+                );
                 break;
             default:
-                this.eventBinds.push(
-                    addEventListener(event, callback));
+                this.eventBinds.push(addEventListener(event, callback));
         }
     }
 
     reset() {
         this.eventBinds.forEach((ev) => removeEventListener(document, ev));
-        this.#e_viewport.innerHTML = '';
+        this.#e_viewport.innerHTML = "";
     }
 
     addEntity(props) {
@@ -52,7 +56,8 @@ export default class Playfield {
     }
 
     #clientRect() {
-        const {top, right, bottom, left} = this.#e_playfield.getBoundingClientRect();
+        const { top, right, bottom, left } =
+            this.#e_playfield.getBoundingClientRect();
         return {
             origin: new Point(left, top),
             size: new Point(right - left, bottom - top),
@@ -61,13 +66,15 @@ export default class Playfield {
 
     #clientToGamePos(clientPos) {
         const { origin, size } = this.#clientRect();
-        return clientPos.sub(origin).div(size).mul(this.gameSize); 
+        return clientPos.sub(origin).div(size).mul(this.gameSize);
     }
 
     #rescale() {
         const { size } = this.#clientRect();
-        const scale = size.div(this.gameSize)
-        this.#e_viewport.style.transform = `scale(${scale.x * 100}%,${scale.y * 100}%)`;
+        const scale = size.div(this.gameSize);
+        this.#e_viewport.style.transform = `scale(${scale.x * 100}%,${
+            scale.y * 100
+        }%)`;
     }
 }
 
@@ -75,24 +82,28 @@ class Entity {
     #size;
     #position;
 
-    constructor({position, size, ...props}) {
+    constructor({ position, size, ...props }) {
         Object.assign(this, props);
-        this.element = document.createElement('div');
-        this.element.classList.add('game-entity');
-        this.size = size ?? new Point(0,0);
-        this.position = position ?? new Point(0,0);
+        this.element = document.createElement("div");
+        this.element.classList.add("game-entity");
+        this.size = size ?? new Point(0, 0);
+        this.position = position ?? new Point(0, 0);
     }
 
     set x(x) {
         this.position.x = x;
         this.position = this.position;
     }
-    get x() { return this.position.x }
+    get x() {
+        return this.position.x;
+    }
     set y(y) {
         this.position.y = y;
         this.position = this.position;
     }
-    get y() { return this.position.y }
+    get y() {
+        return this.position.y;
+    }
 
     set position(newpos) {
         this.#position = newpos;
@@ -101,18 +112,20 @@ class Entity {
         this.element.style.left = `${pos.x}px`;
         this.element.style.top = `${pos.y}px`;
     }
-    get position() { return this.#position; }
+    get position() {
+        return this.#position;
+    }
 
     set size(newsize) {
         this.#size = newsize;
         this.element.style.width = `${this.size.x}px`;
         this.element.style.height = `${this.size.y}px`;
     }
-    get size() { return this.#size; }
+    get size() {
+        return this.#size;
+    }
 
     get rect() {
         return Rect.centered(this.position, this.size);
     }
 }
-
-
