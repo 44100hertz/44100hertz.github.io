@@ -18,6 +18,7 @@ function load() {
             switch(status) {
                 case "win":
                     ++level;
+                    e_message.textContent = `LEVEL ${level}`;
                     break;
                 case "die":
                     e_message.textContent = `
