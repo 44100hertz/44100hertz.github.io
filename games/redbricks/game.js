@@ -29,7 +29,8 @@ function load() {
                     ++level;
                     const time = (new Date()) - startTime;
                     const minutes = Math.floor(time / 1000 / 60);
-                    const seconds = Math.floor((time / 1000) % 60);
+                    const seconds = String(Math.floor((time / 1000) % 60))
+                          .padStart(2,'0');
                     e_message.textContent = `
 Good job!
 Level time: ${minutes}:${seconds}`;
