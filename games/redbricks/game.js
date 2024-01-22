@@ -12,7 +12,7 @@ function load() {
     const playfield = new Playfield("playfield", gameSize);
     const e_message = document.querySelector(".statusMessage div");
     let deathCount = 0;
-    let level = 2;
+    let level = 1;
 
     let startTime;
     function introduceLevel() {
