@@ -9,6 +9,7 @@ body {
     margin: 0;
     background: black;
     color: white;
+    overflow: hidden;
 }
 
 pre {
@@ -29,12 +30,12 @@ pre {
 }
 
 .statusMessage {
+    position: absolute;
     display: flex;
     align-items: center;
     justify-content: stretch;
     width: 100%;
     height: 100%;
-    position: absolute;
 }
 
 .statusMessage div {
