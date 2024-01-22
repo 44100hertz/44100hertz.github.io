@@ -80,9 +80,14 @@ pre {
     justify-content: center;
     align-items: center;
     outline: 1px solid white;
+    background-image: url(gfx/skull.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
     animation-name: danger;
-    animation-direction: alternate;
-    animation-duration: 0.125s;
+    animation-timing-function: linear;
+    animation-duration: 0.25s;
     animation-iteration-count: infinite;
 }
 
@@ -93,12 +98,6 @@ pre {
     100% {
         outline-color: red;
     }
-}
-
-.killBlock::before {
-    font-size: 14px;
-    content: '☠';
-    color: white;
 }
 
 .ball {
