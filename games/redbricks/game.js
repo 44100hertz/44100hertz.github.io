@@ -218,7 +218,7 @@ class Game {
             return { kind: "viewport" };
         } else if (
             ballRect.overlaps(this.paddle.rect) &&
-            this.ball.rect.end.y < this.paddle.rect.origin.y
+            this.ball.rect.end.y <= this.paddle.rect.origin.y+1
         ) {
             return { kind: "paddle" };
         } else {
