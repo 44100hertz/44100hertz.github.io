@@ -122,7 +122,7 @@ class Game {
     }
 
     update(newtime) {
-        const dt = (newtime - this.lastTime) / 1000 || 1 / 240;
+        const dt = Math.min(1/60, (newtime - this.lastTime) / 1000 || 1/240);
         this.lastTime = newtime;
 
         // Ball movement and collision
