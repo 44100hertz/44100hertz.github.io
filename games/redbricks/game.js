@@ -12,14 +12,28 @@ function load() {
     const playfield = new Playfield("playfield", gameSize);
     const e_message = document.querySelector(".statusMessage div");
     let deathCount = 0;
-    let level = 1;
+    let level = 2;
+
+    let startTime;
+    function introduceLevel() {
+        startTime = new Date();
+        e_message.textContent = `LEVEL ${level}`;
+        setTimeout(start, 1000);
+    }
+
     function start() {
         e_message.textContent = '';
         const game = new Game(playfield, gameSize, level, (status) => {
             switch(status) {
                 case "win":
                     ++level;
-                    e_message.textContent = `LEVEL ${level}`;
+                    const time = (new Date()) - startTime;
+                    const minutes = Math.floor(time / 1000 / 60);
+                    const seconds = Math.floor((time / 1000) % 60);
+                    e_message.textContent = `
+Good job!
+Level time: ${minutes}:${seconds}`;
+                    setTimeout(introduceLevel, 1000);
                     break;
                 case "die":
                     e_message.textContent = `
@@ -27,11 +41,11 @@ ${tips[deathCount % tips.length]}
 deaths: ${deathCount+1}
                     `
                     ++deathCount;
+                    setTimeout(start, 1000);
             }
-            setTimeout(start, 1000);
         });
     }
-    start();
+    introduceLevel();
 }
 
 class Game {
