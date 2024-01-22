@@ -1,6 +1,7 @@
 import Point from "../lib/Point.js";
 import Rect from "../lib/Rect.js";
 import Playfield from "./Playfield.js";
+import * as sound from "./sound.js";
 import { brickPattern } from "./brickpattern.js";
 import { tips } from "./tips.js";
 
@@ -157,11 +158,25 @@ class Game {
             }
 
             [collisionX, collisionY].forEach(({ kind, entity }) => {
+                switch(kind) {
+                    case "viewport": sound.play("wallbump"); break;
+                    case "paddle": sound.play("paddlebump"); break;
+                    case "brick":
+                        if(entity.kind == "solid") {
+                            sound.play("wallbump");
+                        } else {
+                            if (entity.kind == "killer") {
+                                sound.play("deathblock");
+                            }
+                            sound.play("brickbump");
+                        }
+                        break;
+                }
                 if (kind == "bottom") {
                     this.stopStatus = "die";
                 }
                 if (kind == "brick" && entity.kind != "solid") {
-                    if(entity.kind == 'killer') {
+                    if(entity.kind == "killer") {
                         const killBlock = this.playfield.addEntity({
                             position: entity.position,
                             size: new Point(12, 12),
@@ -204,6 +219,9 @@ class Game {
         this.killBlocks = this.killBlocks.filter((block) => block.inBounds);
 
         if (this.stopStatus) {
+            if (this.stopStatus == "die") {
+                sound.play("miss");
+            }
             this.playfield.reset();
             this.stopCallback(this.stopStatus);
         } else {
@@ -234,6 +252,7 @@ class Game {
 
     tryLaunch() {
         if (this.ballStuck) {
+            sound.play("launch");
             this.ballStuck = false;
             const jitter = Math.random() < 0.5 ? -10 : 10;
             this.ball.velocity = new Point(
