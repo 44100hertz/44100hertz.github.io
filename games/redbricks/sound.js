@@ -12,6 +12,6 @@ const sound = filenames.reduce((acc, filename) =>
     {})
 
 export function play(name) {
-    sound[name].fastSeek(0);
+    sound[name].currentTime = 0;
     sound[name].play();
 }
