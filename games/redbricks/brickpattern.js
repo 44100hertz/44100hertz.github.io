@@ -16,6 +16,13 @@ const levels = [
                 : "normal",
         num: new Point(8, 4),
     },
+    {
+        kind: (x ,y) =>
+           (x == 0 || x == 6)
+           ? "solid"
+           : y % 2 == 0 ? "normal" : "empty",
+        num: new Point(7, 9)
+    }
 ];
 
 export function brickPattern(level) {
