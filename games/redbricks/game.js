@@ -64,6 +64,7 @@ class Game {
         // Other settings
         this.gravity = 100;
         this.maxBallSpeed = 300;
+        this.launchSpeed = 205;
         this.paddleSpeed = 20.0; // Rate of moving toward cursor
         this.paddleFriction = 0.5; // Movement affecting bounce
         this.paddleSurface = 10; // Rate of paddle side shifting ball angle
@@ -145,12 +146,6 @@ class Game {
         if (this.ballStuck) {
             this.ball.position = this.paddle.position.add(new Point(0, -10));
         } else {
-            this.ball.velocity.x = Math.min(
-                this.maxBallSpeed,
-                Math.max(-this.maxBallSpeed, this.ball.velocity.x)
-            );
-            this.ball.velocity.y += this.gravity * dt * this.ballSpeed;
-
             const nextBallPos = () => {
                 return this.ball.position.add(
                     this.ball.velocity.mul(new Point(dt * this.ballSpeed))
@@ -159,7 +154,11 @@ class Game {
 
             const testY = new Point(this.ball.x, nextBallPos().y);
             let collisionY = this.getBallCollision(testY);
-            if (collisionY.kind) this.ball.velocity.y *= -1;
+            if (collisionY.kind) {
+                this.ball.velocity.y *= -1;
+            } else {
+                this.ball.velocity.y += this.gravity * dt * this.ballSpeed;
+            }
 
             const testX = new Point(nextBallPos().x, this.ball.y);
             const collisionX = this.getBallCollision(testX);
@@ -215,6 +214,10 @@ class Game {
             });
 
             this.ball.position = nextBallPos();
+            this.ball.velocity.x = Math.min(
+                this.maxBallSpeed,
+                Math.max(-this.maxBallSpeed, this.ball.velocity.x)
+            );
         }
 
         this.paddleVelX =
@@ -274,7 +277,7 @@ class Game {
             const jitter = Math.random() < 0.5 ? -10 : 10;
             this.ball.velocity = new Point(
                 this.paddleVelX / this.ballSpeed + jitter,
-                -200
+                -this.launchSpeed
             );
         }
     }
