@@ -158,7 +158,7 @@ class Game {
             };
 
             const testY = new Point(this.ball.x, nextBallPos().y);
-            const collisionY = this.getBallCollision(testY);
+            let collisionY = this.getBallCollision(testY);
             if (collisionY.kind) this.ball.velocity.y *= -1;
 
             const testX = new Point(nextBallPos().x, this.ball.y);
@@ -171,6 +171,9 @@ class Game {
                     this.paddleSurface * (this.ball.x < this.paddle.x ? -1 : 1);
             }
 
+            if(collisionX.kind === "brick" && collisionX.entity === collisionY.entity) {
+                collisionY = {};
+            }
             [collisionX, collisionY].forEach(({ kind, entity }) => {
                 switch(kind) {
                     case "viewport": sound.play("wallbump"); break;
