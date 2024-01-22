@@ -70,8 +70,6 @@ class Game {
         this.paddleFriction = 0.5; // Movement affecting bounce
         this.paddleSurface = 10; // Rate of paddle side shifting ball angle
         this.killBlockSpeed = 80;
-        const brickHeight = 14;
-        const brickOffset = 10;
         const brickGap = new Point(3, 3);
 
         // Paddle
@@ -92,17 +90,17 @@ class Game {
         this.ballStuck = true;
 
         // Bricks
-        const { numBricks, getBrickKind } = brickPattern(level);
+        const brickPat = brickPattern(level);
         const brickSpacing = new Point(
-            (this.gameSize.x - brickGap.x * 2) / numBricks.x,
-            brickHeight + brickGap.y
+            (this.gameSize.x - brickGap.x * 2) / brickPat.count.x,
+            brickPat.height + brickGap.y
         );
-        const brickSize = new Point(brickSpacing.x - brickGap.x, brickHeight);
+        const brickSize = new Point(brickSpacing.x - brickGap.x, brickPat.height);
         this.bricks = [];
 
-        for (let iy = 0; iy < numBricks.y; ++iy) {
-            for (let ix = 0; ix < numBricks.x; ++ix) {
-                const kind = getBrickKind(ix, iy);
+        for (let iy = 0; iy < brickPat.count.y; ++iy) {
+            for (let ix = 0; ix < brickPat.count.x; ++ix) {
+                const kind = brickPat.getKind(ix, iy);
                 if (kind == "empty") {
                     continue;
                 }
@@ -111,7 +109,7 @@ class Game {
                     position: brickSpacing
                         .mul(new Point(ix, iy))
                         .add(brickGap)
-                        .add(new Point(0, brickOffset))
+                        .add(new Point(0, brickPat.offset))
                         .add(brickSpacing.div(new Point(2, 2))),
                     kind,
                 });
