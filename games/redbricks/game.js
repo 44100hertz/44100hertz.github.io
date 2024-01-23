@@ -10,19 +10,18 @@ addEventListener("load", load);
 function load() {
     const gameSize = new Point(240, 240);
     const playfield = new Playfield("playfield", gameSize);
-    const e_message = document.querySelector(".statusMessage div");
     let deathCount = 0;
     let level = 1;
 
     let startTime;
     function introduceLevel() {
         startTime = new Date();
-        e_message.textContent = `LEVEL ${level}`;
+        playfield.showMessage(`LEVEL ${level}`);
         setTimeout(start, 1000);
     }
 
     function start() {
-        e_message.textContent = '';
+        playfield.showMessage('');
         const game = new Game(playfield, gameSize, level, (status) => {
             switch(status) {
                 case "win":
@@ -31,25 +30,24 @@ function load() {
                     const minutes = Math.floor(time / 1000 / 60);
                     const seconds = String(Math.floor((time / 1000) % 60))
                           .padStart(2,'0');
-                    e_message.textContent = `
+                    playfield.showMessage(`
 Good job!
-Level time: ${minutes}:${seconds}`;
+Level time: ${minutes}:${seconds}`);
                     setTimeout(introduceLevel, 1000);
                     break;
                 case "die":
-                    e_message.textContent = `
+                    playfield.showMessage(`
 ${tips[deathCount % tips.length]}
 deaths: ${deathCount+1}
-                    `
+                    `);
                     ++deathCount;
                     setTimeout(start, 1000);
                     break;
                 case "outOfLevels":
-                    e_message.textContent = `
+                    playfield.showMessage(`
 You won...kind of. This game is WIP!
 If you'd like, email ${"ssaammpzz@gmail.com".replace("zz", "")} with level ideas.
-Thanks for playing.
-`
+Thanks for playing.`);
             }
         });
     }
@@ -69,12 +67,14 @@ class Game {
         this.level = level;
         this.ballSpeed = 1.5;
 
-        // Other settings
+        // Other settings, probably don't touch
         this.gravity = 100;
         this.maxBallSpeed = 300;
         this.launchSpeed = 205;
         this.paddleFriction = 0.5; // Movement affecting bounce
         this.paddleSurface = 10; // Rate of paddle side shifting ball angle
+
+        this.paddleVelX = 0;
 
         this.killBlockSpeed = 80;
         this.killBlocks = [];

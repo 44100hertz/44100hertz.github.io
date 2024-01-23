@@ -13,6 +13,7 @@ export default class Playfield {
     #e_playfield;
     #e_viewport;
     #e_entities;
+    #e_status;
     #eventListeners;
 
     constructor(id, gameSize) {
@@ -28,7 +29,12 @@ export default class Playfield {
         this.#rescale();
 
         this.#e_entities = queryOrFail(`#${id} .entities`);
+        this.#e_status = queryOrFail(`#${id} .statusMessage div`);
         this.#eventListeners = {};
+    }
+
+    showMessage(text) {
+        this.#e_status.textContent = text;
     }
 
     bindPointer(c_pointerdown, c_pointermove, getPaddlePos) {
