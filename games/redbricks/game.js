@@ -66,7 +66,6 @@ class Game {
         this.gravity = 100;
         this.maxBallSpeed = 300;
         this.launchSpeed = 205;
-        this.paddleSpeed = 20.0; // Rate of moving toward cursor
         this.paddleFriction = 0.5; // Movement affecting bounce
         this.paddleSurface = 10; // Rate of paddle side shifting ball angle
         this.killBlockSpeed = 80;
@@ -220,11 +219,8 @@ class Game {
             );
         }
 
-        this.paddleVelX =
-            this.paddleSpeed *
-            (this.paddleTarget - this.paddle.x) *
-            Math.exp(-dt);
-        this.paddle.x += this.paddleVelX * dt;
+        this.paddleVelX = (this.paddleTarget - this.paddle.x);
+        this.paddle.x = this.paddleTarget;
 
         this.killBlocks.forEach((block) => {
             block.inBounds = block.rect.origin.y < this.playfield.rect.end.y;
