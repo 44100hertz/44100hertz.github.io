@@ -208,7 +208,8 @@ class Game {
                         killBlock.element.classList.add('killBlock');
                         this.killBlocks.push(killBlock);
                     }
-                    this.playfield.removeEntity(entity);
+                    entity.element.classList.add("remnant");
+                    setTimeout(() => this.playfield.removeEntity(entity), 1000);
                     this.bricks = this.bricks.filter(
                         (brick) => brick != entity
                     );

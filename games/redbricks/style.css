@@ -79,6 +79,21 @@ pre {
     box-shadow: 0px 0px 2px #f0f;
 }
 
+.brick.remnant {
+    animation: 0.5s ease-out 0s 1 forwards disappear;
+}
+
+@keyframes disappear {
+    0% {
+        filter: blur(0px);
+        opacity: 80%;
+    }
+    100% {
+        filter: blur(20px);
+        opacity: 0%;
+    }
+}
+
 .killBlock {
     display: flex;
     justify-content: center;
@@ -89,10 +104,7 @@ pre {
     background: no-repeat center / contain url(gfx/skull.svg);
     box-shadow: 0px 0px 4px #444;
 
-    animation-name: danger;
-    animation-timing-function: linear;
-    animation-duration: 0.25s;
-    animation-iteration-count: infinite;
+    animation: 0.25s linear 0s infinite forwards danger;
 }
 
 @keyframes danger {
