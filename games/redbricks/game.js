@@ -7,13 +7,13 @@ import { tips } from "./tips.js";
 
 addEventListener("load", load);
 
-const DEBUG = true;
-
 function load() {
+    const queryURL = new URLSearchParams(window.location.search);
+
     const gameSize = new Point(240, 240);
     const playfield = new Playfield("playfield", gameSize);
     let deathCount = 0;
-    let level = 1;
+    let level = Number(queryURL.get("level")) || 1;
 
     let startTime;
     function introduceLevel() {
@@ -36,10 +36,6 @@ Good job!
 Level time: ${minutes}:${seconds}`);
                     ++level;
                     setTimeout(introduceLevel, 1000);
-                    break;
-                case "skipLevel":
-                    ++level;
-                    start();
                     break;
                 case "die":
                     playfield.showMessage(`
@@ -140,12 +136,6 @@ class Game {
             this.pointermove.bind(this),
             () => this.paddle.position,
         );
-
-        if (DEBUG) {
-            this.playfield.bindEvent('keydown', (ev) => {
-                if(ev.code == 'Digit7') this.stopStatus = 'skipLevel'
-            })
-        }
     }
 
     update(newtime) {
