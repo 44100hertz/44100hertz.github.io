@@ -11,7 +11,7 @@ function load() {
     const gameSize = new Point(240, 240);
     const playfield = new Playfield("playfield", gameSize);
     let deathCount = 0;
-    let level = 1;
+    let level = 4;
 
     let startTime;
     function introduceLevel() {
@@ -80,7 +80,7 @@ class Game {
         this.killBlocks = [];
 
         this.blackHoles = [];
-        this.blackHolePower = 500;
+        this.blackHolePower = 5;
 
         // Paddle
         this.paddle = this.playfield.addEntity({
@@ -146,8 +146,8 @@ class Game {
         } else {
             this.blackHoles.forEach((hole) => {
                 const distance = hole.position.x - this.ball.x;
-                const dt2 = dt*dt*this.blackHolePower;
-                this.ball.velocity.x += distance * dt2;
+                const scale = dt * this.blackHolePower * Math.exp(-dt);
+                this.ball.velocity.x += distance * scale;
             });
 
             const nextBallPos = () => {
