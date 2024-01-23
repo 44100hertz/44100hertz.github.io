@@ -21,7 +21,8 @@ pre {
     cursor: crosshair;
     width: 100svw;
     height: 100svw;
-    outline: 4px solid white;
+    outline: 4px solid gray;
+    background: radial-gradient(circle at 50% 10%, #210 0%, #002 100%);
 }
 
 .viewport {
@@ -60,19 +61,22 @@ pre {
 
 .brick, .ball, .paddle {
     outline-offset: -1px;
+    border-radius: 1px;
 }
 
 .brick {
-    background: red;
+    background: linear-gradient(#f40 0%, #f04 100%);
+    box-shadow: 0px 0px 2px red;
 }
 
 .brick.solid {
-    background: transparent;
-    outline: 1px solid gray;
+    background: linear-gradient(45deg, #fff 0%, #a88 30%, #def 50%, #988 70%, #fff 100%);
+    box-shadow: 0px 0px 2px #ffe8;
 }
 
 .brick.killer {
     outline: 1px solid #c0f;
+    box-shadow: 0px 0px 2px #f0f;
 }
 
 .killBlock {
@@ -80,10 +84,10 @@ pre {
     justify-content: center;
     align-items: center;
     outline: 1px solid white;
-    background-image: url(gfx/skull.svg);
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    border-radius: 1px;
+
+    background: no-repeat center / contain url(gfx/skull.svg);
+    box-shadow: 0px 0px 4px #444;
 
     animation-name: danger;
     animation-timing-function: linear;
@@ -102,11 +106,14 @@ pre {
 
 .ball {
     background: white;
+    border-radius: 1px;
+    box-shadow: 0px 0px 4px #04f;
 }
 
 .paddle {
     border-top: 1px solid white;
-    background: #08f;
+    background: linear-gradient(#048 0%, #08f 40%);
+    border-radius: 0px 0px 4px 4px;
 }
 
 #scoreboard {
