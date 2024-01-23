@@ -28,9 +28,11 @@ export default class Playfield {
                   new Point(ev.clientX, ev.clientY)))
 
         const wrapTouch = (fn) =>
-              (ev) =>
-              fn(this.#clientToGamePos(
-                  new Point(ev.touches[0].clientX, ev.touches[0].clientY)))
+              (ev) => {
+                  const { clientX, clientY } = ev.touches[0];
+                  ev.preventDefault(); // disable mouse events
+                  return fn(this.#clientToGamePos(new Point(clientX, clientY)))
+              }
 
 
         this.eventBinds = [
