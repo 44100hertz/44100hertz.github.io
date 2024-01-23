@@ -98,8 +98,18 @@ class Entity {
         Object.assign(this, props);
         this.element = document.createElement("div");
         this.element.classList.add("game-entity");
-        this.size = size ?? new Point(0, 0);
-        this.position = position ?? new Point(0, 0);
+        this.#position = position ?? new Point(0, 0);
+        this.#size = size ?? new Point(0, 0);
+        this.placeInDocument();
+    }
+
+    placeInDocument() {
+        const offset = this.size ? this.size.div(new Point(2)) : new Point(0,0);
+        const pos = this.position.sub(offset);
+        this.element.style.left = `${pos.x}px`;
+        this.element.style.top = `${pos.y}px`;
+        this.element.style.width = `${this.size.x}px`;
+        this.element.style.height = `${this.size.y}px`;
     }
 
     set x(x) {
@@ -119,10 +129,7 @@ class Entity {
 
     set position(newpos) {
         this.#position = newpos;
-        // center position
-        const pos = this.position.sub(this.size.div(new Point(2)));
-        this.element.style.left = `${pos.x}px`;
-        this.element.style.top = `${pos.y}px`;
+        this.placeInDocument();
     }
     get position() {
         return this.#position;
@@ -130,8 +137,7 @@ class Entity {
 
     set size(newsize) {
         this.#size = newsize;
-        this.element.style.width = `${this.size.x}px`;
-        this.element.style.height = `${this.size.y}px`;
+        this.placeInDocument();
     }
     get size() {
         return this.#size;
