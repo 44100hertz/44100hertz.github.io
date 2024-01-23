@@ -7,6 +7,8 @@ import { tips } from "./tips.js";
 
 addEventListener("load", load);
 
+const DEBUG = true;
+
 function load() {
     const gameSize = new Point(240, 240);
     const playfield = new Playfield("playfield", gameSize);
@@ -20,20 +22,11 @@ function load() {
         setTimeout(start, 1000);
     }
 
-    addEventListener("keydown", (key) => {
-        if (key.code === 'Digit7') {
-            playfield.reset();
-            ++level;
-            start();
-        }
-    });
-
     function start() {
         playfield.showMessage('');
         const game = new Game(playfield, gameSize, level, (status) => {
             switch(status) {
                 case "win":
-                    ++level;
                     const time = (new Date()).valueOf() - startTime;
                     const minutes = Math.floor(time / 1000 / 60);
                     const seconds = String(Math.floor((time / 1000) % 60))
@@ -41,7 +34,12 @@ function load() {
                     playfield.showMessage(`
 Good job!
 Level time: ${minutes}:${seconds}`);
+                    ++level;
                     setTimeout(introduceLevel, 1000);
+                    break;
+                case "skipLevel":
+                    ++level;
+                    start();
                     break;
                 case "die":
                     playfield.showMessage(`
@@ -142,6 +140,12 @@ class Game {
             this.pointermove.bind(this),
             () => this.paddle.position,
         );
+
+        if (DEBUG) {
+            this.playfield.bindEvent('keydown', (ev) => {
+                if(ev.code == 'Digit7') this.stopStatus = 'skipLevel'
+            })
+        }
     }
 
     update(newtime) {

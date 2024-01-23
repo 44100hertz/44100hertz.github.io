@@ -37,6 +37,10 @@ export default class Playfield {
         this.#e_status.textContent = text;
     }
 
+    bindEvent(ev, callback) {
+        this.#eventListeners[ev] = addEventListener(ev, callback);
+    }
+
     bindPointer(c_pointerdown, c_pointermove, getPaddlePos) {
         const wrapMouse = (fn) => (ev) =>
             fn(this.#clientToGamePos(new Point(ev.clientX, ev.clientY)));
@@ -47,21 +51,18 @@ export default class Playfield {
             return fn(this.#clientToGamePos(new Point(clientX, clientY)));
         };
 
-        const addListener = (ev, callback) =>
-            (this.#eventListeners[ev] = addEventListener(ev, callback));
-
-        addListener("mousedown", wrapMouse(c_pointerdown));
-        addListener("mousemove", wrapMouse(c_pointermove));
+        this.bindEvent("mousedown", wrapMouse(c_pointerdown));
+        this.bindEvent("mousemove", wrapMouse(c_pointermove));
 
         // specialized touch handlers for paddle movement
-        addListener(
+        this.bindEvent(
             "touchstart",
             wrapTouch((point) => {
                 this.touchOrigin = point.sub(getPaddlePos());
                 c_pointerdown(point);
             })
         );
-        addListener(
+        this.bindEvent(
             "touchmove",
             wrapTouch((point) => {
                 if (!this.touchOrigin) return;
