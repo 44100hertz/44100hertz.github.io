@@ -21,23 +21,31 @@ export default class Playfield {
         this.#e_entities = document.querySelector(`#${id} .entities`);
     }
 
-    bindEvent(event, callback) {
-        switch (event) {
-            case "pointermove":
-            case "pointerdown":
-                this.eventBinds.push(
-                    addEventListener(event, (ev) =>
-                        callback(
-                            this.#clientToGamePos(
-                                new Point(ev.clientX, ev.clientY)
-                            )
-                        )
-                    )
-                );
-                break;
-            default:
-                this.eventBinds.push(addEventListener(event, callback));
-        }
+    bindPointer(c_pointerdown, c_pointermove, getPaddlePos) {
+        const wrapMouse = (fn) =>
+              (ev) =>
+              fn(this.#clientToGamePos(
+                  new Point(ev.clientX, ev.clientY)))
+
+        const wrapTouch = (fn) =>
+              (ev) =>
+              fn(this.#clientToGamePos(
+                  new Point(ev.touches[0].clientX, ev.touches[0].clientY)))
+
+
+        this.eventBinds = [
+            addEventListener("mousedown", wrapMouse(c_pointerdown)),
+            addEventListener("mousemove", wrapMouse(c_pointermove)),
+
+            // specialized touch handlers for paddle movement
+            addEventListener("touchstart", wrapTouch((point) => {
+                this.touchOrigin = point.sub(getPaddlePos());
+                c_pointerdown(point);
+            })),
+            addEventListener("touchmove", wrapTouch((point) => {
+                c_pointermove(point.sub(this.touchOrigin));
+            })),
+        ];
     }
 
     reset() {

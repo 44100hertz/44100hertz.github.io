@@ -131,10 +131,11 @@ class Game {
         this.killBlocks = [];
 
         this.update();
-        this.playfield.bindEvent("pointermove", this.pointermove.bind(this));
-        this.playfield.bindEvent("pointerdown", this.tryLaunch.bind(this));
-        this.playfield.bindEvent("pointerdown", this.pointermove.bind(this));
-        this.playfield.bindEvent("keydown", this.tryLaunch.bind(this));
+        this.playfield.bindPointer(
+            this.tryLaunch.bind(this),
+            this.pointermove.bind(this),
+            () => this.paddle.position,
+        );
     }
 
     update(newtime) {
