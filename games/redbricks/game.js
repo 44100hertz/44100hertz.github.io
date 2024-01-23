@@ -219,7 +219,7 @@ class Game {
             );
         }
 
-        this.paddleVelX = (this.paddleTarget - this.paddle.x);
+        this.paddleVelX = (this.paddleTarget - this.paddle.x) / dt;
         this.paddle.x = this.paddleTarget;
 
         this.killBlocks.forEach((block) => {
