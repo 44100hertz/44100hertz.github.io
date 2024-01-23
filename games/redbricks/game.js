@@ -165,16 +165,16 @@ class Game {
             } else {
                 this.ball.velocity.y += this.gravity * dt * this.ballSpeed;
             }
-
-            const testX = new Point(nextBallPos().x, this.ball.y);
-            const collisionX = this.getBallCollision(testX);
-            if (collisionX.kind) this.ball.velocity.x *= -1;
-
             if (collisionY.kind == "paddle") {
                 this.ball.velocity.x += this.paddleVelX * this.paddleFriction;
                 this.ball.velocity.x +=
                     this.paddleSurface * (this.ball.x < this.paddle.x ? -1 : 1);
             }
+
+            const testX = new Point(nextBallPos().x, this.ball.y);
+            let collisionX = this.getBallCollision(testX);
+            if (collisionX.kind == "paddle") collisionX = {};
+            if (collisionX.kind) this.ball.velocity.x *= -1;
 
             if(collisionX.kind === "brick" && collisionX.entity === collisionY.entity) {
                 collisionY = {};
@@ -257,14 +257,12 @@ class Game {
 
     getBallCollision(pos) {
         const ballRect = Rect.centered(pos, this.ball.size);
+        const paddleRect = new Rect(this.paddle.rect.origin, new Point(this.paddle.size.x, 1));
         if (ballRect.origin.y > this.gameSize.y) {
             return { kind: "bottom" };
         } else if (ballRect.origin.x < 0 || ballRect.end.x > this.gameSize.x) {
             return { kind: "viewport" };
-        } else if (
-            ballRect.overlaps(this.paddle.rect) &&
-            this.ball.rect.end.y <= this.paddle.rect.origin.y+1
-        ) {
+        } else if (this.ball.velocity.y > 0 && ballRect.overlaps(paddleRect)) {
             return { kind: "paddle" };
         } else {
             for (const brick of this.bricks) {
