@@ -20,6 +20,14 @@ function load() {
         setTimeout(start, 1000);
     }
 
+    addEventListener("keydown", (key) => {
+        if (key.code === 'Digit7') {
+            playfield.reset();
+            ++level;
+            start();
+        }
+    });
+
     function start() {
         playfield.showMessage('');
         const game = new Game(playfield, gameSize, level, (status) => {
