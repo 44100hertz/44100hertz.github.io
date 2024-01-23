@@ -66,6 +66,7 @@ export default class Playfield {
 
     reset() {
         this.touchOrigin = undefined;
+        this.#e_entities.textContent = '';
         for (const [type, listener] of Object.entries(this.#eventListeners)) {
             removeEventListener(type, listener);
         }

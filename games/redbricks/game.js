@@ -2,7 +2,7 @@ import Point from "../lib/Point.js";
 import Rect from "../lib/Rect.js";
 import Playfield from "./Playfield.js";
 import * as sound from "./sound.js";
-import { brickPattern } from "./brickpattern.js";
+import { getObjects } from "./levels.js";
 import { tips } from "./tips.js";
 
 addEventListener("load", load);
@@ -27,7 +27,7 @@ function load() {
             switch(status) {
                 case "win":
                     ++level;
-                    const time = (new Date()) - startTime;
+                    const time = (new Date()).valueOf() - startTime;
                     const minutes = Math.floor(time / 1000 / 60);
                     const seconds = String(Math.floor((time / 1000) % 60))
                           .padStart(2,'0');
@@ -43,6 +43,13 @@ deaths: ${deathCount+1}
                     `
                     ++deathCount;
                     setTimeout(start, 1000);
+                    break;
+                case "outOfLevels":
+                    e_message.textContent = `
+You won...kind of. This game is WIP!
+If you'd like, email ${"ssaammpzz@gmail.com".replace("zz", "")} with level ideas.
+Thanks for playing.
+`
             }
         });
     }
@@ -75,8 +82,6 @@ class Game {
         this.blackHoles = [];
         this.blackHolePower = 500;
 
-        const brickGap = new Point(3, 3);
-
         // Paddle
         this.paddle = this.playfield.addEntity({
             size: new Point(32, 8),
@@ -95,48 +100,31 @@ class Game {
         this.ballStuck = true;
 
         // Bricks
-        const brickPat = brickPattern(level);
-        const brickSpacing = new Point(
-            (this.gameSize.x - brickGap.x * 2) / brickPat.count.x,
-            brickPat.height + brickGap.y
-        );
-        const brickSize = new Point(brickSpacing.x - brickGap.x, brickPat.height);
         this.bricks = [];
 
-        for (let iy = 0; iy < brickPat.count.y; ++iy) {
-            for (let ix = 0; ix < brickPat.count.x; ++ix) {
-                const kind = brickPat.getKind(ix, iy);
-                if (kind == "empty") {
-                    continue;
-                }
-                const position = brickSpacing
-                    .mul(new Point(ix, iy))
-                    .add(brickGap)
-                    .add(new Point(0, brickPat.offset))
-                    .add(brickSpacing.div(new Point(2, 2)));
-
-                const brick = this.playfield.addEntity({
-                    size: brickSize,
-                    position,
-                    kind,
-                });
-                switch (brick.kind) {
-                    case "normal":
-                        break;
-                    case "killer":
-                        brick.element.classList.add("killer");
-                        break;
-                    case "solid":
-                        brick.element.classList.add("solid");
-                        break;
-                    case "blackhole":
-                        this.blackHoles.push(brick);
-                        brick.element.classList.add("blackHole");
-                        brick.size = new Point(20,20);
-                        continue;
-                }
-                this.bricks.push(brick);
-                brick.element.classList.add("brick");
+        const objects = getObjects(level, playfield.rect);
+        if (!objects) {
+            stopCallback('outOfLevels');
+            return;
+        }
+        for (const { position, size, kind, variant } of objects) {
+            const entity = this.playfield.addEntity({
+                position,
+                size,
+                kind,
+                variant,
+            });
+            entity.element.classList.add(kind);
+            if (variant) {
+                entity.element.classList.add(variant);
+            }
+            switch (kind) {
+                case "brick":
+                    this.bricks.push(entity);
+                    break;
+                case "blackHole":
+                    this.blackHoles.push(entity);
+                    break;
             }
         }
 
@@ -190,25 +178,27 @@ class Game {
                 collisionY = {};
             }
             [collisionX, collisionY].forEach(({ kind, entity }) => {
+                // sound logic
                 switch(kind) {
                     case "viewport": sound.play("wallbump"); break;
                     case "paddle": sound.play("paddlebump"); break;
                     case "brick":
-                        if(entity.kind == "solid") {
+                        if(entity.variant == "solid") {
                             sound.play("wallbump");
                         } else {
-                            if (entity.kind == "killer") {
+                            if (entity.variant == "killer") {
                                 sound.play("deathblock");
                             }
                             sound.play("brickbump");
                         }
                         break;
                 }
+
                 if (kind == "bottom") {
                     this.stopStatus = "die";
                 }
-                if (kind == "brick" && entity.kind != "solid") {
-                    if(entity.kind == "killer") {
+                if (kind == "brick" && entity.variant != "solid") {
+                    if(entity.variant == "killer") {
                         const killBlock = this.playfield.addEntity({
                             position: entity.position,
                             size: new Point(12, 12),
@@ -221,7 +211,7 @@ class Game {
                         (brick) => brick != entity
                     );
                     const remainingBrick = this.bricks.find(
-                        (brick) => brick.kind != "solid"
+                        (brick) => brick.variant != "solid"
                     );
                     if (!remainingBrick) {
                         this.stopStatus = "win";
