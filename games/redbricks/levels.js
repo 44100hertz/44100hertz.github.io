@@ -3,9 +3,9 @@ import Point from "../lib/Point.js";
 const levels = [
     {
         getObjectKind: () => ({ kind: "brick" }),
-        patternSize: new Point(6, 4),
-        patternSpacing: 14,
-        patternOffset: 10,
+        patternSize: new Point(6, 3),
+        patternSpacing: 20,
+        patternOffset: 20,
     },
     {
         getObjectKind: (x, y) => {
@@ -24,8 +24,8 @@ const levels = [
             }
         },
         patternSize: new Point(8, 4),
-        patternSpacing: 14,
-        patternOffset: 10,
+        patternSpacing: 16,
+        patternOffset: 15,
     },
     {
         getObjectKind: (x, y) => {
