@@ -43,12 +43,14 @@ export default class Playfield {
                 c_pointerdown(point);
             })),
             addEventListener("touchmove", wrapTouch((point) => {
+                if(!this.touchOrigin) return;
                 c_pointermove(point.sub(this.touchOrigin));
             })),
         ];
     }
 
     reset() {
+        this.touchOrigin = undefined;
         this.eventBinds.forEach((ev) => removeEventListener(document, ev));
         this.#e_entities.innerHTML = "";
     }
