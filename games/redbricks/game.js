@@ -11,7 +11,7 @@ function load() {
     const gameSize = new Point(240, 240);
     const playfield = new Playfield("playfield", gameSize);
     let deathCount = 0;
-    let level = 4;
+    let level = 1;
 
     let startTime;
     function introduceLevel() {
