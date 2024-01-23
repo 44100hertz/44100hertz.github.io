@@ -68,7 +68,13 @@ class Game {
         this.launchSpeed = 205;
         this.paddleFriction = 0.5; // Movement affecting bounce
         this.paddleSurface = 10; // Rate of paddle side shifting ball angle
+
         this.killBlockSpeed = 80;
+        this.killBlocks = [];
+
+        this.blackHoles = [];
+        this.blackHolePower = 500;
+
         const brickGap = new Point(3, 3);
 
         // Paddle
@@ -103,13 +109,15 @@ class Game {
                 if (kind == "empty") {
                     continue;
                 }
+                const position = brickSpacing
+                    .mul(new Point(ix, iy))
+                    .add(brickGap)
+                    .add(new Point(0, brickPat.offset))
+                    .add(brickSpacing.div(new Point(2, 2)));
+
                 const brick = this.playfield.addEntity({
                     size: brickSize,
-                    position: brickSpacing
-                        .mul(new Point(ix, iy))
-                        .add(brickGap)
-                        .add(new Point(0, brickPat.offset))
-                        .add(brickSpacing.div(new Point(2, 2))),
+                    position,
                     kind,
                 });
                 switch (brick.kind) {
@@ -121,13 +129,16 @@ class Game {
                     case "solid":
                         brick.element.classList.add("solid");
                         break;
+                    case "blackhole":
+                        this.blackHoles.push(brick);
+                        brick.element.classList.add("blackHole");
+                        brick.size = new Point(20,20);
+                        continue;
                 }
                 this.bricks.push(brick);
                 brick.element.classList.add("brick");
             }
         }
-
-        this.killBlocks = [];
 
         this.update();
         this.playfield.bindPointer(
@@ -145,6 +156,12 @@ class Game {
         if (this.ballStuck) {
             this.ball.position = this.paddle.position.add(new Point(0, -10));
         } else {
+            this.blackHoles.forEach((hole) => {
+                const distance = hole.position.x - this.ball.x;
+                const dt2 = dt*dt*this.blackHolePower;
+                this.ball.velocity.x += distance * dt2;
+            });
+
             const nextBallPos = () => {
                 return this.ball.position.add(
                     this.ball.velocity.mul(new Point(dt * this.ballSpeed))

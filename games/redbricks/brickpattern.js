@@ -28,6 +28,17 @@ const levels = [
         count: new Point(7, 9),
         height: 14,
         offset: 0,
+    },
+    {
+        getKind: (x, y) =>
+            (x == 1 || x == 5 || y == 0 || y == 4)
+            ? "normal"
+            : (x == 3 && y == 2)
+                ? "blackhole"
+                : "empty",
+        count: new Point(7, 5),
+        height: 20,
+        offset: 10,
     }
 ];
 

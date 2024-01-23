@@ -105,6 +105,7 @@ pre {
 }
 
 .ball {
+    z-index: 1;
     background: white;
     border-radius: 1px;
     box-shadow: 0px 0px 4px #04f;
@@ -114,6 +115,26 @@ pre {
     border-top: 1px solid white;
     background: linear-gradient(#048 0%, #08f 40%);
     border-radius: 0px 0px 4px 4px;
+}
+
+.blackHole {
+    box-sizing: border-box;
+    border: 4px solid #84c;
+    outline: 2px solid gray;
+    border-radius: 50%;
+    animation: .5s ease-out 0s infinite forwards holezoom;
+
+}
+
+@keyframes holezoom {
+    0% {
+        outline-offset: 12px;
+        outline-color: #fff0;
+    }
+    100% {
+        outline-offset: -10px;
+        outline-color: #ffff;
+    }
 }
 
 #scoreboard {
