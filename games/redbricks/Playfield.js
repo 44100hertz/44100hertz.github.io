@@ -1,60 +1,74 @@
 import Point from "../lib/Point.js";
 import Rect from "../lib/Rect.js";
 
+function queryOrFail(query) {
+    const maybeElem = document.querySelector(query);
+    if (!maybeElem) {
+        throw new Error(`Expected element ${query}, got NOTHING.`);
+    }
+    return maybeElem;
+}
+
 export default class Playfield {
     #e_playfield;
     #e_viewport;
     #e_entities;
+    #eventListeners;
 
     constructor(id, gameSize) {
         this.gameSize = gameSize;
         this.rect = new Rect(new Point(0, 0), gameSize);
         this.eventBinds = [];
 
-        this.#e_playfield = document.getElementById(id);
-        this.#e_viewport = document.querySelector(`#${id} .viewport`);
+        this.#e_playfield = queryOrFail("#" + id);
+        this.#e_viewport = queryOrFail(`#${id} .viewport`);
         this.#e_viewport.style.width = `${gameSize.x}px`;
         this.#e_viewport.style.height = `${gameSize.y}px`;
         addEventListener("resize", () => this.#rescale());
         this.#rescale();
 
-        this.#e_entities = document.querySelector(`#${id} .entities`);
+        this.#e_entities = queryOrFail(`#${id} .entities`);
+        this.#eventListeners = {};
     }
 
     bindPointer(c_pointerdown, c_pointermove, getPaddlePos) {
-        const wrapMouse = (fn) =>
-              (ev) =>
-              fn(this.#clientToGamePos(
-                  new Point(ev.clientX, ev.clientY)))
+        const wrapMouse = (fn) => (ev) =>
+            fn(this.#clientToGamePos(new Point(ev.clientX, ev.clientY)));
 
-        const wrapTouch = (fn) =>
-              (ev) => {
-                  const { clientX, clientY } = ev.touches[0];
-                  ev.preventDefault(); // disable mouse events
-                  return fn(this.#clientToGamePos(new Point(clientX, clientY)))
-              }
+        const wrapTouch = (fn) => (ev) => {
+            const { clientX, clientY } = ev.touches[0];
+            ev.preventDefault(); // disable mouse events
+            return fn(this.#clientToGamePos(new Point(clientX, clientY)));
+        };
 
+        const addListener = (ev, callback) =>
+            (this.#eventListeners[ev] = addEventListener(ev, callback));
 
-        this.eventBinds = [
-            addEventListener("mousedown", wrapMouse(c_pointerdown)),
-            addEventListener("mousemove", wrapMouse(c_pointermove)),
+        addListener("mousedown", wrapMouse(c_pointerdown));
+        addListener("mousemove", wrapMouse(c_pointermove));
 
-            // specialized touch handlers for paddle movement
-            addEventListener("touchstart", wrapTouch((point) => {
+        // specialized touch handlers for paddle movement
+        addListener(
+            "touchstart",
+            wrapTouch((point) => {
                 this.touchOrigin = point.sub(getPaddlePos());
                 c_pointerdown(point);
-            })),
-            addEventListener("touchmove", wrapTouch((point) => {
-                if(!this.touchOrigin) return;
+            })
+        );
+        addListener(
+            "touchmove",
+            wrapTouch((point) => {
+                if (!this.touchOrigin) return;
                 c_pointermove(point.sub(this.touchOrigin));
-            })),
-        ];
+            })
+        );
     }
 
     reset() {
         this.touchOrigin = undefined;
-        this.eventBinds.forEach((ev) => removeEventListener(document, ev));
-        this.#e_entities.innerHTML = "";
+        for (const [type, listener] of Object.entries(this.#eventListeners)) {
+            removeEventListener(type, listener);
+        }
     }
 
     addEntity(props) {
@@ -104,7 +118,9 @@ class Entity {
     }
 
     placeInDocument() {
-        const offset = this.size ? this.size.div(new Point(2)) : new Point(0,0);
+        const offset = this.size
+            ? this.size.div(new Point(2))
+            : new Point(0, 0);
         const pos = this.position.sub(offset);
         this.element.style.left = `${pos.x}px`;
         this.element.style.top = `${pos.y}px`;
