@@ -62,7 +62,7 @@ pre {
 .brick, .ball, .paddle {
     outline-offset: -1px;
     border-radius: 1px;
-    box-shadow: 0px 0px 4px black;
+    box-shadow: 0px 1px 4px black;
 }
 
 .brick {
@@ -123,6 +123,7 @@ pre {
 }
 
 .paddle {
+    z-index: 2;
     border-top: 1px solid white;
     background: linear-gradient(#048 0%, #08f 40%);
     border-radius: 0px 0px 4px 4px;
