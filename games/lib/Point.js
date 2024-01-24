@@ -4,6 +4,10 @@ export default class Point {
         this.y = y ?? x;
     }
 
+    clone() {
+        return new Point(this.x, this.y);
+    }
+
     add({ x, y }) {
         return new Point(this.x + x, this.y + y);
     }

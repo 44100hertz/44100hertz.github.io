@@ -38,10 +38,13 @@ export default class Playfield {
     }
 
     bindEvent(ev, callback) {
-        this.#eventListeners[ev] = addEventListener(ev, callback);
+        addEventListener(ev, callback);
+        this.#eventListeners[ev] = callback;
     }
 
     bindPointer(c_pointerdown, c_pointermove, getPaddlePos) {
+        this.getPaddlePos = getPaddlePos;
+
         const wrapMouse = (fn) => (ev) =>
             fn(this.#clientToGamePos(new Point(ev.clientX, ev.clientY)));
 
@@ -58,23 +61,36 @@ export default class Playfield {
         this.bindEvent(
             "touchstart",
             wrapTouch((point) => {
-                this.touchOrigin = point.sub(getPaddlePos());
+                this.lastTouch = point;
+                this.lastTouchTime = (new Date()).valueOf();
                 c_pointerdown(point);
             })
         );
         this.bindEvent(
             "touchmove",
-            wrapTouch((point) => {
-                if (!this.touchOrigin) return;
-                c_pointermove(point.sub(this.touchOrigin));
+            wrapTouch((touch) => {
+                const time = (new Date()).valueOf();
+                // Failsafe condition for holding finger before game begins
+                if (this.lastTouchTime) {
+                    const moveStep = touch.x - this.lastTouch.x;
+                    const timeStep = time - this.lastTouchTime;
+                    const speed = Math.abs(moveStep / timeStep);
+                    const scaling = Math.sqrt(1 + speed);
+                    const movement = (moveStep * scaling);
+                    c_pointermove(new Point(this.getPaddlePos().x + movement, 0));
+                }
+                this.lastTouchTime = time;
+                this.lastTouch = touch;
             })
         );
     }
 
     reset() {
-        this.touchOrigin = undefined;
+        this.lastTouch = undefined;
+        this.lastTouchTime = undefined;
         this.#e_entities.textContent = '';
         for (const [type, listener] of Object.entries(this.#eventListeners)) {
+            console.log(type, listener)
             removeEventListener(type, listener);
         }
     }
