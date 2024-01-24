@@ -13,13 +13,14 @@ function load() {
     const gameSize = new Point(240, 240);
     const playfield = new Playfield("playfield", gameSize);
     let deathCount = 0;
-    let level = Number(queryURL.get("level")) || 1;
+    let overrideLevel = Number(queryURL.get("level"));
+    let level = overrideLevel || 1;
 
     let startTime;
     function introduceLevel() {
         startTime = new Date();
         playfield.showMessage(`LEVEL ${level}`);
-        setTimeout(start, 1000);
+        setTimeout(start, overrideLevel ? 500 : 2000);
     }
 
     function start() {
