@@ -264,7 +264,7 @@ class Game {
 
         if (this.stopStatus) {
             if (this.stopStatus == "die") {
-                sound.play("miss");
+                sound.play("miss", -3);
             }
             this.playfield.reset();
             this.stopCallback(this.stopStatus, this);
@@ -297,7 +297,7 @@ class Game {
 
     tryLaunch() {
         if (this.ballStuck) {
-            sound.play("launch");
+            sound.play("launch", -6);
             this.ballStuck = false;
             const jitter = Math.random() < 0.5 ? -10 : 10;
             this.ball.velocity = new Point(
