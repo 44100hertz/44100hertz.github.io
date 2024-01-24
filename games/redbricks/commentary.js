@@ -20,7 +20,7 @@ function getScoreComment(seconds, maxStreak) {
 
 export function getDeathMessage(deathCount) {
     const message = [];
-    message.push(taunts[deathCount % taunts.length]);
+    message.push(taunts[(deathCount - 1) % taunts.length]);
     message.push('');
     message.push(`deaths: ${deathCount}`);
     return message.join("\n");
