@@ -76,13 +76,14 @@ class Game {
         this.paddleFriction = 0.5; // Movement affecting bounce
         this.paddleSurface = 10; // Rate of paddle side shifting ball angle
 
-        this.paddleVelX = 0;
-
-        this.killBlockSpeed = 80;
         this.killBlocks = [];
+        this.killBlockSpeed = 80;
 
         this.blackHoles = [];
         this.blackHolePower = 5;
+
+        this.paddleVelX = 0;
+        this.brickStreak = 0;
 
         // Paddle
         this.paddle = this.playfield.addEntity({
@@ -182,16 +183,22 @@ class Game {
             [collisionX, collisionY].forEach(({ kind, entity }) => {
                 // sound logic
                 switch(kind) {
-                    case "viewport": sound.play("wallbump"); break;
-                    case "paddle": sound.play("paddlebump"); break;
+                    case "viewport":
+                        sound.play("wallbump", 2);
+                        break;
+                    case "paddle":
+                        this.brickStreak = 0;
+                        sound.play("paddlebump", 2);
+                        break;
                     case "brick":
                         if(entity.variant == "solid") {
-                            sound.play("wallbump");
+                            sound.play("paddlebump", 4);
                         } else {
                             if (entity.variant == "killer") {
                                 sound.play("deathblock");
                             }
-                            sound.play("brickbump");
+                            sound.play("brickbump", this.brickStreak);
+                            ++this.brickStreak;
                         }
                         break;
                 }

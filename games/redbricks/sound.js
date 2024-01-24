@@ -7,11 +7,17 @@ const filenames = [
     "deathblock",
 ];
 
-const sound = filenames.reduce((acc, filename) =>
-    ({...acc, [filename]: new Audio(`sound/${filename}.wav`)}),
-    {})
+const sound = filenames.reduce((acc, filename) => {
+    const audio = new Audio(`sound/${filename}.wav`);
+    audio.preservesPitch = false;
+    return {
+        ...acc,
+        [filename]: audio,
+    };
+}, {});
 
-export function play(name) {
+export function play(name, pitch_offset = 0) {
+    sound[name].playbackRate = Math.pow(2, pitch_offset/12);
     sound[name].currentTime = 0;
     sound[name].play();
 }
