@@ -29,15 +29,15 @@ const levels = [
     },
     {
         getObjectKind: (x, y) => {
-            if (x == 0 || x == 6) {
+            if (x == 0 || x == 8 || y == 0) {
                 return { kind: "brick", variant: "solid" };
-            } else if (y % 2 == 0) {
+            } else if (y < 9 && y % 2 == 1) {
                 return { kind: "brick" };
             }
             return {};
         },
-        patternSize: new Point(7, 9),
-        patternSpacing: 14,
+        patternSize: new Point(9, 10),
+        patternSpacing: 19,
         patternOffset: 0,
     },
     {

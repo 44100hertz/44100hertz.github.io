@@ -59,11 +59,13 @@ class Game {
         // Difficulty values
         this.level = level;
         this.ballSpeed = 1.5;
+        this.paddleOffset = 4;
+        this.paddleSize = new Point(33, 8);
 
         // Other settings, probably don't touch
         this.gravity = 100;
         this.maxBallSpeed = 300;
-        this.launchSpeed = 205;
+        this.launchSpeed = 209;
         this.paddleFriction = 0.5; // Movement affecting bounce
         this.paddleSurface = 10; // Rate of paddle side shifting ball angle
 
@@ -79,8 +81,10 @@ class Game {
 
         // Paddle
         this.paddle = this.playfield.addEntity({
-            size: new Point(32, 8),
-            position: this.gameSize.sub(new Point(this.gameSize.x / 2, 16)),
+            size: this.paddleSize,
+            position: new Point(
+                this.gameSize.x / 2,
+                this.gameSize.y - this.paddleSize.y/2 - this.paddleOffset)
         });
         this.paddle.element.classList.add("paddle");
         this.paddleTarget = this.paddle.x;
@@ -137,7 +141,7 @@ class Game {
     }
 
     update(newtime) {
-        const dt = Math.min(1/60, (newtime - this.lastTime) / 1000 || 1/240);
+        const dt = this.ballSpeed * Math.min(1/60, (newtime - this.lastTime) / 1000 || 1/240);
         this.lastTime = newtime;
 
         // Ball movement and collision
@@ -152,16 +156,16 @@ class Game {
 
             const nextBallPos = () => {
                 return this.ball.position.add(
-                    this.ball.velocity.mul(new Point(dt * this.ballSpeed))
+                    this.ball.velocity.mul(new Point(dt))
                 );
             };
 
-            this.ball.velocity.y += this.gravity * dt * this.ballSpeed;
+            this.ball.velocity.y += this.gravity * dt;
             const testY = new Point(this.ball.x, nextBallPos().y);
             let collisionY = this.getBallCollision(testY);
             if (collisionY.kind) {
                 this.ball.velocity.y *= -1;
-                this.ball.velocity.y += this.gravity * dt * this.ballSpeed;
+                this.ball.velocity.y += this.gravity * dt;
             }
             if (collisionY.kind == "paddle") {
                 this.ball.velocity.x += this.paddleVelX * this.paddleFriction;
@@ -297,7 +301,7 @@ class Game {
             this.ballStuck = false;
             const jitter = Math.random() < 0.5 ? -10 : 10;
             this.ball.velocity = new Point(
-                this.paddleVelX / this.ballSpeed + jitter,
+                this.paddleVelX + jitter,
                 -this.launchSpeed
             );
         }
