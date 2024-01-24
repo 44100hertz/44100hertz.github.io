@@ -69,10 +69,9 @@ class Game {
         this.paddleFriction = 0.5; // Movement affecting bounce
         this.paddleSurface = 10; // Rate of paddle side shifting ball angle
 
-        this.killBlocks = [];
-        this.killBlockSpeed = 80;
+        this.entities = [];
 
-        this.blackHoles = [];
+        this.killBlockSpeed = 80;
         this.blackHolePower = 5;
 
         this.paddleVelX = 0;
@@ -123,7 +122,7 @@ class Game {
                     this.bricks.push(entity);
                     break;
                 case "blackHole":
-                    this.blackHoles.push(entity);
+                    this.entities.push(entity);
                     break;
                 case "portal":
                     this.enablePortals = true;
@@ -148,11 +147,27 @@ class Game {
         if (this.ballStuck) {
             this.ball.position = this.paddle.position.add(new Point(0, -10));
         } else {
-            this.blackHoles.forEach((hole) => {
-                const distance = hole.position.x - this.ball.x;
-                const scale = dt * this.blackHolePower * Math.exp(-dt);
-                this.ball.velocity.x += distance * scale;
+            this.entities.forEach((entity) => {
+                switch (entity.kind) {
+                    case "blackhole":
+                        const distance = entity.position.x - this.ball.x;
+                        const scale = dt * this.blackHolePower * Math.exp(-dt);
+                        this.ball.velocity.x += distance * scale;
+                        break;
+                    case "killBlock":
+                        const inBounds = entity.rect.origin.y < this.playfield.rect.end.y;
+                        if (!inBounds) {
+                            this.playfield.removeEntity(entity);
+                            entity.toBeDeleted = true;
+                        }
+                        if (entity.rect.overlaps(this.paddle.rect)) {
+                            this.stopStatus = "die";
+                        }
+                        entity.y += this.killBlockSpeed * dt;
+                        break;
+                }
             });
+            this.entities = this.entities.filter((entity) => !entity.toBeDeleted);
 
             const nextBallPos = () => {
                 return this.ball.position.add(
@@ -222,9 +237,10 @@ class Game {
                         const killBlock = this.playfield.addEntity({
                             position: entity.position,
                             size: new Point(12, 12),
+                            kind: "killBlock",
                         })
                         killBlock.element.classList.add('killBlock');
-                        this.killBlocks.push(killBlock);
+                        this.entities.push(killBlock);
                     }
                     entity.element.classList.add("remnant");
                     setTimeout(() => this.playfield.removeEntity(entity), 1000);
@@ -250,17 +266,6 @@ class Game {
         this.paddleVelX = (this.paddleTarget - this.paddle.x) / dt;
         this.paddle.x = this.paddleTarget;
 
-        this.killBlocks.forEach((block) => {
-            block.inBounds = block.rect.origin.y < this.playfield.rect.end.y;
-            if (!block.inBounds) {
-                this.playfield.removeEntity(block);
-            }
-            if (block.rect.overlaps(this.paddle.rect)) {
-                this.stopStatus = "die";
-            }
-            block.y += this.killBlockSpeed * dt;
-        })
-        this.killBlocks = this.killBlocks.filter((block) => block.inBounds);
 
         if (this.stopStatus) {
             if (this.stopStatus == "die") {
