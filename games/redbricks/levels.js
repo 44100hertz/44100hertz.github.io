@@ -55,6 +55,20 @@ const levels = [
         patternSpacing: 20,
         patternOffset: 10,
     },
+    {
+        getObjectKind: (x, y) => {
+            if (x != 0 && x != 6) {
+                return { kind: "brick", variant: y == 4 && "solid" };
+            }
+            return {};
+        },
+        patternSize: new Point(7, 5),
+        patternSpacing: 20,
+        patternOffset: 20,
+    },
+    // Level 6: white hole
+    // Level 7: BRUTAL classic-style challenge
+    // Level 8: white hole with screen wrapping
 ];
 
 export function getObjects(level, viewportRect) {
@@ -69,6 +83,7 @@ export function getObjects(level, viewportRect) {
         (viewportRect.size.x - brickGap.x * 2) / patternSize.x,
         patternSpacing + brickGap.y
     );
+    const patternBottom = brickSpacing.y * patternSize.y;
     const brickSize = new Point(brickSpacing.x - brickGap.x, patternSpacing);
 
     const objects = [];
@@ -91,6 +106,22 @@ export function getObjects(level, viewportRect) {
             };
             objects.push(object);
         }
+    }
+
+    if (level == 5) {
+        const portalSize = new Point(4, viewportRect.size.y - brickGap.y*2);
+        const portalY = brickGap.y + portalSize.y/2;
+        objects.push({
+            position: new Point(portalSize.x, portalY),
+            size: portalSize,
+            kind: "portal",
+            variant: "left",
+        });
+        objects.push({
+            position: new Point(viewportRect.size.x - portalSize.x, portalY),
+            size: portalSize,
+            kind: "portal",
+        });
     }
 
     return objects;

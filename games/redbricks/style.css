@@ -135,7 +135,6 @@ pre {
     outline: 1px solid;
     border-radius: 50%;
     animation: .5s linear 0s infinite forwards holezoom;
-
 }
 
 @keyframes holezoom {
@@ -149,7 +148,19 @@ pre {
     }
 }
 
-#scoreboard {
-    position: absolute;
-    z-index: 1;
+.portal {
+    background: repeating-linear-gradient(60deg, #f08, #0f4 10%, #f08 20%);
+    background-size: 200% 200%;
+    border-radius: 2px;
+    box-shadow: 0px 0px 4px #f0f;
+    animation: 1s linear 0s infinite forwards portal;
+}
+
+@keyframes portal {
+    0% { background-position: 0% 40% }
+    100% { background-position: 0% 0% }
+}
+
+.portal.left {
+    animation-direction: reverse;
 }

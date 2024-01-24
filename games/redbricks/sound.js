@@ -5,6 +5,7 @@ const filenames = [
     "launch",
     "miss",
     "deathblock",
+    "portal",
 ];
 
 const sound = filenames.reduce((acc, filename) => {

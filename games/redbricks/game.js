@@ -131,6 +131,9 @@ class Game {
                 case "blackHole":
                     this.blackHoles.push(entity);
                     break;
+                case "portal":
+                    this.enablePortals = true;
+                    break;
             }
         }
 
@@ -174,11 +177,17 @@ class Game {
                 this.ball.velocity.x +=
                     this.paddleSurface * (this.ball.x < this.paddle.x ? -1 : 1);
             }
+            if (collisionY.kind == "portal") collisionY = {};
 
             const testX = new Point(nextBallPos().x, this.ball.y);
             let collisionX = this.getBallCollision(testX);
-            if (collisionX.kind == "paddle") collisionX = {};
-            if (collisionX.kind) this.ball.velocity.x *= -1;
+            if (collisionX.kind == "paddle") {
+                collisionX = {};
+            } else if (collisionX.kind == "portal") {
+                this.ball.position.x = this.gameSize.x - this.ball.position.x;
+            } else if (collisionX.kind) {
+                this.ball.velocity.x *= -1;
+            }
 
             if(collisionX.kind === "brick" && collisionX.entity === collisionY.entity) {
                 collisionY = {};
@@ -188,6 +197,9 @@ class Game {
                 switch(kind) {
                     case "viewport":
                         sound.play("wallbump", 2);
+                        break;
+                    case "portal":
+                        sound.play("portal", 6);
                         break;
                     case "paddle":
                         this.brickStreak = 0;
@@ -272,6 +284,9 @@ class Game {
         if (ballRect.origin.y > this.gameSize.y) {
             return { kind: "bottom" };
         } else if (ballRect.origin.x < 0 || ballRect.end.x > this.gameSize.x) {
+            if (this.enablePortals) {
+                return { kind: "portal" };
+            }
             return { kind: "viewport" };
         } else if (this.ball.velocity.y > 0 && ballRect.overlaps(paddleRect)) {
             return { kind: "paddle" };
