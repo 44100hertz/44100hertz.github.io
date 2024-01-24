@@ -81,12 +81,13 @@ const taunts = [
 ];
 
 const praise = [
-    "you survived!",
-    "nice job!",
-    "good work!",
-    "great!",
-    "excellent!",
-    "you killed it!",
+    "You survived!",
+    "Level complete!",
+    "Nice job!",
+    "Good work!",
+    "Great!",
+    "Excellent!",
+    "You killed it!",
     "AMAZING!!",
     "IMPOSSIBLE!!",
 ]
