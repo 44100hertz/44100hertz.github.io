@@ -21,12 +21,12 @@ pre {
     cursor: crosshair;
     width: 100svw;
     height: 100svw;
-    outline: 4px solid gray;
-    background: radial-gradient(circle at 50% 10%, #210 0%, #002 100%);
 }
 
 .viewport {
     transform-origin: 0px 0px;
+    background: radial-gradient(circle at 50% 10%, #382818 0%, #181838 100%);
+    border-radius: 4px;
     overflow: hidden;
 }
 
@@ -62,31 +62,31 @@ pre {
 .brick, .ball, .paddle {
     outline-offset: -1px;
     border-radius: 1px;
+    box-shadow: 0px 0px 4px black;
 }
 
 .brick {
     background: linear-gradient(#f40 0%, #f04 100%);
-    box-shadow: 0px 0px 2px red;
 }
 
 .brick.solid {
     background: linear-gradient(45deg, #fff 0%, #a88 30%, #def 50%, #988 70%, #fff 100%);
-    box-shadow: 0px 0px 2px #ffe8;
 }
 
 .brick.killer {
     outline: 1px solid #c0f;
-    box-shadow: 0px 0px 2px #f0f;
 }
 
 .brick.remnant {
-    animation: 0.5s ease-out 0s 1 forwards disappear;
+    animation: 0.25s ease-out 0s 1 forwards disappear;
+    box-shadow: none;
+    background: white;
 }
 
 @keyframes disappear {
     0% {
         filter: blur(0px);
-        opacity: 80%;
+        opacity: 50%;
     }
     100% {
         filter: blur(20px);
@@ -120,7 +120,6 @@ pre {
     z-index: 1;
     background: white;
     border-radius: 1px;
-    box-shadow: 0px 0px 4px #04f;
 }
 
 .paddle {
@@ -131,10 +130,11 @@ pre {
 
 .blackHole {
     box-sizing: border-box;
-    border: 4px solid #84c;
-    outline: 2px solid gray;
+    background: radial-gradient(#000f 30%, #80fc 40%, #000 100%);
+    box-shadow: 0px 0px 16px black;
+    outline: 1px solid;
     border-radius: 50%;
-    animation: .5s ease-out 0s infinite forwards holezoom;
+    animation: .5s linear 0s infinite forwards holezoom;
 
 }
 
