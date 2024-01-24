@@ -35,8 +35,8 @@ function load() {
                     setTimeout(introduceLevel, 2000);
                     break;
                 case "die":
-                    playfield.showMessage(getDeathMessage(deathCount));
                     ++deathCount;
+                    playfield.showMessage(getDeathMessage(deathCount));
                     setTimeout(start, 1000);
                     break;
                 case "outOfLevels":
