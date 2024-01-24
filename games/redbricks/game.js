@@ -27,7 +27,6 @@ function load() {
         const game = new Game(playfield, gameSize, level, (status, game) => {
             switch(status) {
                 case "win":
-                    console.log(game.brickStreak);
                     const time = (new Date()).valueOf() - startTime;
                     const minutes = Math.floor(time / 1000 / 60);
                     const seconds = String(Math.floor((time / 1000) % 60))
@@ -162,11 +161,11 @@ class Game {
                 );
             };
 
+            this.ball.velocity.y += this.gravity * dt * this.ballSpeed;
             const testY = new Point(this.ball.x, nextBallPos().y);
             let collisionY = this.getBallCollision(testY);
             if (collisionY.kind) {
                 this.ball.velocity.y *= -1;
-            } else {
                 this.ball.velocity.y += this.gravity * dt * this.ballSpeed;
             }
             if (collisionY.kind == "paddle") {
