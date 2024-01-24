@@ -102,6 +102,7 @@ class Game {
             stopCallback('outOfLevels');
             return;
         }
+        // @ts-ignore
         for (const { position, size, kind, variant } of objects) {
             const entity = this.playfield.addEntity({
                 position,
