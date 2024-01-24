@@ -3,7 +3,7 @@ import Rect from "../lib/Rect.js";
 import Playfield from "./Playfield.js";
 import * as sound from "./sound.js";
 import { getObjects } from "./levels.js";
-import { tips } from "./tips.js";
+import { getScoreMessage, getDeathMessage, getEndMessage } from "./commentary.js";
 
 addEventListener("load", load);
 
@@ -28,30 +28,19 @@ function load() {
         const game = new Game(playfield, gameSize, level, (status, game) => {
             switch(status) {
                 case "win":
-                    const time = (new Date()).valueOf() - startTime;
-                    const minutes = Math.floor(time / 1000 / 60);
-                    const seconds = String(Math.floor((time / 1000) % 60))
-                          .padStart(2,'0');
-                    playfield.showMessage(`
-Great job!
-${game.maxBrickStreak > 4 ? `BRICK STREAK ${game.maxBrickStreak}!!` : ''}
-Level time: ${minutes}:${seconds}`);
+                    const timeMs = (new Date()).valueOf() - startTime;
+                    const time = Math.floor(timeMs / 1000);
+                    playfield.showMessage(getScoreMessage(time, game.maxBrickStreak));
                     ++level;
                     setTimeout(introduceLevel, 2000);
                     break;
                 case "die":
-                    playfield.showMessage(`
-${tips[deathCount % tips.length]}
-deaths: ${deathCount+1}
-                    `);
+                    playfield.showMessage(getDeathMessage(deathCount));
                     ++deathCount;
                     setTimeout(start, 1000);
                     break;
                 case "outOfLevels":
-                    playfield.showMessage(`
-You won...kind of. This game is WIP!
-If you'd like, email ${"ssaammpzz@gmail.com".replace("zz", "")} with level ideas.
-Thanks for playing.`);
+                    playfield.showMessage(getEndMessage());
             }
         });
     }
