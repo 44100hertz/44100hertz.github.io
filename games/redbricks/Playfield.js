@@ -92,7 +92,6 @@ export default class Playfield {
         this.lastTouchTime = undefined;
         this.#e_entities.textContent = '';
         for (const [type, listener] of Object.entries(this.#eventListeners)) {
-            console.log(type, listener)
             removeEventListener(type, listener);
         }
     }
