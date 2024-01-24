@@ -42,7 +42,7 @@ export default class Playfield {
         this.#eventListeners[ev] = callback;
     }
 
-    bindPointer(c_pointerdown, c_pointermove, getPaddlePos) {
+    bindPointer(c_pointerdown, c_pointermove, c_pointerup, getPaddlePos) {
         this.getPaddlePos = getPaddlePos;
 
         const wrapMouse = (fn) => (ev) =>
@@ -56,6 +56,7 @@ export default class Playfield {
 
         this.bindEvent("mousedown", wrapMouse(c_pointerdown));
         this.bindEvent("mousemove", wrapMouse(c_pointermove));
+        this.bindEvent("mouseup", wrapMouse(c_pointerup));
 
         // specialized touch handlers for paddle movement
         this.bindEvent(
@@ -83,6 +84,7 @@ export default class Playfield {
                 this.lastTouch = touch;
             })
         );
+        this.bindEvent("touchend", c_pointerup);
     }
 
     reset() {

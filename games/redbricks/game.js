@@ -139,8 +139,9 @@ class Game {
 
         this.update();
         this.playfield.bindPointer(
-            this.tryLaunch.bind(this),
+            () => {},
             this.pointermove.bind(this),
+            this.tryLaunch.bind(this),
             () => this.paddle.position,
         );
     }
