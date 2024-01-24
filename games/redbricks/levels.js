@@ -66,6 +66,21 @@ const levels = [
         patternSpacing: 20,
         patternOffset: 20,
     },
+    {
+        getObjectKind: (x, y) => {
+            if (x == 2 || x == 4 || y == 1 || y == 3) {
+                return { kind: "brick" };
+            } else {
+                if (x == 3 && y == 2) {
+                    return { kind: "blackHole", variant: "reverse" };
+                }
+            }
+            return {};
+        },
+        patternSize: new Point(7, 5),
+        patternSpacing: 20,
+        patternOffset: 10,
+    },
     // Level 6: white hole
     // Level 7: BRUTAL classic-style challenge
     // Level 8: white hole with screen wrapping

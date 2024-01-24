@@ -136,6 +136,13 @@ pre {
     outline: 1px solid;
     border-radius: 50%;
     animation: .5s linear 0s infinite forwards holezoom;
+    z-index: -1;
+}
+
+.blackHole.reverse {
+    background: radial-gradient(#ffff 30%, #f48c 40%, #fff8 100%);
+    box-shadow: 0px 0px 16px white;
+    animation-direction: reverse;
 }
 
 @keyframes holezoom {

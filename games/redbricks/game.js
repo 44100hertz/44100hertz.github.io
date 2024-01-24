@@ -73,6 +73,7 @@ class Game {
 
         this.killBlockSpeed = 80;
         this.blackHolePower = 5;
+        this.whiteHolePower = -3;
 
         this.paddleVelX = 0;
         this.brickStreak = 0;
@@ -149,10 +150,14 @@ class Game {
         } else {
             this.entities.forEach((entity) => {
                 switch (entity.kind) {
-                    case "blackhole":
+                    case "blackHole":
                         const distance = entity.position.x - this.ball.x;
-                        const scale = dt * this.blackHolePower * Math.exp(-dt);
-                        this.ball.velocity.x += distance * scale;
+                        const scale = dt * Math.exp(-dt);
+                        const power =
+                            entity.variant == "reverse"
+                                ? this.whiteHolePower
+                                : this.blackHolePower;
+                        this.ball.velocity.x += distance * scale * power;
                         break;
                     case "killBlock":
                         const inBounds = entity.rect.origin.y < this.playfield.rect.end.y;
@@ -304,7 +309,7 @@ class Game {
         if (this.ballStuck) {
             sound.play("launch", -6);
             this.ballStuck = false;
-            const jitter = Math.random() < 0.5 ? -10 : 10;
+            const jitter = this.paddle.x < this.gameSize.x/2 ? 10 : -10;
             this.ball.velocity = new Point(
                 this.paddleVelX + jitter,
                 -this.launchSpeed
