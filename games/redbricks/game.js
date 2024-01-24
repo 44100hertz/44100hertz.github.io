@@ -190,7 +190,7 @@ class Game {
                         sound.play("wallbump", 2);
                         break;
                     case "portal":
-                        sound.play("portal", 6);
+                        sound.play("portal", 0);
                         break;
                     case "paddle":
                         this.brickStreak = 0;
