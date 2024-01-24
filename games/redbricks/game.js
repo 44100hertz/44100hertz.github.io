@@ -24,18 +24,20 @@ function load() {
 
     function start() {
         playfield.showMessage('');
-        const game = new Game(playfield, gameSize, level, (status) => {
+        const game = new Game(playfield, gameSize, level, (status, game) => {
             switch(status) {
                 case "win":
+                    console.log(game.brickStreak);
                     const time = (new Date()).valueOf() - startTime;
                     const minutes = Math.floor(time / 1000 / 60);
                     const seconds = String(Math.floor((time / 1000) % 60))
                           .padStart(2,'0');
                     playfield.showMessage(`
-Good job!
+Great job!
+${game.maxBrickStreak > 4 ? `BRICK STREAK ${game.maxBrickStreak}!!` : ''}
 Level time: ${minutes}:${seconds}`);
                     ++level;
-                    setTimeout(introduceLevel, 1000);
+                    setTimeout(introduceLevel, 2000);
                     break;
                 case "die":
                     playfield.showMessage(`
@@ -84,6 +86,7 @@ class Game {
 
         this.paddleVelX = 0;
         this.brickStreak = 0;
+        this.maxBrickStreak = 0;
 
         // Paddle
         this.paddle = this.playfield.addEntity({
@@ -199,6 +202,7 @@ class Game {
                             }
                             sound.play("brickbump", this.brickStreak);
                             ++this.brickStreak;
+                            this.maxBrickStreak = Math.max(this.brickStreak, this.maxBrickStreak);
                         }
                         break;
                 }
@@ -256,7 +260,7 @@ class Game {
                 sound.play("miss");
             }
             this.playfield.reset();
-            this.stopCallback(this.stopStatus);
+            this.stopCallback(this.stopStatus, this);
         } else {
             requestAnimationFrame(this.update.bind(this));
         }
