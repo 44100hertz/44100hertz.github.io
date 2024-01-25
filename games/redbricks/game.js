@@ -71,7 +71,7 @@ class Game {
 
         this.entities = [];
 
-        this.killBlockSpeed = 80;
+        this.killBlockSpeed = 150;
         this.blackHolePower = 5;
         this.whiteHolePower = -3;
 
@@ -138,7 +138,7 @@ class Game {
                         this.ball.velocity.x += distance * scale * power;
                         break;
                     case "killBlock":
-                        const inBounds = entity.rect.origin.y < this.playfield.rect.end.y;
+                        const inBounds = entity.rect.overlaps(this.playfield.rect);
                         if (!inBounds) {
                             this.playfield.removeEntity(entity);
                             entity.toBeDeleted = true;
@@ -146,7 +146,9 @@ class Game {
                         if (entity.rect.overlaps(this.paddle.rect)) {
                             this.stopStatus = "die";
                         }
-                        entity.y += this.killBlockSpeed * dt;
+                        entity.position = entity.position.sub(
+                            entity.velocity.mul(new Point(dt))
+                        );
                         break;
                 }
             });
@@ -161,7 +163,11 @@ class Game {
             this.ball.velocity.y += this.gravity * dt;
             const testY = new Point(this.ball.x, nextBallPos().y);
             let collisionY = this.getBallCollision(testY);
-            if (collisionY.kind) {
+            if (collisionY.kind == "portalX") {
+                collisionY = {};
+            } else if (collisionY.kind == "portalY") {
+                this.ball.position.y = this.gameSize.y - this.ball.position.y;
+            } else if (collisionY.kind) {
                 this.ball.velocity.y *= -1;
                 this.ball.velocity.y += this.gravity * dt;
             }
@@ -170,13 +176,12 @@ class Game {
                 this.ball.velocity.x +=
                     this.paddleSurface * (this.ball.x < this.paddle.x ? -1 : 1);
             }
-            if (collisionY.kind == "portal") collisionY = {};
 
             const testX = new Point(nextBallPos().x, this.ball.y);
             let collisionX = this.getBallCollision(testX);
-            if (collisionX.kind == "paddle") {
+            if (collisionX.kind == "paddle" || collisionX.kind == "portalY") {
                 collisionX = {};
-            } else if (collisionX.kind == "portal") {
+            } else if (collisionX.kind == "portalX") {
                 this.ball.position.x = this.gameSize.x - this.ball.position.x;
             } else if (collisionX.kind) {
                 this.ball.velocity.x *= -1;
@@ -191,7 +196,8 @@ class Game {
                     case "viewport":
                         sound.play("wallbump", 2);
                         break;
-                    case "portal":
+                    case "portalX":
+                    case "portalY":
                         sound.play("portal", 0);
                         break;
                     case "paddle":
@@ -221,8 +227,12 @@ class Game {
                         const killBlock = this.playfield.addEntity({
                             position: entity.position,
                             size: new Point(12, 12),
+                            velocity: entity.position
+                                .sub(this.paddle.position)
+                                .normalize()
+                                .mul(new Point(this.killBlockSpeed)),
                             kind: "killBlock",
-                        })
+                        });
                         killBlock.element.classList.add('killBlock');
                         this.entities.push(killBlock);
                     } else if (entity.remainingDivisions) {
@@ -256,15 +266,14 @@ class Game {
             });
 
             this.ball.position = nextBallPos();
-            this.ball.velocity.x = Math.min(
-                this.maxBallSpeed,
-                Math.max(-this.maxBallSpeed, this.ball.velocity.x)
+            this.ball.velocity = this.ball.velocity.clamp(
+                new Point(-this.maxBallSpeed),
+                new Point(this.maxBallSpeed)
             );
         }
 
         this.paddleVelX = (this.paddleTarget - this.paddle.x) / dt;
         this.paddle.x = this.paddleTarget;
-
 
         if (this.stopStatus) {
             if (this.stopStatus == "die") {
@@ -280,11 +289,16 @@ class Game {
     getBallCollision(pos) {
         const ballRect = Rect.centered(pos, this.ball.size);
         const paddleRect = new Rect(this.paddle.rect.origin, new Point(this.paddle.size.x, 1));
-        if (ballRect.origin.y > this.gameSize.y) {
+        if (
+            this.enablePortalsY &&
+            (ballRect.origin.y < 0 || ballRect.end.y > this.gameSize.y)
+        ) {
+            return { kind: "portalY" };
+        } else if (ballRect.end.y > this.gameSize.y) {
             return { kind: "bottom" };
         } else if (ballRect.origin.x < 0 || ballRect.end.x > this.gameSize.x) {
-            if (this.enablePortals) {
-                return { kind: "portal" };
+            if (this.enablePortalsX) {
+                return { kind: "portalX" };
             }
             return { kind: "viewport" };
         } else if (this.ball.velocity.y > 0 && ballRect.overlaps(paddleRect)) {
@@ -319,7 +333,8 @@ class Game {
                 this.entities.push(entity);
                 break;
             case "portal":
-                this.enablePortals = true;
+                if (variant == "left") this.enablePortalsX = true;
+                if (variant == "top") this.enablePortalsY = true;
                 break;
         }
         return entity;
