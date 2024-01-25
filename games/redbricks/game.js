@@ -107,29 +107,7 @@ class Game {
             return;
         }
         // @ts-ignore
-        for (const { position, size, kind, variant } of objects) {
-            const entity = this.playfield.addEntity({
-                position,
-                size,
-                kind,
-                variant,
-            });
-            entity.element.classList.add(kind);
-            if (variant) {
-                entity.element.classList.add(variant);
-            }
-            switch (kind) {
-                case "brick":
-                    this.bricks.push(entity);
-                    break;
-                case "blackHole":
-                    this.entities.push(entity);
-                    break;
-                case "portal":
-                    this.enablePortals = true;
-                    break;
-            }
-        }
+        objects.forEach(this.addEntity.bind(this));
 
         this.update();
         this.playfield.bindPointer(
@@ -207,9 +185,9 @@ class Game {
             if(collisionX.kind === "brick" && collisionX.entity === collisionY.entity) {
                 collisionY = {};
             }
-            [collisionX, collisionY].forEach(({ kind, entity }) => {
+            [collisionX, collisionY].forEach(({ kind: collisionKind, entity }) => {
                 // sound logic
-                switch(kind) {
+                switch(collisionKind) {
                     case "viewport":
                         sound.play("wallbump", 2);
                         break;
@@ -221,23 +199,24 @@ class Game {
                         sound.play("paddlebump", 2);
                         break;
                     case "brick":
-                        if(entity.variant == "solid") {
-                            sound.play("paddlebump", 4);
-                        } else {
+                        sound.play("paddlebump", 4);
+                        if(entity.variant !== "solid") {
                             if (entity.variant == "killer") {
                                 sound.play("deathblock");
                             }
-                            sound.play("brickbump", this.brickStreak);
+                            const div = entity.remainingDivisions !== undefined;
+                            const octave = div ? 1-Math.floor(Math.log2(entity.size.x/25)) : 0;
+                            sound.play("brickbump", this.brickStreak + octave*12);
                             ++this.brickStreak;
                             this.maxBrickStreak = Math.max(this.brickStreak, this.maxBrickStreak);
                         }
                         break;
                 }
 
-                if (kind == "bottom") {
+                if (collisionKind == "bottom") {
                     this.stopStatus = "die";
                 }
-                if (kind == "brick" && entity.variant != "solid") {
+                if (collisionKind == "brick" && entity.variant != "solid") {
                     if(entity.variant == "killer") {
                         const killBlock = this.playfield.addEntity({
                             position: entity.position,
@@ -246,6 +225,21 @@ class Game {
                         })
                         killBlock.element.classList.add('killBlock');
                         this.entities.push(killBlock);
+                    } else if (entity.remainingDivisions) {
+                        const field = entity.size.x > entity.size.y ? 'x' : 'y';
+                        const size = entity.size.clone();
+                        size[field] = size[field] / 2 - 1.5;
+                        for (let i=0; i<2; ++i) {
+                            const position = entity.position.clone();
+                            position[field] += (i-0.5) * (entity.size[field] / 2 + 1.5);
+                            this.addEntity({
+                                position,
+                                size,
+                                kind: "brick",
+                                variant: "dividing",
+                                remainingDivisions: entity.remainingDivisions - 1,
+                            });
+                        }
                     }
                     entity.element.classList.add("remnant");
                     setTimeout(() => this.playfield.removeEntity(entity), 1000);
@@ -303,6 +297,32 @@ class Game {
             }
         }
         return {};
+    }
+
+    addEntity({position, size, kind, variant, ...props}) {
+        const entity = this.playfield.addEntity({
+            position,
+            size,
+            kind,
+            variant,
+            ...props,
+        });
+        entity.element.classList.add(kind);
+        if (variant) {
+            entity.element.classList.add(variant);
+        }
+        switch (kind) {
+            case "brick":
+                this.bricks.push(entity);
+                break;
+            case "blackHole":
+                this.entities.push(entity);
+                break;
+            case "portal":
+                this.enablePortals = true;
+                break;
+        }
+        return entity;
     }
 
     tryLaunch() {

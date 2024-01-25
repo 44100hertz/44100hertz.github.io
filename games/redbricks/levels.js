@@ -46,7 +46,7 @@ const levels = [
                 return { kind: "brick" };
             } else {
                 if (x == 3 && y == 2) {
-                    return { kind: "blackHole" };
+                    return { kind: "blackHole", size: new Point(20, 20) };
                 }
             }
             return {};
@@ -72,7 +72,11 @@ const levels = [
                 return { kind: "brick" };
             } else {
                 if (x == 3 && y == 2) {
-                    return { kind: "blackHole", variant: "reverse" };
+                    return {
+                        kind: "blackHole",
+                        variant: "reverse",
+                        size: new Point(20, 20),
+                    };
                 }
             }
             return {};
@@ -81,8 +85,27 @@ const levels = [
         patternSpacing: 20,
         patternOffset: 10,
     },
-    // Level 6: white hole
-    // Level 7: BRUTAL classic-style challenge
+    {
+        getObjectKind: (x, y) => {
+            if (x == 1 && y == 2) {
+                return {
+                    kind: "brick",
+                    variant: "dividing",
+                    size: new Point(180, 60),
+                    remainingDivisions: 5,
+                };
+            } else if (y == 0) {
+                return {
+                    kind: "brick",
+                    variant: "solid"
+                }
+            }
+            return {};
+        },
+        patternSize: new Point(3, 3),
+        patternSpacing: 40,
+        patternOffset: 10,
+    }
     // Level 8: white hole with screen wrapping
 ];
 
@@ -98,26 +121,27 @@ export function getObjects(level, viewportRect) {
         (viewportRect.size.x - brickGap.x * 2) / patternSize.x,
         patternSpacing + brickGap.y
     );
-    const patternBottom = brickSpacing.y * patternSize.y;
     const brickSize = new Point(brickSpacing.x - brickGap.x, patternSpacing);
 
     const objects = [];
 
     for (let iy = 0; iy < patternSize.y; ++iy) {
         for (let ix = 0; ix < patternSize.x; ++ix) {
-            const { kind, variant } = getObjectKind(ix, iy);
+            const { kind, variant, ...props } = getObjectKind(ix, iy);
             if (!kind) {
                 continue;
             }
+            let size = 'size' in props ? props.size : brickSize;
             const object = {
                 position: brickSpacing
                     .mul(new Point(ix, iy))
                     .add(brickGap)
                     .add(new Point(0, patternOffset))
                     .add(brickSpacing.div(new Point(2, 2))),
-                size: kind == "blackHole" ? new Point(20, 20) : brickSize,
+                size, 
                 kind,
                 variant,
+                ...props,
             };
             objects.push(object);
         }
