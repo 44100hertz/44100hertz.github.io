@@ -14,10 +14,14 @@ function load() {
 
 function generateTree(text) {
   const lexed = lexString(text);
-  const parsed = parseTokens(lexed);
-  const tree = trimTree(parsed);
-  console.log(JSON.stringify(tree));
-  return tree;
+  try {
+    const parsed = parseTokens(lexed);
+    const tree = trimTree(parsed);
+    console.log(JSON.stringify(tree));
+    return tree;
+  } catch (err) {
+    return err;
+  }
 }
 
 const matchAll = (cond) => (str) =>
@@ -34,7 +38,7 @@ const operators = {
     semantics: 'infix',
   },
   "*": {
-    predecence: 1,
+    precedence: 1,
     semantics: 'infix',
   }
 }
@@ -75,30 +79,45 @@ function lexString(text, position = 0) {
   }
 }
 
-function parseTokens(tokens, index = {ref: 0}, tree = []) {
+function parseTokens(tokens, index = {ref: 0}, tree = [], depth = 0) {
+  const parseNext = (tree, _depth=depth) =>
+        parseTokens(tokens, index, tree, _depth);
+
   if (index.ref === tokens.length) {
+    if (depth > 0) {
+      throw new Error(`Expected closing paren`);
+    }
     return tree;
   }
 
   const token = tokens[index.ref];
-  console.log(token.value, JSON.stringify(tree));
+  //console.log(token.value, JSON.stringify(tree));
   ++index.ref;
   switch (token.kind) {
     case 'integer':
-      return parseTokens(tokens, index, [...tree, Number(token.value)]);
+      return parseNext([...tree, Number(token.value)]);
     case 'operator':
       const { precedence, semantics } = operators[token.value];
       switch (semantics) {
         case 'infix':
-          return parseTokens(tokens, index, [token.value, tree])
+          if (tree[0] in operators &&
+              operators[tree[0]].precedence < precedence)
+          {
+            const [root, left, ...right] = tree;
+            return [root, left, parseNext([token.value, right])];
+          }
+          return parseNext([token.value, tree]);
       }
-      return ['UNKNOWN'];
     case 'paren':
       if (token.value == '(') {
-        const inner = parseTokens(tokens, index, []);
-        return parseTokens(tokens, index, [...tree, ['()', inner]]);
+        const inner = parseNext([], depth+1);
+        return parseNext([...tree, [inner]]);
       } else if ( token.value == ')' ) {
-        return tree;
+        if (depth > 0) {
+          return tree;
+        } else {
+          throw new Error(`Expected opening paren`);
+        }
       }
     default:
       throw new Error(`Unknown token: "${token}"`)
@@ -128,7 +147,6 @@ function treeHTML(tree, depth = 0, index = 0) {
   node.style.margin = "0 0.2em";
   node.style.background = `hsl(${depth * 40}, 75%, 75%)`
   if (Array.isArray(tree)) {
-    console.log(tree);
     const [root, ...children] = tree;
     node.textContent = root;
     const e_children = document.createElement('p');
