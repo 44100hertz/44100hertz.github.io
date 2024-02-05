@@ -37,10 +37,18 @@ const operators = {
     precedence: 0,
     semantics: 'infix',
   },
+  "-": {
+    precedence: 0,
+    semantics: 'infix',
+  },
   "*": {
     precedence: 1,
     semantics: 'infix',
-  }
+  },
+  "/": {
+    precedence: 1,
+    semantics: 'infix',
+  },
 }
 
 const tokenKinds = {
