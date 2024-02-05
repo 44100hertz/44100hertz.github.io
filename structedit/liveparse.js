@@ -13,8 +13,8 @@ function load() {
 }
 
 function generateTree(text) {
-  const lexed = lexString(text);
   try {
+    const lexed = lexString(text);
     const parsed = parseTokens(lexed);
     const tree = trimTree(parsed);
     console.log(JSON.stringify(tree));
@@ -63,6 +63,9 @@ function lexString(text, position = 0) {
       matchKind = candidate[0];
     }
     if (!candidate || end > text.length) {
+      if (matchKind === "UNKNOWN") {
+        throw new Error(`Unknown Token: ${token}`);
+      }
       if (end <= text.length) token = token.slice(0, -1);
       if (matchKind !== 'white') {
         const parsedToken = {
