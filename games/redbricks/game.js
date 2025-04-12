@@ -309,7 +309,7 @@ class Game {
             return { kind: "paddle" };
         } else {
             for (const entity of this.entities) {
-                if (entity.kind != "brick") break;
+                if (entity.kind != "brick") continue;
                 if (ballRect.overlaps(entity.rect)) {
                     return { kind: "brick", entity };
                 }
