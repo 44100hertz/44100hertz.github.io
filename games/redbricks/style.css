@@ -23,6 +23,12 @@ pre {
     height: 100svw;
 }
 
+#effects {
+    cursor: crosshair;
+    width: 100svw;
+    height: 100svw;
+}
+
 .viewport {
     transform-origin: 0px 0px;
     background: radial-gradient(circle at 50% 10%, #3c2414 0%, #181838 100%);
