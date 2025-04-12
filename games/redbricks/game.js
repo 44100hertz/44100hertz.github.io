@@ -261,7 +261,7 @@ class Game {
                     entity.element.classList.add("remnant");
                     setTimeout(() => this.playfield.removeEntity(entity), 1000);
                     const remainingBrick = this.entities.find(
-                        (entity) => entity.kind == "brick" && entity.variant != "solid"
+                        (entity) => entity.kind == "brick" && entity.variant != "solid" && !entity.toBeDeleted
                     );
                     if (!remainingBrick) {
                         this.stopStatus = "win";
