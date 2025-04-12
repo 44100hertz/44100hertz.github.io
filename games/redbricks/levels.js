@@ -128,8 +128,15 @@ const levels = [
         patternSize: new Point(7, 7),
         patternSpacing: 20,
         patternOffset: 20,
-    }
-    // Level 8: white hole with screen wrapping
+    },
+    // Level 9: scrolling
+    {
+        getObjectKind: (x, y) =>
+            ((y % 2) == 0 && (x !== 3 || y % 3 == 0)) ? ({ kind: "brick", enableScrolling: true, }) : {},
+        patternSize: new Point(7, 12),
+        patternSpacing: 20,
+        patternOffset: -72,
+    },
 ];
 
 export function getObjects(level, viewportRect) {

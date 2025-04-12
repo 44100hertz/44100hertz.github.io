@@ -53,6 +53,7 @@ class Game {
         this.gameSize = gameSize;
         this.stopCallback = stopCallback;
         this.scoreboard = document.getElementById("scoreboard");
+        this.startTime = new Date();
 
         console.log(`Loading level ${level}...`);
 
@@ -121,11 +122,20 @@ class Game {
     update(newtime) {
         const dt = this.ballSpeed * Math.min(1/60, (newtime - this.lastTime) / 1000 || 1/240);
         this.lastTime = newtime;
+        const levelTime = (new Date()).valueOf() - this.startTime;
 
-        // Ball movement and collision
         if (this.ballStuck) {
             this.ball.position = this.paddle.position.add(new Point(0, -10));
         } else {
+            // Brick movement
+            for (const brick of this.bricks) {
+                if (brick.enableScrolling) {
+                    brick.y += Math.min(5, dt * levelTime / 400);
+                    if (brick.y > 260) brick.y = -20;
+                }
+            }
+
+            // Entity updates
             this.entities.forEach((entity) => {
                 switch (entity.kind) {
                     case "blackHole":
