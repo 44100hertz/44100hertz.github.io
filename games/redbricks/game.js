@@ -99,9 +99,6 @@ class Game {
         this.ball.element.classList.add("ball");
         this.ballStuck = true;
 
-        // Bricks
-        this.bricks = [];
-
         const objects = getObjects(level, playfield.rect);
         if (!objects) {
             stopCallback('outOfLevels');
@@ -127,17 +124,16 @@ class Game {
         if (this.ballStuck) {
             this.ball.position = this.paddle.position.add(new Point(0, -10));
         } else {
-            // Brick movement
-            for (const brick of this.bricks) {
-                if (brick.enableScrolling) {
-                    brick.y += Math.min(5, dt * levelTime / 400);
-                    if (brick.y > 260) brick.y = -20;
-                }
-            }
 
             // Entity updates
             this.entities.forEach((entity) => {
                 switch (entity.kind) {
+                    case "brick":
+                        if (entity.enableScrolling) {
+                            entity.y += Math.min(5, dt * levelTime / 400);
+                            if (entity.y > 260) entity.y = -20;
+                        }
+                        break;
                     case "blackHole":
                         const distance = entity.position.x - this.ball.x;
                         const scale = dt * Math.exp(-dt);
@@ -220,6 +216,7 @@ class Game {
                             if (entity.variant == "killer") {
                                 sound.play("deathblock");
                             }
+                            entity.toBeDeleted = true;
                             const div = entity.remainingDivisions !== undefined;
                             const octave = div ? 1-Math.floor(Math.log2(entity.size.x/25)) : 0;
                             sound.play("brickbump", this.brickStreak + octave*12);
@@ -263,11 +260,8 @@ class Game {
                     }
                     entity.element.classList.add("remnant");
                     setTimeout(() => this.playfield.removeEntity(entity), 1000);
-                    this.bricks = this.bricks.filter(
-                        (brick) => brick != entity
-                    );
-                    const remainingBrick = this.bricks.find(
-                        (brick) => brick.variant != "solid"
+                    const remainingBrick = this.entities.find(
+                        (entity) => entity.kind == "brick" && entity.variant != "solid"
                     );
                     if (!remainingBrick) {
                         this.stopStatus = "win";
@@ -314,9 +308,10 @@ class Game {
         } else if (this.ball.velocity.y > 0 && ballRect.overlaps(paddleRect)) {
             return { kind: "paddle" };
         } else {
-            for (const brick of this.bricks) {
-                if (ballRect.overlaps(brick.rect)) {
-                    return { kind: "brick", entity: brick };
+            for (const entity of this.entities) {
+                if (entity.kind != "brick") break;
+                if (ballRect.overlaps(entity.rect)) {
+                    return { kind: "brick", entity };
                 }
             }
         }
@@ -337,8 +332,6 @@ class Game {
         }
         switch (kind) {
             case "brick":
-                this.bricks.push(entity);
-                break;
             case "blackHole":
                 this.entities.push(entity);
                 break;
