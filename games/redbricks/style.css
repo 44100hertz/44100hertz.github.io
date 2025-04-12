@@ -1,189 +1,212 @@
 body {
-    touch-action: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: center;
-    width: 100svw;
-    height: 100svh;
-    margin: 0;
-    background: black;
-    color: white;
-    overflow: hidden;
+  touch-action: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  width: 100svw;
+  height: 100svh;
+  margin: 0;
+  background: black;
+  color: white;
+  overflow: hidden;
 }
 
 pre {
-    margin: 0;
+  margin: 0;
 }
 
 #playfield {
-    user-select: none;
-    cursor: crosshair;
-    width: 100svw;
-    height: 100svw;
+  user-select: none;
+  cursor: crosshair;
+  width: 100svw;
+  height: 100svw;
 }
 
 .viewport {
-    transform-origin: 0px 0px;
-    background: radial-gradient(circle at 50% 10%, #3c2414 0%, #181838 100%);
-    border-radius: 4px;
-    overflow: hidden;
+  transform-origin: 0px 0px;
+  background: radial-gradient(circle at 50% 10%, #3c2414 0%, #181838 100%);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .statusMessage {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: stretch;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+  width: 100%;
+  height: 100%;
 }
 
 .statusMessage div {
-    font-family: serif;
-    font-size: 10px;
-    font-style: italic;
-    width: 100%;
-    white-space: pre;
-    text-align: center;
+  font-family: serif;
+  font-size: 10px;
+  font-style: italic;
+  width: 100%;
+  white-space: pre;
+  text-align: center;
 }
 
 @media (min-aspect-ratio: 1/1) {
-    #playfield {
-        width: 100svh;
-        height: 100svh;
-    }
+  #playfield {
+    width: 100svh;
+    height: 100svh;
+  }
 }
 
 .game-entity {
-    position: absolute;
+  position: absolute;
 }
 
-.brick, .ball, .paddle {
-    outline-offset: -1px;
-    border-radius: 1px;
-    box-shadow: 0px 1px 4px black;
+.brick,
+.ball,
+.paddle {
+  outline-offset: -1px;
+  border-radius: 1px;
+  box-shadow: 0px 1px 4px black;
 }
 
 .brick {
-    background: linear-gradient(#f40 0%, #f04 100%);
+  background: linear-gradient(#f40 0%, #f04 100%);
 }
 
 .brick.solid {
-    outline: 2px solid #fff4;
-    outline-offset: -2px;
-    background: conic-gradient(from 0.9turn, #fed 0%, #a88 30%, #def 50%, #988 80%, #fff 100%);
+  outline: 2px solid #fff4;
+  outline-offset: -2px;
+  background: conic-gradient(
+    from 0.9turn,
+    #fed 0%,
+    #a88 30%,
+    #def 50%,
+    #988 80%,
+    #fff 100%
+  );
 }
 
 .brick.killer {
-    outline: 1px solid #c0f;
+  outline: 1px solid #c0f;
 }
 
 .brick.remnant {
-    animation: 0.25s ease-out 0s 1 forwards disappear;
-    box-shadow: none;
-    background: white;
+  animation: 0.25s ease-out 0s 1 forwards disappear;
+  box-shadow: none;
+  background: white;
 }
 
 @keyframes disappear {
-    0% {
-        filter: blur(0px);
-        opacity: 50%;
-    }
-    100% {
-        filter: blur(20px);
-        opacity: 0%;
-    }
+  0% {
+    filter: blur(0px);
+    opacity: 50%;
+  }
+  100% {
+    filter: blur(20px);
+    opacity: 0%;
+  }
 }
 
 .killBlock {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    outline: 1px solid white;
-    border-radius: 1px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  outline: 1px solid white;
+  border-radius: 1px;
 
-    background: no-repeat center / contain url(gfx/skull.svg);
-    box-shadow: 0px 0px 4px #444;
+  background: no-repeat center / contain url(gfx/skull.svg);
+  box-shadow: 0px 0px 4px #444;
 
-    animation: 0.25s linear 0s infinite forwards danger;
+  animation: 0.25s linear 0s infinite forwards danger;
 }
 
 @keyframes danger {
-    0% {
-        outline-color: white;
-    }
-    100% {
-        outline-color: red;
-    }
+  0% {
+    outline-color: white;
+  }
+  100% {
+    outline-color: red;
+  }
 }
 
 .ball {
-    z-index: 1;
-    background: white;
-    border-radius: 1px;
+  z-index: 1;
+  border-radius: 1px;
+  box-shadow:
+    0 0 60px 30px #fff,
+    /* inner white */ 0 0 100px 60px #f0f,
+    /* middle magenta */ 0 0 140px 90px #0ff; /* outer cyan */
 }
 
 .paddle {
-    z-index: 2;
-    border-top: 2px solid white;
-    background: linear-gradient(#048 0%, #08f 40%);
-    border-radius: 16px 16px 4px 4px / 1px 1px 4px 4px;
+  z-index: 2;
+  border-top: 2px solid white;
+  background: linear-gradient(#048 0%, #08f 40%);
+  border-radius: 16px 16px 4px 4px / 1px 1px 4px 4px;
 }
 
 .blackHole {
-    box-sizing: border-box;
-    background: radial-gradient(#000f 30%, #80fc 40%, #000 100%);
-    box-shadow: 0px 0px 16px black;
-    outline: 1px solid;
-    border-radius: 50%;
-    animation: .5s linear 0s infinite forwards holezoom;
-    z-index: -1;
+  box-sizing: border-box;
+  background: radial-gradient(#000f 30%, #80fc 40%, #000 100%);
+  box-shadow: 0px 0px 16px black;
+  outline: 1px solid;
+  border-radius: 50%;
+  animation: 0.5s linear 0s infinite forwards holezoom;
+  z-index: -1;
 }
 
 .blackHole.reverse {
-    background: radial-gradient(#ffff 30%, #f48c 40%, #fff8 100%);
-    box-shadow: 0px 0px 16px white;
-    animation-direction: reverse;
+  background: radial-gradient(#ffff 30%, #f48c 40%, #fff8 100%);
+  box-shadow: 0px 0px 16px white;
+  animation-direction: reverse;
 }
 
 @keyframes holezoom {
-    0% {
-        outline-offset: 12px;
-        outline-color: #fff0;
-    }
-    100% {
-        outline-offset: -10px;
-        outline-color: #ffff;
-    }
+  0% {
+    outline-offset: 12px;
+    outline-color: #fff0;
+  }
+  100% {
+    outline-offset: -10px;
+    outline-color: #ffff;
+  }
 }
 
 .portal {
-    background-size: 200% 200%;
-    border-radius: 2px;
-    box-shadow: 0px 0px 4px #f0f;
+  background-size: 200% 200%;
+  border-radius: 2px;
+  box-shadow: 0px 0px 4px #f0f;
 }
 
-.portal.right, .portal.left {
-    background-image: repeating-linear-gradient(60deg, #f08, #0f4 10%, #f08 20%);
-    animation: 1s linear 0s infinite forwards portalX;
+.portal.right,
+.portal.left {
+  background-image: repeating-linear-gradient(60deg, #f08, #0f4 10%, #f08 20%);
+  animation: 1s linear 0s infinite forwards portalX;
 }
 
 @keyframes portalX {
-    0% { background-position: 0% 40% }
-    100% { background-position: 0% 0% }
+  0% {
+    background-position: 0% 40%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
 }
 
-.portal.bottom, .portal.top {
-    background-image: repeating-linear-gradient(30deg, #f08, #0f4 10%, #f08 20%);
-    animation: 1s linear 0s infinite forwards portalY;
+.portal.bottom,
+.portal.top {
+  background-image: repeating-linear-gradient(30deg, #f08, #0f4 10%, #f08 20%);
+  animation: 1s linear 0s infinite forwards portalY;
 }
 
 @keyframes portalY {
-    0% { background-position: 40% 0% }
-    100% { background-position: 0% 0% }
+  0% {
+    background-position: 40% 0%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
 }
 
-.portal.left, .portal.bottom {
-    animation-direction: reverse;
+.portal.left,
+.portal.bottom {
+  animation-direction: reverse;
 }

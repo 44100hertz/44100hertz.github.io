@@ -3,13 +3,74 @@ import Rect from "../lib/Rect.js";
 import Playfield from "./Playfield.js";
 import * as sound from "./sound.js";
 import { getObjects } from "./levels.js";
-import { getScoreMessage, getDeathMessage, getEndMessage } from "./commentary.js";
+import {
+    getScoreMessage,
+    getDeathMessage,
+    getEndMessage,
+} from "./commentary.js";
+
+function kelvinToRGB(temp) {
+    let out = [];
+    temp = temp / 100;
+    var red, blue, green;
+    if (temp <= 66) {
+        red = 255;
+    } else {
+        red = temp - 60;
+        red = 329.698727466 * Math.pow(red, -0.1332047592);
+        if (red < 0) {
+            red = 0;
+        }
+        if (red > 255) {
+            red = 255;
+        }
+    }
+
+    if (temp <= 66) {
+        green = temp;
+        green = 99.4708025861 * Math.log(green) - 161.1195681661;
+        if (green < 0) {
+            green = 0;
+        }
+        if (green > 255) {
+            green = 255;
+        }
+    } else {
+        green = temp - 60;
+        green = 288.1221695283 * Math.pow(green, -0.0755148492);
+        if (green < 0) {
+            green = 0;
+        }
+        if (green > 255) {
+            green = 255;
+        }
+    }
+    if (temp >= 66) {
+        blue = 255;
+    } else {
+        if (temp <= 19) {
+            blue = 0;
+        } else {
+            blue = temp - 10;
+            blue = 138.5177312231 * Math.log(blue) - 305.0447927307;
+            if (blue < 0) {
+                blue = 0;
+            }
+            if (blue > 255) {
+                blue = 255;
+            }
+        }
+    }
+    out[0] = Math.floor(red);
+    out[1] = Math.floor(green);
+    out[2] = Math.floor(blue);
+    return out;
+}
 
 addEventListener("load", load);
 
 function load() {
     const queryURL = new URLSearchParams(window.location.search);
-
     const gameSize = new Point(240, 240);
     const playfield = new Playfield("playfield", gameSize);
     let deathCount = 0;
@@ -24,13 +85,15 @@ function load() {
     }
 
     function start() {
-        playfield.showMessage('');
+        playfield.showMessage("");
         const game = new Game(playfield, gameSize, level, (status, game) => {
-            switch(status) {
+            switch (status) {
                 case "win":
-                    const timeMs = (new Date()).valueOf() - startTime;
+                    const timeMs = new Date().valueOf() - startTime;
                     const time = Math.floor(timeMs / 1000);
-                    playfield.showMessage(getScoreMessage(time, game.maxBrickStreak));
+                    playfield.showMessage(
+                        getScoreMessage(time, game.maxBrickStreak),
+                    );
                     ++level;
                     setTimeout(introduceLevel, 2000);
                     break;
@@ -80,12 +143,16 @@ class Game {
         this.brickStreak = 0;
         this.maxBrickStreak = 0;
 
+        this.ballTemp = 1000;
+        this.bounceTemp = 1500;
+
         // Paddle
         this.paddle = this.playfield.addEntity({
             size: this.paddleSize,
             position: new Point(
                 this.gameSize.x / 2,
-                this.gameSize.y - this.paddleSize.y/2 - this.paddleOffset)
+                this.gameSize.y - this.paddleSize.y / 2 - this.paddleOffset,
+            ),
         });
         this.paddle.element.classList.add("paddle");
         this.paddleTarget = this.paddle.x;
@@ -101,7 +168,7 @@ class Game {
 
         const objects = getObjects(level, playfield.rect);
         if (!objects) {
-            stopCallback('outOfLevels');
+            stopCallback("outOfLevels");
             return;
         }
         // @ts-ignore
@@ -117,20 +184,30 @@ class Game {
     }
 
     update(newtime) {
-        const dt = this.ballSpeed * Math.min(1/60, (newtime - this.lastTime) / 1000 || 1/240);
+        const dt =
+            this.ballSpeed *
+            Math.min(1 / 60, (newtime - this.lastTime) / 1000 || 1 / 240);
+        const actualdt = newtime - this.lastTime;
         this.lastTime = newtime;
-        const levelTime = (new Date()).valueOf() - this.startTime;
+        const levelTime = new Date().valueOf() - this.startTime;
+
+        let decaypersec = 1000;
+        if (this.ballTemp - (actualdt / 1000) * decaypersec >= 0) {
+            this.ballTemp = this.ballTemp - (actualdt / 1000) * decaypersec;
+        }
+
+        let balltempcolor = kelvinToRGB(this.ballTemp);
+        this.ball.element.style.backgroundColor = `rgb(${balltempcolor[0]}, ${balltempcolor[1]}, ${balltempcolor[2]})`;
 
         if (this.ballStuck) {
             this.ball.position = this.paddle.position.add(new Point(0, -10));
         } else {
-
             // Entity updates
             this.entities.forEach((entity) => {
                 switch (entity.kind) {
                     case "brick":
                         if (entity.enableScrolling) {
-                            entity.y += Math.min(5, dt * levelTime / 400);
+                            entity.y += Math.min(5, (dt * levelTime) / 400);
                             if (entity.y > 260) entity.y = -20;
                         }
                         break;
@@ -144,7 +221,9 @@ class Game {
                         this.ball.velocity.x += distance * scale * power;
                         break;
                     case "killBlock":
-                        const inBounds = entity.rect.overlaps(this.playfield.rect);
+                        const inBounds = entity.rect.overlaps(
+                            this.playfield.rect,
+                        );
                         if (!inBounds) {
                             this.playfield.removeEntity(entity);
                             entity.toBeDeleted = true;
@@ -153,16 +232,18 @@ class Game {
                             this.stopStatus = "die";
                         }
                         entity.position = entity.position.sub(
-                            entity.velocity.mul(new Point(dt))
+                            entity.velocity.mul(new Point(dt)),
                         );
                         break;
                 }
             });
-            this.entities = this.entities.filter((entity) => !entity.toBeDeleted);
+            this.entities = this.entities.filter(
+                (entity) => !entity.toBeDeleted,
+            );
 
             const nextBallPos = () => {
                 return this.ball.position.add(
-                    this.ball.velocity.mul(new Point(dt))
+                    this.ball.velocity.mul(new Point(dt)),
                 );
             };
 
@@ -193,7 +274,10 @@ class Game {
                 this.ball.velocity.x *= -1;
             }
 
-            if(collisionX.kind === "brick" && collisionX.entity === collisionY.entity) {
+            if (
+                collisionX.kind === "brick" &&
+                collisionX.entity === collisionY.entity
+            ) {
                 collisionY = {};
             }
             [collisionX, collisionY].forEach(({ kind: collisionKind, entity }) => {
@@ -227,53 +311,63 @@ class Game {
                         break;
                 }
 
-                if (collisionKind == "bottom") {
-                    this.stopStatus = "die";
-                }
-                if (collisionKind == "brick" && entity.variant != "solid") {
-                    if(entity.variant == "killer") {
-                        const killBlock = this.playfield.addEntity({
-                            position: entity.position,
-                            size: new Point(12, 12),
-                            velocity: entity.position
-                                .sub(this.paddle.position)
-                                .normalize()
-                                .mul(new Point(this.killBlockSpeed)),
-                            kind: "killBlock",
-                        });
-                        killBlock.element.classList.add('killBlock');
-                        this.entities.push(killBlock);
-                    } else if (entity.remainingDivisions) {
-                        const field = entity.size.x > entity.size.y ? 'x' : 'y';
-                        const size = entity.size.clone();
-                        size[field] = size[field] / 2 - 1.5;
-                        for (let i=0; i<2; ++i) {
-                            const position = entity.position.clone();
-                            position[field] += (i-0.5) * (entity.size[field] / 2 + 1.5);
-                            this.addEntity({
-                                position,
-                                size,
-                                kind: "brick",
-                                variant: "dividing",
-                                remainingDivisions: entity.remainingDivisions - 1,
+                    if (collisionKind == "bottom") {
+                        this.stopStatus = "die";
+                    }
+                    if (collisionKind == "brick" && entity.variant != "solid") {
+                        if (entity.variant == "killer") {
+                            const killBlock = this.playfield.addEntity({
+                                position: entity.position,
+                                size: new Point(12, 12),
+                                velocity: entity.position
+                                    .sub(this.paddle.position)
+                                    .normalize()
+                                    .mul(new Point(this.killBlockSpeed)),
+                                kind: "killBlock",
                             });
+                            killBlock.element.classList.add("killBlock");
+                            this.entities.push(killBlock);
+                        } else if (entity.remainingDivisions) {
+                            const field =
+                                entity.size.x > entity.size.y ? "x" : "y";
+                            const size = entity.size.clone();
+                            size[field] = size[field] / 2 - 1.5;
+                            for (let i = 0; i < 2; ++i) {
+                                const position = entity.position.clone();
+                                position[field] +=
+                                    (i - 0.5) * (entity.size[field] / 2 + 1.5);
+                                this.addEntity({
+                                    position,
+                                    size,
+                                    kind: "brick",
+                                    variant: "dividing",
+                                    remainingDivisions:
+                                        entity.remainingDivisions - 1,
+                                });
+                            }
+                        }
+                        entity.element.classList.add("remnant");
+                        setTimeout(
+                            () => this.playfield.removeEntity(entity),
+                            1000,
+                        );
+                        const remainingBrick = this.entities.find(
+                            (entity) =>
+                                entity.kind == "brick" &&
+                                entity.variant != "solid" &&
+                                !entity.toBeDeleted,
+                        );
+                        if (!remainingBrick) {
+                            this.stopStatus = "win";
                         }
                     }
-                    entity.element.classList.add("remnant");
-                    setTimeout(() => this.playfield.removeEntity(entity), 1000);
-                    const remainingBrick = this.entities.find(
-                        (entity) => entity.kind == "brick" && entity.variant != "solid" && !entity.toBeDeleted
-                    );
-                    if (!remainingBrick) {
-                        this.stopStatus = "win";
-                    }
-                }
-            });
+                },
+            );
 
             this.ball.position = nextBallPos();
             this.ball.velocity = this.ball.velocity.clamp(
                 new Point(-this.maxBallSpeed),
-                new Point(this.maxBallSpeed)
+                new Point(this.maxBallSpeed),
             );
         }
 
@@ -293,7 +387,10 @@ class Game {
 
     getBallCollision(pos) {
         const ballRect = Rect.centered(pos, this.ball.size);
-        const paddleRect = new Rect(this.paddle.rect.origin, new Point(this.paddle.size.x, 1));
+        const paddleRect = new Rect(
+            this.paddle.rect.origin,
+            new Point(this.paddle.size.x, 1),
+        );
         if (
             this.enablePortalsY &&
             (ballRect.origin.y < 0 || ballRect.end.y > this.gameSize.y)
@@ -319,7 +416,7 @@ class Game {
         return {};
     }
 
-    addEntity({position, size, kind, variant, ...props}) {
+    addEntity({ position, size, kind, variant, ...props }) {
         const entity = this.playfield.addEntity({
             position,
             size,
@@ -348,10 +445,10 @@ class Game {
         if (this.ballStuck) {
             sound.play("launch", -6);
             this.ballStuck = false;
-            const jitter = this.paddle.x < this.gameSize.x/2 ? 10 : -10;
+            const jitter = this.paddle.x < this.gameSize.x / 2 ? 10 : -10;
             this.ball.velocity = new Point(
                 this.paddleVelX + jitter,
-                -this.launchSpeed
+                -this.launchSpeed,
             );
         }
     }
@@ -360,7 +457,7 @@ class Game {
         const pwidth = this.paddle.size.x;
         this.paddleTarget = Math.max(
             pwidth / 2,
-            Math.min(mousePos.x, this.gameSize.x - pwidth / 2)
+            Math.min(mousePos.x, this.gameSize.x - pwidth / 2),
         );
     }
 }
