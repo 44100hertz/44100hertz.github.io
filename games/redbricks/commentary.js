@@ -1,13 +1,14 @@
-
 export function getScoreMessage(seconds, maxStreak) {
     const message = [];
     message.push(getScoreComment(seconds, maxStreak));
     const minutes = Math.floor(seconds / 60);
-    const justSeconds = (String(seconds % 60)).padStart(2, "0");
-    const exclaim = '!';
+    const justSeconds = String(seconds % 60).padStart(2, "0");
+    const exclaim = "!";
     message.push(`Level time: ${minutes}:${justSeconds}`);
     if (maxStreak > 5) {
-        message.push(`Brick streak: ${maxStreak}${exclaim.repeat(Math.floor(maxStreak / 5))}`);
+        message.push(
+            `Brick streak: ${maxStreak}${exclaim.repeat(Math.floor(maxStreak / 5))}`,
+        );
     }
     return message.join("\n");
 }
@@ -21,23 +22,24 @@ function getScoreComment(seconds, maxStreak) {
 export function getDeathMessage(deathCount) {
     const message = [];
     message.push(taunts[(deathCount - 1) % taunts.length]);
-    message.push('');
+    message.push("");
     message.push(`deaths: ${deathCount}`);
     return message.join("\n");
 }
 
 export function getEndMessage() {
-    return (`
+    return `
 You won...kind of. This game is WIP!
 If you'd like, email ${"ssaammpzz@gmail.com".replace("zz", "")} with feedback.
 Thanks for playing.
-    `);
+    `;
 }
 
 const taunts = [
     "try again",
     "try again again",
     "try again again again",
+    "are you trying yet?",
     "this game is not easy",
     "finesse is everything",
     "you didn't use enough finesse",
@@ -69,6 +71,7 @@ const taunts = [
     "another L",
     "another one",
     "and another one",
+    "another L on the board",
     "better luck next time",
     "is this the one?",
     "when will you win?",
@@ -78,6 +81,38 @@ const taunts = [
     "oh my!",
     "how unfortunate!",
     "unsatisfactory!",
+    "chalk it up to bad luck.",
+    "you gonna cry?",
+    "you'll get it next time.",
+    "if there even is a next time.",
+    "dude wheres my W?",
+    "alone",
+    "alone.",
+    "alone...",
+    "alone!",
+    "nah just kidding.",
+    "you're doing fine...",
+    "just kidding",
+    "what were we doing again?",
+    "the ball needs to hit all the boxes to win.",
+    "didn't you get the memo?",
+    "y'know the memo.",
+    "the memo about hitting the boxes to win?",
+    "gotta move that mouse faster.",
+    "try adjusting your chair.",
+    "too hard? ill turn down the difficulty",
+    "oh whoops i'll turn down the difficulty now.",
+    "still too hard? i've got this thing on baby mode.",
+    "i don't think i can turn the difficulty down any further.",
+    "Ahhh $!*%",
+    "you'll get it this time.",
+    "i mean this time.",
+    "whoops",
+    "ahhhh dang",
+    "its all in the wrists",
+    "patience is a virtue",
+    "breath...",
+    "practice mindfulness",
 ];
 
 const praise = [
@@ -90,4 +125,5 @@ const praise = [
     "You killed it!",
     "AMAZING!!",
     "IMPOSSIBLE!!",
-]
+];
+
