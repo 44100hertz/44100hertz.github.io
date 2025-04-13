@@ -280,36 +280,51 @@ class Game {
             ) {
                 collisionY = {};
             }
-            [collisionX, collisionY].forEach(({ kind: collisionKind, entity }) => {
-                // sound logic
-                switch(collisionKind) {
-                    case "viewport":
-                        sound.play("wallbump", 0);
-                        break;
-                    case "portalX":
-                    case "portalY":
-                        sound.play("portal", 0);
-                        break;
-                    case "paddle":
-                        this.brickStreak = 0;
-                        sound.play("paddlebump", 0);
-                        break;
-                    case "brick":
-                        if (entity.variant === "solid") {
-                            sound.play("solidbump", 1 - entity.size.x / 25 + Math.random());
-                        } else {
-                            if (entity.variant == "killer") {
-                                sound.play("deathblock");
+            [collisionX, collisionY].forEach(
+                ({ kind: collisionKind, entity }) => {
+                    // sound logic
+                    switch (collisionKind) {
+                        case "viewport":
+                            sound.play("wallbump", 0);
+                            break;
+                        case "portalX":
+                        case "portalY":
+                            sound.play("portal", 0);
+                            break;
+                        case "paddle":
+                            this.brickStreak = 0;
+                            sound.play("paddlebump", 0);
+                            break;
+                        case "brick":
+                            if (entity.variant === "solid") {
+                                sound.play(
+                                    "solidbump",
+                                    1 - entity.size.x / 25 + Math.random(),
+                                );
+                            } else {
+                                if (entity.variant == "killer") {
+                                    sound.play("deathblock");
+                                }
+                                this.ballTemp += this.bounceTemp;
+                                entity.toBeDeleted = true;
+                                const div =
+                                    entity.remainingDivisions !== undefined;
+                                const octave = div
+                                    ? 1 -
+                                      Math.floor(Math.log2(entity.size.x / 25))
+                                    : 0;
+                                sound.play(
+                                    "brickbump",
+                                    this.brickStreak + octave * 12,
+                                );
+                                ++this.brickStreak;
+                                this.maxBrickStreak = Math.max(
+                                    this.brickStreak,
+                                    this.maxBrickStreak,
+                                );
                             }
-                            entity.toBeDeleted = true;
-                            const div = entity.remainingDivisions !== undefined;
-                            const octave = div ? 1 - Math.floor(Math.log2(entity.size.x / 25)) : 0;
-                            sound.play("brickbump", this.brickStreak + octave * 12);
-                            ++this.brickStreak;
-                            this.maxBrickStreak = Math.max(this.brickStreak, this.maxBrickStreak);
-                        }
-                        break;
-                }
+                            break;
+                    }
 
                     if (collisionKind == "bottom") {
                         this.stopStatus = "die";
