@@ -36,7 +36,7 @@ const levels = [
             }
             return {};
         },
-        patternSize: new Point(9, 10),
+        patternSize: new Point(9, 8),
         patternSpacing: 19,
         patternOffset: 0,
     },
@@ -173,7 +173,7 @@ export function getObjects(level, viewportRect) {
                     .add(brickGap)
                     .add(new Point(0, patternOffset))
                     .add(brickSpacing.div(new Point(2, 2))),
-                size, 
+                size,
                 kind,
                 variant,
                 ...props,
