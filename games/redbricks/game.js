@@ -116,7 +116,6 @@ class Game {
         this.gameSize = gameSize;
         this.stopCallback = stopCallback;
         this.scoreboard = document.getElementById("scoreboard");
-        this.startTime = new Date();
 
         console.log(`Loading level ${level}...`);
 
@@ -458,6 +457,7 @@ class Game {
 
     tryLaunch() {
         if (this.ballStuck) {
+            this.startTime = new Date();
             sound.play("launch", -6);
             this.ballStuck = false;
             const jitter = this.paddle.x < this.gameSize.x / 2 ? 10 : -10;
