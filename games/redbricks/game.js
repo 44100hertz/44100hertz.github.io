@@ -200,7 +200,7 @@ class Game {
                 // sound logic
                 switch(collisionKind) {
                     case "viewport":
-                        sound.play("wallbump", 2);
+                        sound.play("wallbump", 0);
                         break;
                     case "portalX":
                     case "portalY":
@@ -208,18 +208,19 @@ class Game {
                         break;
                     case "paddle":
                         this.brickStreak = 0;
-                        sound.play("paddlebump", 2);
+                        sound.play("paddlebump", 0);
                         break;
                     case "brick":
-                        sound.play("paddlebump", 4);
-                        if(entity.variant !== "solid") {
+                        if (entity.variant === "solid") {
+                            sound.play("solidbump", 1 - entity.size.x / 25 + Math.random());
+                        } else {
                             if (entity.variant == "killer") {
                                 sound.play("deathblock");
                             }
                             entity.toBeDeleted = true;
                             const div = entity.remainingDivisions !== undefined;
-                            const octave = div ? 1-Math.floor(Math.log2(entity.size.x/25)) : 0;
-                            sound.play("brickbump", this.brickStreak + octave*12);
+                            const octave = div ? 1 - Math.floor(Math.log2(entity.size.x / 25)) : 0;
+                            sound.play("brickbump", this.brickStreak + octave * 12);
                             ++this.brickStreak;
                             this.maxBrickStreak = Math.max(this.brickStreak, this.maxBrickStreak);
                         }
@@ -281,7 +282,7 @@ class Game {
 
         if (this.stopStatus) {
             if (this.stopStatus == "die") {
-                sound.play("miss", -3);
+                sound.play("miss", 0);
             }
             this.playfield.reset();
             this.stopCallback(this.stopStatus, this);
