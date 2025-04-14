@@ -9,64 +9,6 @@ import {
     getEndMessage,
 } from "./commentary.js";
 
-function kelvinToRGB(temp) {
-    let out = [];
-    temp = temp / 100;
-    var red, blue, green;
-    if (temp <= 66) {
-        red = 255;
-    } else {
-        red = temp - 60;
-        red = 329.698727466 * Math.pow(red, -0.1332047592);
-        if (red < 0) {
-            red = 0;
-        }
-        if (red > 255) {
-            red = 255;
-        }
-    }
-
-    if (temp <= 66) {
-        green = temp;
-        green = 99.4708025861 * Math.log(green) - 161.1195681661;
-        if (green < 0) {
-            green = 0;
-        }
-        if (green > 255) {
-            green = 255;
-        }
-    } else {
-        green = temp - 60;
-        green = 288.1221695283 * Math.pow(green, -0.0755148492);
-        if (green < 0) {
-            green = 0;
-        }
-        if (green > 255) {
-            green = 255;
-        }
-    }
-    if (temp >= 66) {
-        blue = 255;
-    } else {
-        if (temp <= 19) {
-            blue = 0;
-        } else {
-            blue = temp - 10;
-            blue = 138.5177312231 * Math.log(blue) - 305.0447927307;
-            if (blue < 0) {
-                blue = 0;
-            }
-            if (blue > 255) {
-                blue = 255;
-            }
-        }
-    }
-    out[0] = Math.floor(red);
-    out[1] = Math.floor(green);
-    out[2] = Math.floor(blue);
-    return out;
-}
-
 addEventListener("load", load);
 
 function load() {
@@ -142,7 +84,7 @@ class Game {
         this.brickStreak = 0;
         this.maxBrickStreak = 0;
 
-        this.ballTemp = 1000;
+        this.ballTemp = 0;
         this.bounceTemp = 1500;
 
         // Paddle
@@ -186,17 +128,18 @@ class Game {
         const dt =
             this.ballSpeed *
             Math.min(1 / 60, (newtime - this.lastTime) / 1000 || 1 / 240);
-        const actualdt = newtime - this.lastTime;
+        const actualdt = dt / this.ballSpeed;
         this.lastTime = newtime;
         const levelTime = new Date().valueOf() - this.startTime;
 
-        let decaypersec = 1000;
-        if (this.ballTemp - (actualdt / 1000) * decaypersec >= 0) {
-            this.ballTemp = this.ballTemp - (actualdt / 1000) * decaypersec;
-        }
+        let decaypersec = 3000;
+        this.ballTemp = Math.max(0, Math.min(10000, this.ballTemp - actualdt * decaypersec));
 
-        let balltempcolor = kelvinToRGB(this.ballTemp);
-        this.ball.element.style.backgroundColor = `rgb(${balltempcolor[0]}, ${balltempcolor[1]}, ${balltempcolor[2]})`;
+        this.ball.element.style.backgroundColor = `hsl(
+            ${this.ballTemp / 8000 * 180}
+            ${Math.floor(Math.min(100, this.ballTemp / 2000 * 100))}%
+            ${Math.max(50, 100 - (this.ballTemp / 100 - 50)**2 / 20)}%
+        )`;
 
         if (this.ballStuck) {
             this.ball.position = this.paddle.position.add(new Point(0, -10));
