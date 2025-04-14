@@ -63,20 +63,21 @@ class Game {
 
         // Difficulty values
         this.level = level;
-        this.ballSpeed = 1.5;
+        this.globalSpeed = 1.0;
+        this.levelTime = 0;
         this.paddleOffset = 4;
         this.paddleSize = new Point(33, 8);
 
         // Other settings, probably don't touch
-        this.gravity = 100;
+        this.gravity = 150;
         this.maxBallSpeed = 300;
-        this.launchSpeed = 209;
+        this.launchSpeed = 255;
         this.paddleFriction = 0.5; // Movement affecting bounce
         this.paddleSurface = 10; // Rate of paddle side shifting ball angle
 
         this.entities = [];
 
-        this.killBlockSpeed = 150;
+        this.killBlockSpeed = 225;
         this.blackHolePower = 5;
         this.whiteHolePower = -3;
 
@@ -126,14 +127,13 @@ class Game {
 
     update(newtime) {
         const dt =
-            this.ballSpeed *
+            this.globalSpeed *
             Math.min(1 / 60, (newtime - this.lastTime) / 1000 || 1 / 240);
-        const actualdt = dt / this.ballSpeed;
         this.lastTime = newtime;
-        const levelTime = new Date().valueOf() - this.startTime;
+        this.levelTime += dt;
 
         let decaypersec = 3000;
-        this.ballTemp = Math.max(-1500, Math.min(10000, this.ballTemp - actualdt * decaypersec));
+        this.ballTemp = Math.max(-1500, Math.min(10000, this.ballTemp - dt * decaypersec));
 
         const ballColor = `hsl(
             ${this.ballTemp / 8000 * 180}
@@ -154,14 +154,17 @@ class Game {
         } else {
             // Entity updates
             this.entities.forEach((entity) => {
-                if (entity.velocity) {
-                    entity.y += entity.velocity.y * actualdt;
-                    entity.x += entity.velocity.x * actualdt;
+                const dtPoint = new Point(dt);
+                if (entity.velocity && entity !== this.ball) {
+                    entity.position = entity.position.add(
+                        entity.velocity.mul(dtPoint),
+                    )
                 }
                 switch (entity.kind) {
                     case "brick":
                         if (entity.enableScrolling) {
                             if (entity.y > 260) entity.y = -20;
+                            entity.velocity = new Point(0, Math.min(80, this.levelTime * 4));
                         }
                         break;
                     case "blackHole":
@@ -184,9 +187,6 @@ class Game {
                         if (entity.rect.overlaps(this.paddle.rect)) {
                             this.stopStatus = "die";
                         }
-                        entity.position = entity.position.sub(
-                            entity.velocity.mul(new Point(dt)),
-                        );
                         break;
                 }
             });
@@ -201,6 +201,7 @@ class Game {
             };
 
             this.ball.velocity.y += this.gravity * dt;
+
             const testY = new Point(this.ball.x, nextBallPos().y);
             let collisionY = this.getBallCollision(testY);
             if (collisionY.kind == "portalX") {
@@ -287,8 +288,8 @@ class Game {
                             const killBlock = this.playfield.addEntity({
                                 position: entity.position,
                                 size: new Point(12, 12),
-                                velocity: entity.position
-                                    .sub(this.paddle.position)
+                                velocity: this.paddle.position
+                                    .sub(entity.position)
                                     .normalize()
                                     .mul(new Point(this.killBlockSpeed)),
                                 kind: "killBlock",
