@@ -133,13 +133,20 @@ class Game {
         const levelTime = new Date().valueOf() - this.startTime;
 
         let decaypersec = 3000;
-        this.ballTemp = Math.max(0, Math.min(10000, this.ballTemp - actualdt * decaypersec));
+        this.ballTemp = Math.max(-1500, Math.min(10000, this.ballTemp - actualdt * decaypersec));
 
-        this.ball.element.style.backgroundColor = `hsl(
+        const ballColor = `hsl(
             ${this.ballTemp / 8000 * 180}
             ${Math.floor(Math.min(100, this.ballTemp / 2000 * 100))}%
-            ${Math.max(50, 100 - (this.ballTemp / 100 - 50)**2 / 20)}%
+            ${Math.max(60, 100 - (this.ballTemp / 100 - 50)**2 / 20)}%
         )`;
+        this.ball.element.style.backgroundColor = ballColor;
+        const glow1 = Math.floor(Math.max(0, this.ballTemp / 1500));
+        const glow2 = Math.floor(Math.max(0, this.ballTemp / 750));
+        this.ball.element.style.boxShadow = `
+            0 0 ${glow1}px ${glow1}px #fff,
+            0 0 ${glow2}px ${glow2}px ${ballColor}
+        `;
 
 
         if (this.ballStuck) {
