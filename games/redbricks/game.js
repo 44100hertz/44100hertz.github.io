@@ -130,7 +130,6 @@ class Game {
             this.globalSpeed *
             Math.min(1 / 60, (newtime - this.lastTime) / 1000 || 1 / 240);
         this.lastTime = newtime;
-        this.levelTime += dt;
 
         let decaypersec = 3000;
         this.ballTemp = Math.max(-1500, Math.min(10000, this.ballTemp - dt * decaypersec));
@@ -152,6 +151,7 @@ class Game {
         if (this.ballStuck) {
             this.ball.position = this.paddle.position.add(new Point(0, -10));
         } else {
+            this.levelTime += dt;
             // Entity updates
             this.entities.forEach((entity) => {
                 const dtPoint = new Point(dt);
