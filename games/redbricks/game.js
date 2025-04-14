@@ -141,14 +141,15 @@ class Game {
             ${Math.max(50, 100 - (this.ballTemp / 100 - 50)**2 / 20)}%
         )`;
 
+
         if (this.ballStuck) {
             this.ball.position = this.paddle.position.add(new Point(0, -10));
         } else {
             // Entity updates
             this.entities.forEach((entity) => {
                 if (entity.velocity) {
-                    entity.y += entity.velocity.y * actualdt/1000;
-                    entity.x += entity.velocity.x * actualdt/1000;
+                    entity.y += entity.velocity.y * actualdt;
+                    entity.x += entity.velocity.x * actualdt;
                 }
                 switch (entity.kind) {
                     case "brick":
