@@ -98,8 +98,8 @@ const levels = [
             } else if (y == 0) {
                 return {
                     kind: "brick",
-                    variant: "solid"
-                }
+                    variant: "solid",
+                };
             }
             return {};
         },
@@ -114,7 +114,7 @@ const levels = [
                     kind: "blackHole",
                     variant: "reverse",
                     size: new Point(20, 20),
-                }
+                };
             }
             if (y !== 5) {
                 return {
@@ -132,7 +132,13 @@ const levels = [
     // Level 9: scrolling
     {
         getObjectKind: (x, y) =>
-            ((y % 2) == 0 && (x !== 3 || y % 3 == 0)) ? ({ kind: "brick", enableScrolling: true, }) : {},
+            y % 2 == 0 && (x !== 3 || y % 3 == 0)
+                ? {
+                      kind: "brick",
+                      enableScrolling: true,
+                      velocity: new Point(0, 25),
+                  }
+                : {},
         patternSize: new Point(7, 12),
         patternSpacing: 20,
         patternOffset: -72,
@@ -154,7 +160,7 @@ export function getObjects(level, viewportRect) {
 
     const brickSpacing = new Point(
         (viewportRect.size.x - brickGap.x * 2) / patternSize.x,
-        patternSpacing + brickGap.y
+        patternSpacing + brickGap.y,
     );
     const brickSize = new Point(brickSpacing.x - brickGap.x, patternSpacing);
 
@@ -166,7 +172,7 @@ export function getObjects(level, viewportRect) {
             if (!kind) {
                 continue;
             }
-            let size = 'size' in props ? props.size : brickSize;
+            let size = "size" in props ? props.size : brickSize;
             const object = {
                 position: brickSpacing
                     .mul(new Point(ix, iy))
@@ -184,30 +190,30 @@ export function getObjects(level, viewportRect) {
 
     if (enablePortals) {
         const dim = enablePortals;
-        const odim = dim == 'y' ? 'x' : 'y';
+        const odim = dim == "y" ? "x" : "y";
         const portalLength = viewportRect.size[odim] - 4;
         const portalWidth = 4;
         let portalSize = new Point(portalWidth, portalLength);
-        if (dim == 'y') portalSize = portalSize.swap();
+        if (dim == "y") portalSize = portalSize.swap();
         let portalPos1 = new Point(portalWidth, viewportRect.size[odim] / 2);
-        if (dim == 'y') portalPos1 = portalPos1.swap();
+        if (dim == "y") portalPos1 = portalPos1.swap();
         let portalPos2 = new Point(
             viewportRect.size[dim] - portalWidth,
-            viewportRect.size[odim] / 2
+            viewportRect.size[odim] / 2,
         );
-        if (dim == 'y') portalPos2 = portalPos2.swap();
+        if (dim == "y") portalPos2 = portalPos2.swap();
 
         objects.push({
             position: portalPos1,
             size: portalSize,
             kind: "portal",
-            variant: dim == 'x' ? "left" : "top",
+            variant: dim == "x" ? "left" : "top",
         });
         objects.push({
             position: portalPos2,
             size: portalSize,
             kind: "portal",
-            variant: dim == 'x' ? "right" : "bottom",
+            variant: dim == "x" ? "right" : "bottom",
         });
     }
 

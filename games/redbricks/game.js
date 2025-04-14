@@ -146,10 +146,13 @@ class Game {
         } else {
             // Entity updates
             this.entities.forEach((entity) => {
+                if (entity.velocity) {
+                    entity.y += entity.velocity.y * actualdt/1000;
+                    entity.x += entity.velocity.x * actualdt/1000;
+                }
                 switch (entity.kind) {
                     case "brick":
                         if (entity.enableScrolling) {
-                            entity.y += Math.min(5, (dt * levelTime) / 400);
                             if (entity.y > 260) entity.y = -20;
                         }
                         break;
