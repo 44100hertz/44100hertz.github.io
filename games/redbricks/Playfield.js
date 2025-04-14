@@ -1,6 +1,8 @@
 import Point from "../lib/Point.js";
 import Rect from "../lib/Rect.js";
 
+const subdivRatio = 4; // increase precision of movement
+
 function queryOrFail(query) {
     const maybeElem = document.querySelector(query);
     if (!maybeElem) {
@@ -23,13 +25,15 @@ export default class Playfield {
 
         this.#e_playfield = queryOrFail("#" + id);
         this.#e_viewport = queryOrFail(`#${id} .viewport`);
-        this.#e_viewport.style.width = `${gameSize.x}px`;
-        this.#e_viewport.style.height = `${gameSize.y}px`;
+        this.#e_viewport.style.width = `${gameSize.x * subdivRatio}px`;
+        this.#e_viewport.style.height = `${gameSize.y * subdivRatio}px`;
         addEventListener("resize", () => this.#rescale());
         this.#rescale();
 
         this.#e_entities = queryOrFail(`#${id} .entities`);
         this.#e_status = queryOrFail(`#${id} .statusMessage div`);
+        this.#e_status.style.transformOrigin = "center";
+        this.#e_status.style.transform = `scale(${subdivRatio})`;
         this.#eventListeners = {};
     }
 
@@ -123,9 +127,7 @@ export default class Playfield {
     #rescale() {
         const { size } = this.#clientRect();
         const scale = size.div(this.gameSize);
-        this.#e_viewport.style.transform = `scale(${scale.x * 100}%,${
-            scale.y * 100
-        }%)`;
+        this.#e_viewport.style.transform = `scale(${scale.x * 100 / subdivRatio}%,${scale.y * 100 / subdivRatio}%)`;
     }
 }
 
@@ -147,8 +149,10 @@ class Entity {
             ? this.size.div(new Point(2))
             : new Point(0, 0);
         const pos = this.position.sub(offset);
-        this.element.style.left = `${pos.x}px`;
-        this.element.style.top = `${pos.y}px`;
+        this.element.style.transformOrigin = 'top left';
+        this.element.style.transform = `scale(${subdivRatio})`;
+        this.element.style.left = `${pos.x * subdivRatio}px`;
+        this.element.style.top = `${pos.y * subdivRatio}px`;
         this.element.style.width = `${this.size.x}px`;
         this.element.style.height = `${this.size.y}px`;
     }
