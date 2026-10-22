@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#4e9cc4">
+<meta name="description" content="A procedural snowflake studio — a canvas port of snowflake.scad.">
+<title>Snowflake · 44100hz</title>
+<script>
+    /* Some static servers hand out this directory without a trailing slash,
+       which would resolve ./style.css one level too high. Pin the base then. */
+    (function () {
+        var p = location.pathname;
+        if (p.slice(-1) !== '/' && p.indexOf('.', p.lastIndexOf('/')) === -1) {
+            document.write('<base href="' + p + '/">');
+        }
+    })();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%23498fb8'/%3E%3Cg stroke='%23fff' stroke-width='1.4'%3E%3Cpath d='M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="sky"></div>
+<div id="cloudwrap"><canvas id="cloud"></canvas></div>
+<canvas id="flake" role="img" aria-label="Current snowflake"></canvas>
+
+<div class="hud">
+    <section class="panel controls" aria-label="Flake controls">
+        <header class="panel-head">
+            <h1 class="title">Snowflake</h1>
+            <a class="sub" href="../dump/snowflake.scad" title="The original OpenSCAD source">scad → canvas</a>
+        </header>
+
+        <div class="rows" id="rows"></div>
+
+        <div class="universal">
+            <div class="row-head">
+                <span class="label"><span class="all-icon" aria-hidden="true"></span>min line<span class="only-wide"> · all flakes</span></span>
+                <span class="val" id="min-line-val">10</span>
+            </div>
+            <input id="min-line" type="range" aria-label="Minimum line width for every flake">
+        </div>
+
+        <footer class="actions">
+            <button id="randomize" class="btn icon" type="button" title="Roll this flake again (R)" aria-label="Roll this flake again">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 6.5h3.6L17 17.5h4"/>
+                    <path d="M3 17.5h3.6L17 6.5h4"/>
+                    <path d="M18.2 3.9 20.8 6.5l-2.6 2.6"/>
+                    <path d="M18.2 14.9 20.8 17.5l-2.6 2.6"/>
+                </svg>
+            </button>
+            <button id="reset" class="btn icon" type="button" title="Reset this flake to defaults" aria-label="Reset this flake to defaults">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/>
+                    <path d="M20.5 3.5V10H14"/>
+                </svg>
+            </button>
+            <button id="import" class="btn file" type="button" title="Load snowflakes.json (I)" aria-label="Import snowflakes.json">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 15V4"/>
+                    <path d="M8 8l4-4 4 4"/>
+                    <path d="M4.5 16.5v4h15v-4"/>
+                </svg>
+                <span>Import</span>
+            </button>
+            <button id="export" class="btn file" type="button" title="Save snowflakes.json (Ctrl/Cmd+S)" aria-label="Export snowflakes.json">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3v10"/>
+                    <path d="M8 9l4 4 4-4"/>
+                    <path d="M4.5 16.5v4h15v-4"/>
+                </svg>
+                <span>Export</span>
+            </button>
+        </footer>
+        <input id="file" type="file" accept="application/json,.json" hidden>
+    </section>
+
+    <section class="panel flock" aria-label="The flock">
+        <header class="panel-head">
+            <h2 class="title">Flock</h2>
+            <span class="sub" id="slot-label">01 / 16</span>
+        </header>
+        <div class="grid" id="grid"></div>
+        <footer class="flock-foot">
+            <span class="hint" id="hint"></span>
+        </footer>
+    </section>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
