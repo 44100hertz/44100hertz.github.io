@@ -455,7 +455,7 @@
         if (S.slots[i]) {
             S.params = { ...S.slots[i] };
             syncAllParams();
-            kick(0.5);
+            kick(0.3);
         }
         syncSlotLabel();
         persist();
@@ -478,14 +478,14 @@
         S.params = p;
         syncAllParams();
         commitEdit();
-        kick(0.75);
+        kick(0.45);
     }
 
     function reset() {
         S.params = { ...DEFAULTS };
         syncAllParams();
         commitEdit();
-        kick(0.45);
+        kick(0.28);
     }
 
     /* ---------- files ---------- */
@@ -564,13 +564,13 @@
 
     let baseSpin = reduceMotion.matches ? 0.008 : 0.055; // rad/s
     let spin = baseSpin;
-    let spinTarget = baseSpin;
     let angle = Math.random() * Math.PI * 2;
     let turnX = 0;
     let turnY = 0;
     let turnXTarget = 0;
     let turnYTarget = 0;
     let lastInput = -1e6;
+    let lastPointerX = null;
     let lastT = 0;
     let cloudX = 0;
     let cloudY = 0;
@@ -641,17 +641,18 @@
         const dt = lastT ? Math.min(0.05, (now - lastT) / 1000) : 0;
         lastT = now;
 
-        const idle = now - lastInput > 2400;
-        const goal = idle ? baseSpin : spinTarget;
-        spin += (goal - spin) * (1 - Math.exp(-dt * (idle ? 0.7 : 2.6)));
+        // whatever the pointer imparted bleeds off into the idle drift
+        spin += (baseSpin - spin) * (1 - Math.exp(-dt * 1.1));
         angle += spin * dt;
 
-        const ease = 1 - Math.exp(-dt * (idle ? 0.8 : 3.2));
-        turnX += ((idle ? 0 : turnXTarget) - turnX) * ease;
-        turnY += ((idle ? 0 : turnYTarget) - turnY) * ease;
+        // the tilt is a posture, not a heading: it relaxes when you hold still
+        const still = now - lastInput > 900;
+        const ease = 1 - Math.exp(-dt * (still ? 2.4 : 6));
+        turnX += ((still ? 0 : turnXTarget) - turnX) * ease;
+        turnY += ((still ? 0 : turnYTarget) - turnY) * ease;
 
-        cloudX += ((idle ? 0 : turnXTarget) * -16 - cloudX) * ease * 0.6;
-        cloudY += ((idle ? 0 : turnYTarget) * -9 - cloudY) * ease * 0.6;
+        cloudX += ((still ? 0 : turnXTarget) * -16 - cloudX) * ease * 0.6;
+        cloudY += ((still ? 0 : turnYTarget) * -9 - cloudY) * ease * 0.6;
         cloudWrap.style.transform =
             `translate3d(${cloudX.toFixed(2)}px, ${cloudY.toFixed(2)}px, 0)`;
 
@@ -660,11 +661,15 @@
     }
 
     function onPointerMove(e) {
-        const nx = clamp((e.clientX / vw) * 2 - 1, -1, 1);
-        const ny = clamp((e.clientY / vh) * 2 - 1, -1, 1);
-        turnXTarget = nx;
-        turnYTarget = ny;
-        spinTarget = baseSpin + nx * 0.38;
+        if (lastPointerX !== null) {
+            // sideways travel brushes the flake; sideways stillness does not
+            const dx = e.clientX - lastPointerX;
+            spin = clamp(spin + dx * 0.0006, -0.75, 0.75);
+        }
+        lastPointerX = e.clientX;
+
+        turnXTarget = clamp((e.clientX / vw) * 2 - 1, -1, 1);
+        turnYTarget = clamp((e.clientY / vh) * 2 - 1, -1, 1);
         lastInput = performance.now();
     }
 
@@ -796,6 +801,7 @@
             ro.observe(flockEl);
         }
         window.addEventListener('pointermove', onPointerMove, { passive: true });
+        document.addEventListener('mouseleave', () => { lastPointerX = null; });
         window.addEventListener('keydown', onKey);
         window.addEventListener('pagehide', writeStore);
         document.addEventListener('visibilitychange', () => {
@@ -805,7 +811,6 @@
         if (reduceMotion.addEventListener) {
             reduceMotion.addEventListener('change', () => {
                 baseSpin = reduceMotion.matches ? 0.008 : 0.055;
-                spinTarget = baseSpin;
             });
         }
 
