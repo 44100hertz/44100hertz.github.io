@@ -1,0 +1,45 @@
+body {
+  background: #000;
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: sans;
+  font-size: 24px;
+  color: white;
+}
+
+h1 {
+  font-size: 1.5em;
+  text-align: center;
+  background: white;
+  color: black;
+  padding: 0.2em 0;
+}
+
+h2 {
+  font-size: 1.25em;
+  text-align: center;
+}
+
+button {
+  background-color: #9999ff;
+  font-size: 1em;
+  border: none;
+  padding: 8pt;
+}
+
+.quizbutton {
+  width: 100%;
+  background-color: #ee2000;
+  color: white;
+  font-weight: bold;
+  border: none;
+  margin: 2px;
+}
+
+.info {
+  color: gray;
+}
+
+#question {
+  margin: 8pt;
+}
